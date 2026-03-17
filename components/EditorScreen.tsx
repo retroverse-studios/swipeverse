@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Reality, CardData, StatName, Deck } from '../types';
 import { REALITIES, INITIAL_STATS } from '../constants';
-import { iconRegistry, BackIcon, SaveIcon, DeleteIcon, UploadIcon, ExportIcon, AddIcon, GenerateIcon, CloudUploadIcon, FormIcon, GraphIcon } from './icons';
+import { BackIcon, SaveIcon, DeleteIcon, UploadIcon, ExportIcon, AddIcon, GenerateIcon, CloudUploadIcon, FormIcon, GraphIcon } from './icons';
 import { generateBranchingDeckFromPrompt } from '../services/geminiService';
 import { VisualEditor } from './VisualEditor';
 
@@ -23,7 +23,7 @@ const createNewReality = (): Reality => ({
     name: "New Reality",
     description: "A brand new world of possibilities.",
     font: 'font-exo',
-    systemInstruction: "You are a creative storyteller for the interactive fiction game 'Reality Reigns'.",
+    systemInstruction: "You are a creative storyteller for the interactive fiction game 'SwipeVerse'.",
     statNames: { Power: 'Stat A', Wealth: 'Stat B', People: 'Stat C', Knowledge: 'Stat D' },
     statIconNames: { Power: 'PowerIconCyber', Wealth: 'WealthIconCyber', People: 'PeopleIconCyber', Knowledge: 'KnowledgeIconCyber' },
     imageSet: [],
@@ -244,7 +244,7 @@ const EditorScreen: React.FC<EditorScreenProps> = ({
                 } else {
                     addToast('Import failed: Invalid file format.', 'error');
                 }
-            } catch (error) {
+            } catch {
                 addToast("Could not import realities. The file is not valid JSON.", 'error');
             }
         };
@@ -313,13 +313,13 @@ const EditorScreen: React.FC<EditorScreenProps> = ({
 
 
     const CardEditor = ({ card, index }: { card: Omit<CardData, 'id'>, index: number }) => {
-        const onCardChange = (field: string, value: any) => handleCardChange(index, {...card, [field]: value});
-        const onChoiceChange = (choiceKey: 'leftChoice' | 'rightChoice', field: string, value: any) => {
+        const onCardChange = (field: string, value: unknown) => handleCardChange(index, {...card, [field]: value});
+        const onChoiceChange = (choiceKey: 'leftChoice' | 'rightChoice', field: string, value: unknown) => {
             const updatedChoice = { ...card[choiceKey], [field]: value };
             if (field === 'nextCardIndex' && value === '') {
                 delete updatedChoice.nextCardIndex; // Use default sequential if empty
             } else if (field === 'nextCardIndex') {
-                updatedChoice.nextCardIndex = parseInt(value, 10);
+                updatedChoice.nextCardIndex = parseInt(String(value), 10);
             }
             onCardChange(choiceKey, updatedChoice);
         };

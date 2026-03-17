@@ -62,7 +62,7 @@ const StoreScreen: React.FC<StoreScreenProps> = ({ onExit, onAddReality, onImpor
                 ]);
                 setStoreRealities(realitiesData);
                 setStoreDecks(decksData);
-            } catch (err) {
+            } catch {
                 setError("Could not connect to the community store. Please try again later.");
             } finally {
                 setIsLoading(false);

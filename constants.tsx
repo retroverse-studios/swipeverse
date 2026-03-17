@@ -28,7 +28,7 @@ export const REALITIES: Reality[] = [
     name: 'Cyberpunk Dystopia',
     description: 'Navigate the neon-drenched streets of a corporate-controlled future. Balance chrome and consciousness to survive.',
     font: 'font-orbitron',
-    systemInstruction: `You are a creative storyteller for the interactive fiction game "Reality Reigns". You create challenging scenarios for a player in a Cyberpunk Dystopia. The player's goal is to balance four stats: Corporate Power, Street Cred, Citizen Trust, and Banned Tech. If any stat reaches 0 or 100, the player loses.`,
+    systemInstruction: `You are a creative storyteller for the interactive fiction game "SwipeVerse". You create challenging scenarios for a player in a Cyberpunk Dystopia. The player's goal is to balance four stats: Corporate Power, Street Cred, Citizen Trust, and Banned Tech. If any stat reaches 0 or 100, the player loses.`,
     statNames: {
       Power: 'Corp. Power',
       Wealth: 'Street Cred',
@@ -67,7 +67,7 @@ export const REALITIES: Reality[] = [
     name: 'Mystical Kingdom',
     description: 'Rule a land of magic and myth. Your decisions will shape the fate of your kingdom and the balance of ancient forces.',
     font: 'font-medieval',
-    systemInstruction: `You are a creative storyteller for the interactive fiction game "Reality Reigns". You create challenging scenarios for a player ruling a Mystical Kingdom. The player's goal is to balance four stats: Royal Authority, Kingdom's Treasury, People's Favor, and Arcane Lore. If any stat reaches 0 or 100, the player loses.`,
+    systemInstruction: `You are a creative storyteller for the interactive fiction game "SwipeVerse". You create challenging scenarios for a player ruling a Mystical Kingdom. The player's goal is to balance four stats: Royal Authority, Kingdom's Treasury, People's Favor, and Arcane Lore. If any stat reaches 0 or 100, the player loses.`,
     statNames: {
       Power: 'Authority',
       Wealth: 'Treasury',
@@ -106,7 +106,7 @@ export const REALITIES: Reality[] = [
     name: 'Galactic Imperium',
     description: 'Command a star-spanning empire at the edge of the known universe. Forge alliances, explore anomalies, and quell rebellions.',
     font: 'font-exo',
-    systemInstruction: `You are a creative storyteller for the interactive fiction game "Reality Reigns". You create challenging scenarios for a player leading a Galactic Imperium. The player's goal is to balance four stats: Fleet Strength, Galactic Credits, Alien Relations, and Precursor Data. If any stat reaches 0 or 100, the player loses.`,
+    systemInstruction: `You are a creative storyteller for the interactive fiction game "SwipeVerse". You create challenging scenarios for a player leading a Galactic Imperium. The player's goal is to balance four stats: Fleet Strength, Galactic Credits, Alien Relations, and Precursor Data. If any stat reaches 0 or 100, the player loses.`,
     statNames: {
       Power: 'Fleet',
       Wealth: 'Credits',

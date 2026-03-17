@@ -1,7 +1,7 @@
 {
-  "name": "Reality Reigns",
-  "short_name": "Reigns",
-  "description": "A survival-strategy game where you swipe to make decisions across different realities.",
+  "name": "SwipeVerse",
+  "short_name": "SwipeVerse",
+  "description": "Shape the fate of entire realities with every swipe. AI-powered card-based survival strategy.",
   "start_url": ".",
   "display": "standalone",
   "background_color": "#111827",

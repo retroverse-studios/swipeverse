@@ -1,14 +1,16 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
-import { Reality, Stats, CardData, StatName, Choice, Deck } from '../types';
+import { Reality, Stats, CardData, StatName, Deck } from '../types';
 import { INITIAL_STATS, MIN_STAT_VALUE, MAX_STAT_VALUE, DEFAULT_SOUNDS } from '../constants';
 import { generateInitialDeck } from '../services/geminiService';
+import { Difficulty, applyDifficultyModifier } from '../services/gameHistory';
 import StatBar from './StatBar';
 import CardStack from './CardStack';
 import { iconRegistry, ExitIcon } from './icons';
 
 interface GameScreenProps {
   reality: Reality;
-  onGameOver: (reason: string, finalDeck: CardData[]) => void;
+  difficulty: Difficulty;
+  onGameOver: (reason: string, finalDeck: CardData[], won: boolean, turns: number, finalStats: Stats) => void;
   onExit: () => void;
   requestConfirmation: (options: { message: string, onConfirm: () => void }) => void;
   isMuted: boolean;
@@ -51,12 +53,14 @@ const ErrorModal: React.FC<{
     </div>
 );
 
-const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+const AudioContextClass = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+const audioContext = new AudioContextClass();
 
-const GameScreen: React.FC<GameScreenProps> = ({ reality, onGameOver, onExit, requestConfirmation, isMuted }) => {
+const GameScreen: React.FC<GameScreenProps> = ({ reality, difficulty, onGameOver, onExit, requestConfirmation, isMuted }) => {
   const [stats, setStats] = useState<Stats>(INITIAL_STATS);
   const [deck, setDeck] = useState<CardData[]>([]);
   const [currentCardIndex, setCurrentCardIndex] = useState<number>(0);
+  const [turnCount, setTurnCount] = useState<number>(0);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [loadingText, setLoadingText] = useState('Conjuring reality...');
   const [deckLoadError, setDeckLoadError] = useState<{ message: string; canRetryWithAI: boolean } | null>(null);
@@ -78,13 +82,13 @@ const GameScreen: React.FC<GameScreenProps> = ({ reality, onGameOver, onExit, re
     }
   }, [isMuted, audioBuffers]);
   
-  const handleGameOverWithSound = useCallback((reason: string, deck: CardData[], isWin: boolean) => {
-    const soundUrl = isWin 
-        ? reality.soundConfig?.gameWinUrl || DEFAULT_SOUNDS.win 
+  const handleGameOverWithSound = useCallback((reason: string, deck: CardData[], isWin: boolean, finalStats: Stats) => {
+    const soundUrl = isWin
+        ? reality.soundConfig?.gameWinUrl || DEFAULT_SOUNDS.win
         : reality.soundConfig?.gameLoseUrl || DEFAULT_SOUNDS.lose;
     playSound(soundUrl);
-    onGameOver(reason, deck);
-  }, [reality.soundConfig, playSound, onGameOver]);
+    onGameOver(reason, deck, isWin, turnCount, finalStats);
+  }, [reality.soundConfig, playSound, onGameOver, turnCount]);
 
   const processAndSetDeck = useCallback((deckObject: Deck, onLoaded: () => void) => {
       const rawDeck = deckObject.cards;
@@ -111,23 +115,6 @@ const GameScreen: React.FC<GameScreenProps> = ({ reality, onGameOver, onExit, re
       setDeckLoadError(null);
       onLoaded(); // This will trigger the final part of loading
   }, [reality.deckUrl, reality.imageSet, reality.deck]);
-
-  const generateAndSetAiDeck = useCallback(async (onLoaded: () => void) => {
-      setIsLoading(true);
-      setDeckLoadError(null);
-      setLoadingText('Contacting multiverse consciousness...');
-      try {
-          const deckObject = await generateInitialDeck(reality, INITIAL_STATS);
-          processAndSetDeck(deckObject, onLoaded);
-      } catch (apiError) {
-          console.error("Failed to generate deck with AI:", apiError);
-          setDeckLoadError({ 
-              message: "The connection to the AI failed. We cannot generate a new reality at this time.", 
-              canRetryWithAI: false 
-          });
-          setIsLoading(false);
-      }
-  }, [reality, processAndSetDeck]);
 
   useEffect(() => {
     const loadAssets = async () => {
@@ -199,6 +186,7 @@ const GameScreen: React.FC<GameScreenProps> = ({ reality, onGameOver, onExit, re
         }
     };
     loadAssets();
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- Initial load only, depends on reality prop
   }, [reality]);
 
   useEffect(() => {
@@ -228,23 +216,26 @@ const GameScreen: React.FC<GameScreenProps> = ({ reality, onGameOver, onExit, re
         : reality.soundConfig?.swipeRightUrl;
     playSound(choice.soundUrl || swipeSoundUrl || DEFAULT_SOUNDS.swipe);
     
-    // 1. Calculate new stats
+    // 1. Calculate new stats with difficulty modifier
     const newStats = { ...stats };
     for (const key in choice.effects) {
       const statName = key as StatName;
-      newStats[statName] = Math.max(MIN_STAT_VALUE, Math.min(MAX_STAT_VALUE, newStats[statName] + (choice.effects[statName] || 0)));
+      const rawEffect = choice.effects[statName] || 0;
+      const modifiedEffect = applyDifficultyModifier(rawEffect, difficulty);
+      newStats[statName] = Math.max(MIN_STAT_VALUE, Math.min(MAX_STAT_VALUE, newStats[statName] + modifiedEffect));
     }
     setStats(newStats);
+    setTurnCount(prev => prev + 1);
 
     // 2. Check for game over from stats *after* update
     for (const key of statKeys) {
         const statName = key as StatName;
         if (newStats[statName] <= MIN_STAT_VALUE) {
-          handleGameOverWithSound(`Your ${reality.statNames[statName].toLowerCase()} has vanished.`, deck, false);
+          handleGameOverWithSound(`Your ${reality.statNames[statName].toLowerCase()} has vanished.`, deck, false, newStats);
           return;
         }
         if (newStats[statName] >= MAX_STAT_VALUE) {
-          handleGameOverWithSound(`You've been overwhelmed by your ${reality.statNames[statName].toLowerCase()}.`, deck, false);
+          handleGameOverWithSound(`You've been overwhelmed by your ${reality.statNames[statName].toLowerCase()}.`, deck, false, newStats);
           return;
         }
     }
@@ -259,18 +250,18 @@ const GameScreen: React.FC<GameScreenProps> = ({ reality, onGameOver, onExit, re
 
     // 4. Check for win/loss based on next index
     if (nextIndex >= deck.length) {
-        handleGameOverWithSound(`You have successfully navigated the challenges of ${reality.name} and reached the final node. Your story ends here.`, deck, true);
+        handleGameOverWithSound(`You have successfully navigated the challenges of ${reality.name} and reached the final node. Your story ends here.`, deck, true, newStats);
         return;
     }
 
     if (nextIndex < 0) {
-        handleGameOverWithSound(`You chose a path that leads to nowhere and were lost to the void.`, deck, false);
+        handleGameOverWithSound(`You chose a path that leads to nowhere and were lost to the void.`, deck, false, newStats);
         return;
     }
 
     // 5. Update the current card index
     setCurrentCardIndex(nextIndex);
-  }, [stats, statKeys, reality, deck, currentCardIndex, playSound, handleGameOverWithSound]);
+  }, [stats, statKeys, reality, difficulty, deck, currentCardIndex, playSound, handleGameOverWithSound]);
   
   const handleExitClick = () => {
     requestConfirmation({

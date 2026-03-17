@@ -8,19 +8,23 @@ import StoreScreen from './components/StoreScreen';
 import ConfirmationModal from './components/ConfirmationModal';
 import { REALITIES } from './constants';
 import { submitReality } from './services/apiService';
+import { Difficulty, recordGame, GameSummary } from './services/gameHistory';
+import AISettingsModal from './components/AISettingsModal';
 import { VolumeOffIcon, VolumeOnIcon, CloseIcon } from './components/icons';
 
-const REALITIES_STORAGE_KEY = 'reality-reigns-realities';
-const MUTED_STORAGE_KEY = 'reality-reigns-muted';
+const REALITIES_STORAGE_KEY = 'swipeverse-realities';
+const MUTED_STORAGE_KEY = 'swipeverse-muted';
 
 const App: React.FC = () => {
   const [gameState, setGameState] = useState<GameState>(GameState.MainMenu);
   const [selectedReality, setSelectedReality] = useState<Reality | null>(null);
   const [editingReality, setEditingReality] = useState<Reality | null>(null);
-  const [gameOverData, setGameOverData] = useState<{reason: string, deck: CardData[]}>({reason: '', deck: []});
-  const [installPrompt, setInstallPrompt] = useState<any>(null);
+  const [gameOverData, setGameOverData] = useState<{reason: string, deck: CardData[], summary: GameSummary | null}>({reason: '', deck: [], summary: null});
+  const [selectedDifficulty, setSelectedDifficulty] = useState<Difficulty>('standard');
+  const [installPrompt, setInstallPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [confirmation, setConfirmation] = useState<{ message: string; onConfirm: () => void; } | null>(null);
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
+  const [showAISettings, setShowAISettings] = useState(false);
 
   const addToast = useCallback((message: string, type: 'success' | 'error' = 'success') => {
       const id = Date.now();
@@ -72,7 +76,7 @@ const App: React.FC = () => {
   });
 
   useEffect(() => {
-    const handleBeforeInstallPrompt = (e: Event) => {
+    const handleBeforeInstallPrompt = (e: BeforeInstallPromptEvent) => {
       e.preventDefault();
       setInstallPrompt(e);
     };
@@ -88,20 +92,31 @@ const App: React.FC = () => {
     }
   }, [realities]);
 
-  const handleStartGame = useCallback((reality: Reality) => {
+  const handleStartGame = useCallback((reality: Reality, difficulty: Difficulty = 'standard') => {
     setSelectedReality(reality);
+    setSelectedDifficulty(difficulty);
     setGameState(GameState.Playing);
   }, []);
 
-  const handleGameOver = useCallback((reason: string, finalDeck: CardData[]) => {
-    setGameOverData({ reason, deck: finalDeck });
+  const handleGameOver = useCallback((reason: string, finalDeck: CardData[], won: boolean, turns: number, finalStats: import('./types').Stats) => {
+    const summary = selectedReality
+        ? recordGame(selectedReality.id, selectedReality.name, turns, finalStats, selectedDifficulty, won, reason)
+        : null;
+
+    if (summary) {
+        for (const achievement of summary.newAchievements) {
+            addToast(`Achievement unlocked: ${achievement.icon} ${achievement.name}`, 'success');
+        }
+    }
+
+    setGameOverData({ reason, deck: finalDeck, summary });
     setGameState(GameState.GameOver);
-  }, []);
+  }, [selectedReality, selectedDifficulty, addToast]);
 
   const handleExitToMenu = useCallback(() => {
     setSelectedReality(null);
     setEditingReality(null);
-    setGameOverData({reason: '', deck: []});
+    setGameOverData({reason: '', deck: [], summary: null});
     setGameState(GameState.MainMenu);
   }, []);
   
@@ -147,7 +162,7 @@ const App: React.FC = () => {
   const handleInstallClick = useCallback(async () => {
     if (!installPrompt) return;
     const result = await installPrompt.prompt();
-    console.log(`Install prompt was: ${result.outcome}`);
+    if (result.outcome === 'dismissed') return;
     setInstallPrompt(null);
   }, [installPrompt]);
   
@@ -195,12 +210,12 @@ const App: React.FC = () => {
     switch (gameState) {
       case GameState.Playing:
         if (selectedReality) {
-          return <GameScreen reality={selectedReality} onGameOver={handleGameOver} onExit={handleExitToMenu} requestConfirmation={requestConfirmation} isMuted={isMuted} />;
+          return <GameScreen reality={selectedReality} difficulty={selectedDifficulty} onGameOver={handleGameOver} onExit={handleExitToMenu} requestConfirmation={requestConfirmation} isMuted={isMuted} />;
         }
-        return <MainMenu onStartGame={handleStartGame} onGoToEditor={handleGoToEditor} onGoToStore={handleGoToStore} realities={realities} installPrompt={installPrompt} onInstallClick={handleInstallClick} />;
-      
+        return <MainMenu onStartGame={handleStartGame} onGoToEditor={handleGoToEditor} onGoToStore={handleGoToStore} onOpenAISettings={() => setShowAISettings(true)} realities={realities} installPrompt={installPrompt} onInstallClick={handleInstallClick} />;
+
       case GameState.GameOver:
-        return <GameOverScreen reason={gameOverData.reason} onRestart={handleExitToMenu} reality={selectedReality!} deck={gameOverData.deck} addToast={addToast} />;
+        return <GameOverScreen reason={gameOverData.reason} onRestart={handleExitToMenu} reality={selectedReality!} deck={gameOverData.deck} summary={gameOverData.summary} addToast={addToast} />;
       
       case GameState.Editor:
         return <EditorScreen 
@@ -221,7 +236,7 @@ const App: React.FC = () => {
 
       case GameState.MainMenu:
       default:
-        return <MainMenu onStartGame={handleStartGame} onGoToEditor={handleGoToEditor} onGoToStore={handleGoToStore} realities={realities} installPrompt={installPrompt} onInstallClick={handleInstallClick} />;
+        return <MainMenu onStartGame={handleStartGame} onGoToEditor={handleGoToEditor} onGoToStore={handleGoToStore} onOpenAISettings={() => setShowAISettings(true)} realities={realities} installPrompt={installPrompt} onInstallClick={handleInstallClick} />;
     }
   };
 
@@ -259,6 +274,12 @@ const App: React.FC = () => {
             message={confirmation.message}
             onConfirm={handleConfirmation}
             onCancel={handleCancelConfirmation}
+          />
+        )}
+        {showAISettings && (
+          <AISettingsModal
+            onClose={() => setShowAISettings(false)}
+            addToast={addToast}
           />
         )}
       </div>

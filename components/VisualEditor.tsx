@@ -1,10 +1,8 @@
 
 
-import React, { useCallback, useMemo, memo, useEffect } from 'react';
+import React, { useCallback, memo, useEffect } from 'react';
 import {
   ReactFlow,
-  applyEdgeChanges,
-  applyNodeChanges,
   Background,
   Controls,
   Handle,
@@ -18,8 +16,6 @@ import {
   NodeProps,
   MarkerType,
 } from 'reactflow';
-import { addEdge } from 'reactflow';
-
 
 import { CardData, Choice } from '../types';
 

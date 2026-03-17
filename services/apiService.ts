@@ -1,3 +1,4 @@
+/* eslint-disable no-console -- Mock API service, console.log used intentionally */
 
 import { Reality, Deck } from "../types";
 import { REALITIES } from "../constants";

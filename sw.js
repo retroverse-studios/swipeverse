@@ -1,4 +1,4 @@
-const CACHE_NAME = 'reality-reigns-v1';
+const CACHE_NAME = 'swipeverse-v1';
 const URLS_TO_CACHE = [
   '/',
   '/index.html',
@@ -7,6 +7,14 @@ const URLS_TO_CACHE = [
   '/types.ts',
   '/constants.tsx',
   '/services/geminiService.ts',
+  '/services/aiProvider.ts',
+  '/services/geminiProvider.ts',
+  '/services/openaiProvider.ts',
+  '/services/claudeProvider.ts',
+  '/services/ollamaProvider.ts',
+  '/components/AISettingsModal.tsx',
+  '/components/GameOverScreen.tsx',
+  '/services/gameHistory.ts',
   '/components/MainMenu.tsx',
   '/components/GameScreen.tsx',
   '/components/GameOverScreen.tsx',
@@ -56,7 +64,10 @@ self.addEventListener('fetch', event => {
             caches.open(CACHE_NAME)
               .then(cache => {
                 // We don't cache calls to the genai api
-                if (!event.request.url.includes('generativelanguage')) {
+                if (!event.request.url.includes('generativelanguage') &&
+                    !event.request.url.includes('api.openai.com') &&
+                    !event.request.url.includes('api.anthropic.com') &&
+                    !event.request.url.includes('localhost:11434')) {
                     cache.put(event.request, responseToCache);
                 }
               });

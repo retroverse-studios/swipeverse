@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Reality, CardData, StatName, Deck, CARD_ARCHETYPES, CardArchetype } from '../types';
-import { REALITIES, INITIAL_STATS, BUNDLED_CARD_SCENES } from '../constants';
+import { REALITIES, INITIAL_STATS, BUNDLED_CARD_SCENES, resolveAssetUrl } from '../constants';
 import { BackIcon, SaveIcon, DeleteIcon, UploadIcon, ExportIcon, AddIcon, GenerateIcon, CloudUploadIcon, FormIcon, GraphIcon } from './icons';
 import { generateBranchingDeckFromPrompt } from '../services/aiService';
 import { VisualEditor } from './VisualEditor';
@@ -365,7 +365,7 @@ const EditorScreen: React.FC<EditorScreenProps> = ({
                                     title={scene}
                                     className={`h-12 w-16 rounded overflow-hidden border-2 ${card.imageUrl === scene ? 'border-cyber-pink' : 'border-transparent hover:border-gray-500'}`}
                                 >
-                                    <img src={scene} alt="" className="w-full h-full object-cover" loading="lazy" />
+                                    <img src={resolveAssetUrl(scene)} alt="" className="w-full h-full object-cover" loading="lazy" />
                                 </button>
                             ))}
                         </div>

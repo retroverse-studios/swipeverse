@@ -23,6 +23,16 @@ export function pickCardArt(archetype: CardArchetype): string {
   return options[Math.floor(Math.random() * options.length)];
 }
 
+/**
+ * Resolves a canonical bundled-art path ('/cards/...') against Vite's base URL
+ * at render time. Deck data always stores the canonical path so exported decks
+ * work regardless of where the app is hosted (github.io subpath, custom
+ * domain, local dev).
+ */
+export function resolveAssetUrl(url: string): string {
+  return url.startsWith('/cards/') ? import.meta.env.BASE_URL + url.slice(1) : url;
+}
+
 // All bundled card scenes — the editor's art picker offers these, and they
 // double as the default per-reality image pool for cards with neither their
 // own imageUrl nor an archetype. Local files — works offline.

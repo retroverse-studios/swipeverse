@@ -9,6 +9,9 @@ export default defineConfig(({ mode }) => {
     // keys via the in-app AI Settings (stored in localStorage).
     const isDev = mode === 'development';
     return {
+      // '/' locally and on the custom domain; the Pages workflow sets
+      // PAGES_BASE=/swipeverse/ while serving from github.io/swipeverse/.
+      base: process.env.PAGES_BASE || '/',
       define: {
         'process.env.API_KEY': JSON.stringify(isDev ? env.GEMINI_API_KEY || '' : ''),
         'process.env.GEMINI_API_KEY': JSON.stringify(isDev ? env.GEMINI_API_KEY || '' : ''),

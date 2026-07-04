@@ -12,6 +12,12 @@ dist
 dist-ssr
 *.local
 
+# macOS metadata (AppleDouble files from exFAT/network volumes)
+._*
+.Spotlight-V100
+.Trashes
+.fseventsd
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

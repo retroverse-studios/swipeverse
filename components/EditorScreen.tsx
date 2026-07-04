@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Reality, CardData, StatName, Deck } from '../types';
-import { REALITIES, INITIAL_STATS } from '../constants';
+import { Reality, CardData, StatName, Deck, CARD_ARCHETYPES, CardArchetype } from '../types';
+import { REALITIES, INITIAL_STATS, BUNDLED_CARD_SCENES } from '../constants';
 import { BackIcon, SaveIcon, DeleteIcon, UploadIcon, ExportIcon, AddIcon, GenerateIcon, CloudUploadIcon, FormIcon, GraphIcon } from './icons';
 import { generateBranchingDeckFromPrompt } from '../services/aiService';
 import { VisualEditor } from './VisualEditor';
@@ -339,7 +339,43 @@ const EditorScreen: React.FC<EditorScreenProps> = ({
                 <div className="flex justify-between items-start gap-2">
                     <div className='flex-grow space-y-1'>
                         <textarea value={card.prompt} onChange={e => onCardChange('prompt', e.target.value)} className="w-full bg-gray-900 p-2 rounded text-sm" rows={2} placeholder="Scenario Prompt"></textarea>
-                        <input type="text" value={card.imageUrl || ''} onChange={e => onCardChange('imageUrl', e.target.value)} className="w-full bg-gray-900 p-2 rounded text-sm" placeholder="Optional Image URL" />
+                        <div className="flex items-center gap-2">
+                            <label className="text-xs text-gray-400" title="Card archetype — selects the default art and helps the AI understand the card">Archetype</label>
+                            <select
+                                value={card.archetype || ''}
+                                onChange={e => onCardChange('archetype', (e.target.value || undefined) as CardArchetype | undefined)}
+                                className="bg-gray-900 p-1.5 rounded text-sm flex-grow"
+                            >
+                                <option value="">(none — random art)</option>
+                                {CARD_ARCHETYPES.map(a => <option key={a} value={a}>{a}</option>)}
+                            </select>
+                        </div>
+                        <div className="flex gap-1.5 flex-wrap items-center pt-1">
+                            <button
+                                onClick={() => onCardChange('imageUrl', undefined)}
+                                title="Auto: use the archetype's default art"
+                                className={`h-12 w-16 rounded text-[10px] font-bold border-2 flex items-center justify-center ${!card.imageUrl ? 'border-cyber-pink text-cyber-pink bg-cyber-pink/10' : 'border-gray-700 text-gray-400 hover:border-gray-500'}`}
+                            >
+                                AUTO
+                            </button>
+                            {BUNDLED_CARD_SCENES.map(scene => (
+                                <button
+                                    key={scene}
+                                    onClick={() => onCardChange('imageUrl', scene)}
+                                    title={scene}
+                                    className={`h-12 w-16 rounded overflow-hidden border-2 ${card.imageUrl === scene ? 'border-cyber-pink' : 'border-transparent hover:border-gray-500'}`}
+                                >
+                                    <img src={scene} alt="" className="w-full h-full object-cover" loading="lazy" />
+                                </button>
+                            ))}
+                        </div>
+                        <input
+                            type="text"
+                            value={card.imageUrl && !BUNDLED_CARD_SCENES.includes(card.imageUrl) ? card.imageUrl : ''}
+                            onChange={e => onCardChange('imageUrl', e.target.value || undefined)}
+                            className="w-full bg-gray-900 p-2 rounded text-sm"
+                            placeholder="Custom image URL (optional — store decks must use bundled art)"
+                        />
                     </div>
                     <button onClick={() => handleDeleteCard(index)} className="p-2 text-red-500 hover:text-red-400 text-xs self-start" title="Delete Card"><DeleteIcon /></button>
                 </div>

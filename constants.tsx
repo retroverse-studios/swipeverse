@@ -23,9 +23,10 @@ export function pickCardArt(archetype: CardArchetype): string {
   return options[Math.floor(Math.random() * options.length)];
 }
 
-// Default per-reality card image pool, used when a card has neither its own
-// imageUrl nor an archetype. Local files — works offline.
-const DEFAULT_IMAGE_SET = [
+// All bundled card scenes — the editor's art picker offers these, and they
+// double as the default per-reality image pool for cards with neither their
+// own imageUrl nor an archetype. Local files — works offline.
+export const BUNDLED_CARD_SCENES = [
   '/cards/petitioner_1.webp',
   '/cards/petitioner_2.webp',
   '/cards/petitioner_3.webp',
@@ -34,6 +35,7 @@ const DEFAULT_IMAGE_SET = [
   '/cards/judgement.webp',
   '/cards/chain.webp',
 ];
+const DEFAULT_IMAGE_SET = BUNDLED_CARD_SCENES;
 
 export const INITIAL_STATS: Stats = {
   Power: 50,

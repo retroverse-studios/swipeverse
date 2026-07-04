@@ -15,7 +15,7 @@ A card-based survival strategy game where you swipe to shape the fate of entire 
 - **Multiple Realities**: Play through different themed scenarios, each with unique narratives
 - **Multi-Provider AI**: Generate decks with Google Gemini, OpenAI, Anthropic Claude, or Ollama (local)
 - **Reality Editor**: Create and customize your own realities with a visual graph editor
-- **Store System**: Browse and play community-created realities
+- **Store System**: Browse and play community-created realities *(currently a demo with built-in sample content — see Roadmap)*
 - **Progressive Web App**: Install and play offline
 - **Sound Effects**: Immersive audio feedback for game actions
 
@@ -87,6 +87,77 @@ Use the built-in Reality Editor to:
 ```bash
 npm run build
 ```
+
+## Roadmap
+
+### TODO: Generate and bundle starter decks
+
+The plumbing is in place (`decks/` folder — see `decks/README.md` for the
+workflow), but no starter decks have been generated yet. Use the editor's AI
+Story Director to create one deck per built-in reality (`cyberpunk`,
+`mystical`, `space`), playtest them, and save the exports as
+`decks/<realityId>.json`. Until then, new players still need an AI provider
+to play.
+
+### TODO: Open the Community Store for real
+
+The store UI is finished but runs against mock data (`services/apiService.ts` fabricates
+entries with fake network delays). To make it live:
+
+1. **Host a catalog** — the cheapest path is a public GitHub repo containing a
+   `realities.json` / `decks.json` that `fetchStoreRealities` / `fetchStoreDecks` fetch
+   via raw.githubusercontent.com. No backend needed.
+2. **Accept submissions** — start with GitHub PRs/issues against that catalog repo
+   (replace `submitReality`'s mock with a link or a `gh`-backed flow); graduate to a
+   small API (e.g. Cloudflare Workers + KV) if volume justifies it.
+3. **Remove the demo label** — delete the Demo badge and notice in
+   `components/StoreScreen.tsx` once real data is wired up.
+
+### Store & content architecture (decided)
+
+Decisions made while designing the store — recorded so future work doesn't relitigate them:
+
+- **Local collection is the source of truth; the store is discovery.** "Add" copies
+  content into the player's browser (realities list / deck library), and everything
+  plays from local storage afterwards — instant and offline. Players never load
+  content live from the store to play it.
+- **Bundled starter decks stay.** They are the offline/zero-setup floor (the PWA's
+  "install and play offline" promise) and cost ~50 KB. Deck size makes browser
+  memory a non-issue (~15 KB per deck, localStorage holds ~5 MB).
+- **Deck precedence:** player-imported deck → AI generation (if a provider is
+  configured) → bundled deck. Bundled decks are tagged `source: "bundled"` and are
+  replaceable defaults; anything the player imported is never overwritten by updates.
+- **Deck library (shipped).** "My Library" tab in the store: store adds accumulate
+  there and never overwrite; "Load into Reality" fills a reality's single active
+  deck slot while the library keeps the copy. Export/import to disk is the backup
+  story — localStorage dies to "Clear site data". `navigator.storage.persist()` is
+  requested at startup to prevent automatic eviction, but only a disk export
+  survives a manual clear.
+- **No accounts for now.** Accounts/portfolios/private uploads/cloud-synced
+  libraries all require a real backend (auth, per-user storage, moderation at
+  scale). The PR-curated catalog gives publishing without any of that. Revisit only
+  if a creator community materializes; the catalog format migrates cleanly.
+
+### Store content policy (for when submissions open)
+
+- **Threat model:** decks are inert JSON — no code execution path, and React
+  escapes rendered text, so there is no "jailbreak from a deck". The real vectors:
+  1. **External URLs** (`imageUrl`, `soundUrl`, `imageSet`, `deckUrl`) — arbitrary
+     hosts mean tracking/IP leaks and unmoderatable imagery. Policy: reject or
+     strip external URLs on submission unless from an allowlisted host; prefer
+     text-only store decks.
+  2. **`systemInstruction` on realities** is prompt injection by design — it runs
+     against the *player's* AI key. It can't steal the key, but it can steer
+     generation somewhere nasty. Moderate this field like any other text; review
+     realities more strictly than decks.
+  3. **Skewed mechanics** (e.g. ±50 effects everywhere) are a griefing vector —
+     already bounded by `validateAndRepairDeck`'s clamping.
+- **Moderation flow:** deck content is small, pure text — cheap to screen. On
+  submission, run all text (cards, name, description, `systemInstruction`) through
+  an automated moderation pass (moderation API or a cheap LLM classification);
+  auto-approve high-confidence-clean, queue the rest for manual review. At early
+  volumes, reviewing everything by hand is fine — the PR-based catalog makes every
+  submission a human-approved diff anyway ("if I'm not comfortable, it doesn't go in").
 
 ## Technologies
 

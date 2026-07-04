@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { AISettings, AIProviderType, loadAISettings, saveAISettings } from '../services/geminiService';
+import { AISettings, AIProviderType, loadAISettings, saveAISettings } from '../services/aiService';
 import { CloseIcon } from './icons';
 
 interface AISettingsModalProps {

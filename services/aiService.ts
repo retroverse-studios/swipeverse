@@ -6,7 +6,7 @@
  */
 
 import { Reality, Stats, Deck } from "../types";
-import { AIProvider, buildInitialDeckPrompt, buildBranchingDeckPrompt, FALLBACK_DECK } from "./aiProvider";
+import { AIProvider, buildInitialDeckPrompt, buildBranchingDeckPrompt, validateAndRepairDeck } from "./aiProvider";
 import type { AIProviderType } from "./aiProvider";
 export type { AIProviderType } from "./aiProvider";
 import { GeminiProvider } from "./geminiProvider";
@@ -39,7 +39,7 @@ const DEFAULT_SETTINGS: AISettings = {
     openaiModel: 'gpt-4o-mini',
     openaiBaseUrl: 'https://api.openai.com/v1',
     claudeApiKey: process.env.ANTHROPIC_API_KEY || '',
-    claudeModel: 'claude-sonnet-4-6',
+    claudeModel: 'claude-sonnet-5',
     ollamaModel: 'llama3.1',
     ollamaBaseUrl: 'http://localhost:11434',
 };
@@ -90,15 +90,40 @@ function createProvider(settings: AISettings): AIProvider {
 
 // ─── Public API (same interface as before) ───────────────────────
 
+/** True when the selected provider is usable (has a key, or is keyless like Ollama). */
+export function hasConfiguredProvider(): boolean {
+    const settings = loadAISettings();
+    switch (settings.provider) {
+        case 'gemini': return !!settings.geminiApiKey;
+        case 'openai': return !!settings.openaiApiKey;
+        case 'claude': return !!settings.claudeApiKey;
+        case 'ollama': return true;
+        default: return false;
+    }
+}
+
+/** Display name of the currently configured provider, for loading/error UI. */
+export function getActiveProviderLabel(): string {
+    switch (loadAISettings().provider) {
+        case 'gemini': return 'Google Gemini';
+        case 'openai': return 'OpenAI';
+        case 'claude': return 'Anthropic Claude';
+        case 'ollama': return 'Ollama (local)';
+        default: return 'AI';
+    }
+}
+
 export const generateInitialDeck = async (reality: Reality, currentStats: Stats): Promise<Deck> => {
+    const settings = loadAISettings();
+    const provider = createProvider(settings);
+    const prompt = buildInitialDeckPrompt(reality, currentStats);
+
     try {
-        const settings = loadAISettings();
-        const provider = createProvider(settings);
-        const prompt = buildInitialDeckPrompt(reality, currentStats);
-        return await provider.generateDeck(prompt, reality.systemInstruction);
+        const deck = await provider.generateDeck(prompt, reality.systemInstruction);
+        return validateAndRepairDeck(deck);
     } catch (error) {
         console.error("Error generating deck:", error);
-        return FALLBACK_DECK;
+        throw new Error(`${provider.name} failed to generate a deck. ${(error as Error).message}`);
     }
 };
 
@@ -108,7 +133,8 @@ export const generateBranchingDeckFromPrompt = async (reality: Reality, storyPro
     const prompt = buildBranchingDeckPrompt(reality, storyPrompt);
 
     try {
-        return await provider.generateDeck(prompt, reality.systemInstruction);
+        const deck = await provider.generateDeck(prompt, reality.systemInstruction);
+        return validateAndRepairDeck(deck);
     } catch (error) {
         console.error("Error generating branching deck:", error);
         throw new Error(`The AI Story Director (${provider.name}) failed to generate a deck. ${(error as Error).message}`);

@@ -37,6 +37,13 @@ export type CardData = {
 export type Deck = {
     name?: string;
     description?: string;
+    /**
+     * 'bundled' marks starter decks shipped with the app (see decks/). They act as
+     * defaults: a newer app version may replace them, and AI generation takes over
+     * when a provider is configured. Decks imported by the player (store downloads,
+     * editor imports) omit this field and are never overwritten.
+     */
+    source?: 'bundled';
     cards: Omit<CardData, 'id'>[];
 }
 
@@ -58,6 +65,12 @@ export type Reality = {
     background: string;
     accent: string;
   }
+};
+
+export type LibraryDeck = {
+  id: string;      // stable id for list operations
+  addedAt: string; // ISO timestamp
+  deck: Deck;
 };
 
 export type ToastMessage = {

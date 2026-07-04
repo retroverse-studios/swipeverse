@@ -1,18 +1,19 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { GameState, Reality, CardData, Deck, ToastMessage } from './types';
+import { GameState, Reality, CardData, Deck, LibraryDeck, ToastMessage } from './types';
 import MainMenu from './components/MainMenu';
 import GameScreen from './components/GameScreen';
 import GameOverScreen from './components/GameOverScreen';
 import EditorScreen from './components/EditorScreen';
 import StoreScreen from './components/StoreScreen';
 import ConfirmationModal from './components/ConfirmationModal';
-import { REALITIES } from './constants';
+import { REALITIES, mergeStoredRealities } from './constants';
 import { submitReality } from './services/apiService';
 import { Difficulty, recordGame, GameSummary } from './services/gameHistory';
 import AISettingsModal from './components/AISettingsModal';
 import { VolumeOffIcon, VolumeOnIcon, CloseIcon } from './components/icons';
 
 const REALITIES_STORAGE_KEY = 'swipeverse-realities';
+const DECK_LIBRARY_STORAGE_KEY = 'swipeverse-deck-library';
 const MUTED_STORAGE_KEY = 'swipeverse-muted';
 
 const App: React.FC = () => {
@@ -68,12 +69,37 @@ const App: React.FC = () => {
   const [realities, setRealities] = useState<Reality[]>(() => {
     try {
       const storedRealities = window.localStorage.getItem(REALITIES_STORAGE_KEY);
-      return storedRealities ? JSON.parse(storedRealities) : REALITIES;
+      return storedRealities ? mergeStoredRealities(JSON.parse(storedRealities)) : REALITIES;
     } catch (error) {
       console.error("Failed to load realities from localStorage", error);
       return REALITIES;
     }
   });
+
+  const [deckLibrary, setDeckLibrary] = useState<LibraryDeck[]>(() => {
+    try {
+      const stored = window.localStorage.getItem(DECK_LIBRARY_STORAGE_KEY);
+      return stored ? JSON.parse(stored) : [];
+    } catch (error) {
+      console.error("Failed to load deck library from localStorage", error);
+      return [];
+    }
+  });
+
+  useEffect(() => {
+    try {
+      window.localStorage.setItem(DECK_LIBRARY_STORAGE_KEY, JSON.stringify(deckLibrary));
+    } catch (error) {
+      console.error("Failed to save deck library to localStorage", error);
+    }
+  }, [deckLibrary]);
+
+  // Ask the browser to exempt our storage (realities, deck library, settings)
+  // from automatic eviction under storage pressure. Best-effort; a manual
+  // "clear site data" still wipes it, hence the library export/import feature.
+  useEffect(() => {
+    navigator.storage?.persist?.().catch(() => { /* unsupported — ignore */ });
+  }, []);
 
   useEffect(() => {
     const handleBeforeInstallPrompt = (e: BeforeInstallPromptEvent) => {
@@ -182,14 +208,47 @@ const App: React.FC = () => {
     }
   };
 
-  const handleImportDeckToReality = (deck: Deck, realityId: string) => {
+  const stripBundledTag = (deck: Deck): Deck => {
+    const clean = { ...deck };
+    delete clean.source;
+    return clean;
+  };
+
+  const makeLibraryEntry = (deck: Deck): LibraryDeck => ({
+    id: `lib-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+    addedAt: new Date().toISOString(),
+    deck: stripBundledTag(deck),
+  });
+
+  const handleAddDeckToLibrary = (deck: Deck) => {
+    setDeckLibrary(prev => [...prev, makeLibraryEntry(deck)]);
+    addToast(`Story "${deck.name || 'Untitled'}" added to your library!`);
+  };
+
+  const handleDeleteLibraryDeck = (libraryDeckId: string) => {
+    const entry = deckLibrary.find(d => d.id === libraryDeckId);
+    requestConfirmation({
+      message: `Delete "${entry?.deck.name || 'this story'}" from your library? Realities currently playing it keep their copy.`,
+      onConfirm: () => {
+        setDeckLibrary(prev => prev.filter(d => d.id !== libraryDeckId));
+        addToast("Story removed from library.");
+      }
+    });
+  };
+
+  const handleImportLibrary = (decks: Deck[]) => {
+    setDeckLibrary(prev => [...prev, ...decks.map(makeLibraryEntry)]);
+    addToast(`${decks.length} ${decks.length === 1 ? 'story' : 'stories'} imported to your library!`);
+  };
+
+  const handleAssignDeckToReality = (deck: Deck, realityId: string) => {
     setRealities(prev => prev.map(r => {
         if (r.id === realityId) {
-            return { ...r, deck: deck };
+            return { ...r, deck: stripBundledTag(deck) };
         }
         return r;
     }));
-    addToast(`Story "${deck.name}" successfully added to reality "${realities.find(r=>r.id === realityId)?.name}"!`);
+    addToast(`Story "${deck.name}" is now playing in reality "${realities.find(r=>r.id === realityId)?.name}"!`);
   };
   
   const handleSubmitToStore = async (reality: Reality) => {
@@ -232,7 +291,16 @@ const App: React.FC = () => {
                />;
       
       case GameState.Store:
-        return <StoreScreen onExit={handleExitToMenu} onAddReality={handleAddRealityFromStore} onImportDeckToReality={handleImportDeckToReality} localRealities={realities} />;
+        return <StoreScreen
+                  onExit={handleExitToMenu}
+                  onAddReality={handleAddRealityFromStore}
+                  onAddDeckToLibrary={handleAddDeckToLibrary}
+                  deckLibrary={deckLibrary}
+                  onAssignDeckToReality={handleAssignDeckToReality}
+                  onDeleteLibraryDeck={handleDeleteLibraryDeck}
+                  onImportLibrary={handleImportLibrary}
+                  localRealities={realities}
+               />;
 
       case GameState.MainMenu:
       default:

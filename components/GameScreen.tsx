@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { Reality, Stats, CardData, StatName, Deck } from '../types';
 import { INITIAL_STATS, MIN_STAT_VALUE, MAX_STAT_VALUE, DEFAULT_SOUNDS } from '../constants';
-import { generateInitialDeck } from '../services/geminiService';
+import { generateInitialDeck, getActiveProviderLabel, hasConfiguredProvider } from '../services/aiService';
 import { Difficulty, applyDifficultyModifier } from '../services/gameHistory';
 import StatBar from './StatBar';
 import CardStack from './CardStack';
@@ -25,20 +25,28 @@ const LoadingSpinner: React.FC<{text: string}> = ({text}) => (
 
 const ErrorModal: React.FC<{
     reality: Reality;
-    error: { message: string, canRetryWithAI: boolean };
+    error: { message: string, canRetryWithAI: boolean, canUseBundled?: boolean };
     onExit: () => void;
+    onRetry: () => void;
     onRetryWithAI: () => void;
-}> = ({ reality, error, onExit, onRetryWithAI }) => (
+    onUseBundled: () => void;
+}> = ({ reality, error, onExit, onRetry, onRetryWithAI, onUseBundled }) => (
     <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/80 z-50 animate-fade-in p-4">
         <div className={`text-center max-w-lg p-8 rounded-lg border-2 ${reality.colors.accent} bg-slate-900/80 shadow-2xl`}>
             <h2 className={`text-3xl font-bold mb-4 ${reality.colors.primary}`}>Transmission Error</h2>
             <p className="text-lg text-gray-300 mb-8">{error.message}</p>
-            <div className="flex justify-center gap-4">
+            <div className="flex justify-center gap-4 flex-wrap">
                 <button
                     onClick={onExit}
                     className={`py-2 px-6 text-lg font-bold rounded-lg transition-colors duration-300 text-white border-2 border-gray-500 bg-transparent hover:bg-white/10`}
                 >
                     Return to Menu
+                </button>
+                <button
+                    onClick={onRetry}
+                    className={`py-2 px-6 text-lg font-bold rounded-lg transition-colors duration-300 ${reality.colors.secondary} border-2 ${reality.colors.accent} bg-transparent hover:bg-white/10`}
+                >
+                    Try Again
                 </button>
                 {error.canRetryWithAI && (
                     <button
@@ -46,6 +54,14 @@ const ErrorModal: React.FC<{
                         className={`py-2 px-6 text-lg font-bold rounded-lg transition-colors duration-300 ${reality.colors.secondary} border-2 ${reality.colors.accent} bg-transparent hover:bg-white/10 animate-pulse`}
                     >
                         Use AI Backup
+                    </button>
+                )}
+                {error.canUseBundled && (
+                    <button
+                        onClick={onUseBundled}
+                        className={`py-2 px-6 text-lg font-bold rounded-lg transition-colors duration-300 ${reality.colors.secondary} border-2 ${reality.colors.accent} bg-transparent hover:bg-white/10`}
+                    >
+                        Play Built-in Story
                     </button>
                 )}
             </div>
@@ -63,7 +79,10 @@ const GameScreen: React.FC<GameScreenProps> = ({ reality, difficulty, onGameOver
   const [turnCount, setTurnCount] = useState<number>(0);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [loadingText, setLoadingText] = useState('Conjuring reality...');
-  const [deckLoadError, setDeckLoadError] = useState<{ message: string; canRetryWithAI: boolean } | null>(null);
+  const [deckLoadError, setDeckLoadError] = useState<{ message: string; canRetryWithAI: boolean; canUseBundled?: boolean } | null>(null);
+  const [loadAttempt, setLoadAttempt] = useState(0);
+  const [forceAI, setForceAI] = useState(false);
+  const [preferBundled, setPreferBundled] = useState(false);
   
   const [audioBuffers, setAudioBuffers] = useState<Record<string, AudioBuffer>>({});
   const bgmAudioRef = useRef<HTMLAudioElement | null>(null);
@@ -93,7 +112,7 @@ const GameScreen: React.FC<GameScreenProps> = ({ reality, difficulty, onGameOver
   const processAndSetDeck = useCallback((deckObject: Deck, onLoaded: () => void) => {
       const rawDeck = deckObject.cards;
       if (!Array.isArray(rawDeck) || rawDeck.length === 0) {
-          setDeckLoadError({ message: "The received deck data was empty or invalid.", canRetryWithAI: !reality.deckUrl && !reality.deck });
+          setDeckLoadError({ message: "The received deck data was empty or invalid.", canRetryWithAI: !!(reality.deckUrl || reality.deck) });
           setIsLoading(false);
           return;
       }
@@ -119,16 +138,32 @@ const GameScreen: React.FC<GameScreenProps> = ({ reality, difficulty, onGameOver
   useEffect(() => {
     const loadAssets = async () => {
         setIsLoading(true);
+        setDeckLoadError(null);
         let targetDeck: Deck | null = null;
         let deckSource: 'ai' | 'url' | 'local' = 'ai';
 
-        if (reality.deck && reality.deck.cards && reality.deck.cards.length > 0) {
-            setLoadingText('Loading embedded narrative...');
-            targetDeck = reality.deck;
+        // Bundled decks are zero-setup defaults; decks the player imported themselves
+        // always take precedence, and a configured AI provider trumps the bundled deck
+        // so returning players get a fresh story each run.
+        const hasCards = !!(reality.deck && reality.deck.cards && reality.deck.cards.length > 0);
+        const bundledDeck = hasCards && reality.deck!.source === 'bundled' ? reality.deck : undefined;
+        const importedDeck = hasCards && reality.deck!.source !== 'bundled' ? reality.deck : undefined;
+
+        if (preferBundled && bundledDeck) {
+            setLoadingText('Loading built-in story...');
+            targetDeck = bundledDeck;
             deckSource = 'local';
-        } else if (reality.deckUrl) {
+        } else if (!forceAI && importedDeck) {
+            setLoadingText('Loading embedded narrative...');
+            targetDeck = importedDeck;
+            deckSource = 'local';
+        } else if (!forceAI && reality.deckUrl) {
             setLoadingText(`Loading transmission from ${reality.name}...`);
             deckSource = 'url';
+        } else if (!forceAI && bundledDeck && !hasConfiguredProvider()) {
+            setLoadingText('Loading built-in story...');
+            targetDeck = bundledDeck;
+            deckSource = 'local';
         }
 
         try {
@@ -137,7 +172,7 @@ const GameScreen: React.FC<GameScreenProps> = ({ reality, difficulty, onGameOver
                 if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
                 targetDeck = await response.json();
             } else if (deckSource === 'ai') {
-                setLoadingText('Contacting multiverse consciousness...');
+                setLoadingText(`Generating your story with ${getActiveProviderLabel()}... this can take a minute.`);
                 targetDeck = await generateInitialDeck(reality, INITIAL_STATS);
             }
 
@@ -180,14 +215,15 @@ const GameScreen: React.FC<GameScreenProps> = ({ reality, difficulty, onGameOver
              console.error("Failed to load game assets:", error);
              setDeckLoadError({
                 message: (error as Error).message || 'An unknown error occurred during loading.',
-                canRetryWithAI: deckSource === 'url'
+                canRetryWithAI: deckSource === 'url',
+                canUseBundled: deckSource !== 'local' && !!bundledDeck
             });
             setIsLoading(false);
         }
     };
     loadAssets();
-  // eslint-disable-next-line react-hooks/exhaustive-deps -- Initial load only, depends on reality prop
-  }, [reality]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- Re-runs on new reality or explicit retry only
+  }, [reality, loadAttempt]);
 
   useEffect(() => {
     if(isLoading || isMuted || !reality.soundConfig?.backgroundMusicUrl) {
@@ -287,11 +323,13 @@ const GameScreen: React.FC<GameScreenProps> = ({ reality, difficulty, onGameOver
        
        {isLoading && <LoadingSpinner text={loadingText} />}
        {deckLoadError && (
-           <ErrorModal 
+           <ErrorModal
                 reality={reality}
                 error={deckLoadError}
                 onExit={onExit}
-                onRetryWithAI={() => { /* This needs to re-trigger the loadAssets useEffect */ }}
+                onRetry={() => setLoadAttempt(n => n + 1)}
+                onRetryWithAI={() => { setForceAI(true); setLoadAttempt(n => n + 1); }}
+                onUseBundled={() => { setPreferBundled(true); setLoadAttempt(n => n + 1); }}
             />
         )}
 

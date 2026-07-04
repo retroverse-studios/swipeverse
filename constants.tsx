@@ -1,4 +1,5 @@
 import { Reality, Stats } from './types';
+import { BUNDLED_DECKS } from './decks';
 
 export const INITIAL_STATS: Stats = {
   Power: 50,
@@ -22,7 +23,7 @@ export const DEFAULT_SOUNDS = {
   lose: "data:audio/wav;base64,UklGRmIAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YWQ8AAAAAAAA/v78/f79/P38/f39/f78/v3+/fz8/v78/vz+/v79/v78/v7+/v78/v3+/P78/v3+/AD+/gD9/AD9/AD+AP4A/AD8AP4A/AD8APwA/AD8APwA/AD8APwA/AD8APwA+AD4APgA+AD4APgA9AD0APQA9AD0APQA9ADz/fT89Pz0/PT89Pz0/PT89Pz0/PT89Pz0/PT89Pz0/PQ==",
 };
 
-export const REALITIES: Reality[] = [
+const BASE_REALITIES: Reality[] = [
   {
     id: 'cyberpunk',
     name: 'Cyberpunk Dystopia',
@@ -141,3 +142,26 @@ export const REALITIES: Reality[] = [
     },
   },
 ];
+
+// Attach bundled starter decks (decks/<realityId>.json) so built-in realities
+// are playable without an AI provider. See decks/README.md.
+export const REALITIES: Reality[] = BASE_REALITIES.map(reality =>
+    BUNDLED_DECKS[reality.id] ? { ...reality, deck: BUNDLED_DECKS[reality.id] } : reality
+);
+
+/**
+ * Reconciles realities loaded from localStorage with the current app bundle.
+ * Bundled decks are replaceable defaults: a stored reality with no deck, or one
+ * still carrying a bundled deck from an earlier version, receives the current
+ * bundled deck. Decks the player imported themselves (store downloads, editor
+ * imports) are untagged and left untouched.
+ */
+export function mergeStoredRealities(stored: Reality[]): Reality[] {
+    return stored.map(reality => {
+        const bundledDeck = BUNDLED_DECKS[reality.id];
+        if (bundledDeck && (!reality.deck || reality.deck.source === 'bundled')) {
+            return { ...reality, deck: bundledDeck };
+        }
+        return reality;
+    });
+}

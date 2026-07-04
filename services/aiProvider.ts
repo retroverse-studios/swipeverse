@@ -127,14 +127,68 @@ export function parseDeckFromResponse(text: string): Deck {
     throw new Error("Could not parse deck from AI response");
 }
 
-// ─── Fallback Deck ───────────────────────────────────────────────
+// ─── Deck Validation ─────────────────────────────────────────────
 
-export const FALLBACK_DECK: Deck = {
-    name: "Fallback Protocol",
-    description: "A connection to the multiverse was lost.",
-    cards: [{
-        prompt: "A cosmic anomaly disrupts your connection to the multiverse. The path forward is hazy, but you must choose.",
-        leftChoice: { text: "Reboot", effects: { Power: 5, Wealth: -5, People: 0, Knowledge: 0 } },
-        rightChoice: { text: "Wait", effects: { Power: -5, Wealth: 5, People: 0, Knowledge: 0 } },
-    }]
-};
+const STAT_NAMES: (keyof Stats)[] = ['Power', 'Wealth', 'People', 'Knowledge'];
+const MAX_EFFECT = 50;
+
+function sanitizeChoice(choice: unknown, deckSize: number): Deck['cards'][number]['leftChoice'] | null {
+    if (!choice || typeof choice !== 'object') return null;
+    const c = choice as Record<string, unknown>;
+    if (typeof c.text !== 'string' || c.text.trim() === '') return null;
+
+    const rawEffects = (c.effects && typeof c.effects === 'object' ? c.effects : {}) as Record<string, unknown>;
+    const effects: Partial<Stats> = {};
+    for (const stat of STAT_NAMES) {
+        const value = Number(rawEffects[stat]);
+        effects[stat] = Number.isFinite(value)
+            ? Math.max(-MAX_EFFECT, Math.min(MAX_EFFECT, Math.round(value)))
+            : 0;
+    }
+
+    const sanitized: Deck['cards'][number]['leftChoice'] = { text: c.text, effects };
+    // Only keep branch jumps that land inside the deck; a bad index would end the game early
+    const nextIndex = Number(c.nextCardIndex);
+    if (Number.isInteger(nextIndex) && nextIndex >= 0 && nextIndex < deckSize) {
+        sanitized.nextCardIndex = nextIndex;
+    }
+    if (typeof c.soundUrl === 'string' && c.soundUrl) sanitized.soundUrl = c.soundUrl;
+    return sanitized;
+}
+
+/**
+ * Validates an AI-generated deck, repairing what it can (clamping stat effects,
+ * dropping out-of-range branch jumps) and discarding cards that are unusable.
+ * Throws if nothing playable remains.
+ */
+export function validateAndRepairDeck(deck: Deck): Deck {
+    if (!deck || !Array.isArray(deck.cards)) {
+        throw new Error("The AI response did not contain a card deck.");
+    }
+    const deckSize = deck.cards.length;
+    const cards: Deck['cards'] = [];
+    for (const card of deck.cards) {
+        if (!card || typeof card.prompt !== 'string' || card.prompt.trim() === '') continue;
+        const leftChoice = sanitizeChoice(card.leftChoice, deckSize);
+        const rightChoice = sanitizeChoice(card.rightChoice, deckSize);
+        if (!leftChoice || !rightChoice) continue;
+        cards.push({
+            prompt: card.prompt,
+            ...(typeof card.imageUrl === 'string' && card.imageUrl ? { imageUrl: card.imageUrl } : {}),
+            leftChoice,
+            rightChoice,
+        });
+    }
+    if (cards.length === 0) {
+        throw new Error("The AI returned a deck with no playable cards.");
+    }
+    // Dropping cards shifts indices, so surviving branch jumps would point at the
+    // wrong cards — fall back to linear progression in that case
+    if (cards.length !== deckSize) {
+        for (const card of cards) {
+            delete card.leftChoice.nextCardIndex;
+            delete card.rightChoice.nextCardIndex;
+        }
+    }
+    return { name: deck.name, description: deck.description, cards };
+}

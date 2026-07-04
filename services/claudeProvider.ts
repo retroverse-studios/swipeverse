@@ -7,7 +7,7 @@ export class ClaudeProvider implements AIProvider {
     private apiKey: string;
     private model: string;
 
-    constructor(apiKey: string, model: string = "claude-sonnet-4-6") {
+    constructor(apiKey: string, model: string = "claude-sonnet-5") {
         this.apiKey = apiKey;
         this.model = model;
     }

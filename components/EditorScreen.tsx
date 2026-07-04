@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Reality, CardData, StatName, Deck } from '../types';
 import { REALITIES, INITIAL_STATS } from '../constants';
 import { BackIcon, SaveIcon, DeleteIcon, UploadIcon, ExportIcon, AddIcon, GenerateIcon, CloudUploadIcon, FormIcon, GraphIcon } from './icons';
-import { generateBranchingDeckFromPrompt } from '../services/geminiService';
+import { generateBranchingDeckFromPrompt } from '../services/aiService';
 import { VisualEditor } from './VisualEditor';
 
 interface EditorScreenProps {
@@ -196,6 +196,9 @@ const EditorScreen: React.FC<EditorScreenProps> = ({
                 if(Array.isArray(deck)) {
                     handleDeckChange({ name: "Imported Deck", description: "", cards: deck });
                 } else if (typeof deck === 'object' && deck !== null && 'cards' in deck) {
+                    // A manual import is the player's own deck — drop any 'bundled' tag
+                    // so app updates never overwrite it
+                    delete deck.source;
                     handleDeckChange(deck);
                 } else { throw new Error("Invalid format"); }
                 addToast("Deck imported successfully!", 'success');

@@ -1,0 +1,464 @@
+{
+  "name": "The Waking of the Old Magic",
+  "description": "A newly crowned monarch must weave court intrigue, folk superstition, and dangerous sorcery into a single reign as ancient wards fail, a dragon stirs, and the old magic wakes.",
+  "cards": [
+    {
+      "prompt": "The crown is barely warm upon your brow when the coronation candles gutter—not from wind, but from something stirring beneath the flagstones. The old magic is waking.",
+      "leftChoice": {
+        "text": "Slip away to the dusty royal archives.",
+        "effects": {
+          "Power": -5,
+          "Wealth": 0,
+          "People": -5,
+          "Knowledge": 15
+        },
+        "nextCardIndex": 1
+      },
+      "rightChoice": {
+        "text": "Smile and reassure the frightened crowd.",
+        "effects": {
+          "Power": 10,
+          "Wealth": -5,
+          "People": 10,
+          "Knowledge": -5
+        },
+        "nextCardIndex": 2
+      }
+    },
+    {
+      "prompt": "The mage guild sends a masked envoy: grant them independence from the crown, or they will withdraw their spells from your service entirely.",
+      "leftChoice": {
+        "text": "Grant them partial autonomy.",
+        "effects": {
+          "Power": -15,
+          "Wealth": 5,
+          "People": 5,
+          "Knowledge": 10
+        },
+        "nextCardIndex": 3
+      },
+      "rightChoice": {
+        "text": "Refuse and remind them who wears the crown.",
+        "effects": {
+          "Power": 15,
+          "Wealth": 0,
+          "People": -5,
+          "Knowledge": -10
+        },
+        "nextCardIndex": 4
+      }
+    },
+    {
+      "prompt": "Riders claim a great winged shadow was seen beyond the mountains. The court is split between panic and mockery.",
+      "leftChoice": {
+        "text": "Send scouts to learn the truth.",
+        "effects": {
+          "Power": 5,
+          "Wealth": -10,
+          "People": 0,
+          "Knowledge": 5
+        },
+        "nextCardIndex": 5
+      },
+      "rightChoice": {
+        "text": "Dismiss it as drunken shepherds' fancy.",
+        "effects": {
+          "Power": 5,
+          "Wealth": 0,
+          "People": -10,
+          "Knowledge": -5
+        },
+        "nextCardIndex": 3
+      }
+    },
+    {
+      "prompt": "The harvest depends on rites the crown only half-remembers. Priests await your command as the fields wither.",
+      "leftChoice": {
+        "text": "Perform the full, costly ancient rite.",
+        "effects": {
+          "Power": 0,
+          "Wealth": -10,
+          "People": 10,
+          "Knowledge": 10
+        },
+        "nextCardIndex": 6
+      },
+      "rightChoice": {
+        "text": "Skip the rite and trust to plain labor.",
+        "effects": {
+          "Power": 0,
+          "Wealth": 10,
+          "People": -15,
+          "Knowledge": -5
+        },
+        "nextCardIndex": 7
+      }
+    },
+    {
+      "prompt": "In a border village, terrified folk have bound a wise-woman to a pyre, blaming her for the strange lights in the sky.",
+      "leftChoice": {
+        "text": "Ride in and stop the burning.",
+        "effects": {
+          "Power": 5,
+          "Wealth": 0,
+          "People": -10,
+          "Knowledge": 5
+        },
+        "nextCardIndex": 8
+      },
+      "rightChoice": {
+        "text": "Let the village keep its old justice.",
+        "effects": {
+          "Power": -5,
+          "Wealth": 0,
+          "People": 10,
+          "Knowledge": -10
+        },
+        "nextCardIndex": 5
+      }
+    },
+    {
+      "prompt": "The wards that ring the kingdom flicker like dying coals. Left unmended, the barrier between worlds will thin.",
+      "leftChoice": {
+        "text": "Divert the treasury to repair them properly.",
+        "effects": {
+          "Power": 5,
+          "Wealth": -25,
+          "People": 5,
+          "Knowledge": 0
+        },
+        "nextCardIndex": 9
+      },
+      "rightChoice": {
+        "text": "Patch them with forbidden shortcuts.",
+        "effects": {
+          "Power": 5,
+          "Wealth": 0,
+          "People": -10,
+          "Knowledge": 20
+        },
+        "nextCardIndex": 10
+      }
+    },
+    {
+      "prompt": "A whisper reaches you: a jealous duke is quietly buying the loyalty of your guard.",
+      "leftChoice": {
+        "text": "Expose him before the full court.",
+        "effects": {
+          "Power": 10,
+          "Wealth": -5,
+          "People": 5,
+          "Knowledge": 0
+        },
+        "nextCardIndex": 11
+      },
+      "rightChoice": {
+        "text": "Buy his silence and watch him closely.",
+        "effects": {
+          "Power": -5,
+          "Wealth": -15,
+          "People": 5,
+          "Knowledge": 0
+        },
+        "nextCardIndex": 12
+      }
+    },
+    {
+      "prompt": "Famine follows the neglected fields. Hungry crowds gather at the palace gates.",
+      "leftChoice": {
+        "text": "Throw open the royal granaries.",
+        "effects": {
+          "Power": 0,
+          "Wealth": -20,
+          "People": 20,
+          "Knowledge": 0
+        },
+        "nextCardIndex": 12
+      },
+      "rightChoice": {
+        "text": "Buy foreign grain at ruinous prices.",
+        "effects": {
+          "Power": -5,
+          "Wealth": -25,
+          "People": 10,
+          "Knowledge": 0
+        },
+        "nextCardIndex": 11
+      }
+    },
+    {
+      "prompt": "The grateful wise-woman offers you a relic warm to the touch—a shard said to remember every spell ever spoken near it.",
+      "leftChoice": {
+        "text": "Accept the humming shard.",
+        "effects": {
+          "Power": 5,
+          "Wealth": 0,
+          "People": -5,
+          "Knowledge": 15
+        },
+        "nextCardIndex": 13
+      },
+      "rightChoice": {
+        "text": "Leave it buried where it lies.",
+        "effects": {
+          "Power": 0,
+          "Wealth": 0,
+          "People": 10,
+          "Knowledge": -5
+        },
+        "nextCardIndex": 9
+      }
+    },
+    {
+      "prompt": "The mage guild downs their staves and refuses all work until their demands are met. Spells sputter across the realm.",
+      "leftChoice": {
+        "text": "Sit at the table and negotiate.",
+        "effects": {
+          "Power": -10,
+          "Wealth": 0,
+          "People": 10,
+          "Knowledge": 5
+        },
+        "nextCardIndex": 14
+      },
+      "rightChoice": {
+        "text": "Send soldiers to break the strike.",
+        "effects": {
+          "Power": 15,
+          "Wealth": 0,
+          "People": -15,
+          "Knowledge": -10
+        },
+        "nextCardIndex": 13
+      }
+    },
+    {
+      "prompt": "The dragon crests the mountains at last, circling the capital in slow, patient arcs. It has not yet struck.",
+      "leftChoice": {
+        "text": "Ride out alone to parley with it.",
+        "effects": {
+          "Power": -5,
+          "Wealth": 0,
+          "People": 5,
+          "Knowledge": 10
+        },
+        "nextCardIndex": 15
+      },
+      "rightChoice": {
+        "text": "Loose every ballista and blade you have.",
+        "effects": {
+          "Power": 15,
+          "Wealth": -20,
+          "People": 5,
+          "Knowledge": -5
+        },
+        "nextCardIndex": 14
+      }
+    },
+    {
+      "prompt": "An audit of the treasury uncovers years of quiet theft by trusted officials.",
+      "leftChoice": {
+        "text": "Purge and prosecute the corrupt.",
+        "effects": {
+          "Power": 10,
+          "Wealth": 15,
+          "People": -10,
+          "Knowledge": 0
+        },
+        "nextCardIndex": 15
+      },
+      "rightChoice": {
+        "text": "Cover it up to keep the court calm.",
+        "effects": {
+          "Power": -10,
+          "Wealth": 5,
+          "People": 5,
+          "Knowledge": 0
+        },
+        "nextCardIndex": 16
+      }
+    },
+    {
+      "prompt": "A blind seer stumbles into the throne room and speaks a prophecy of a crown drowned in silver fire.",
+      "leftChoice": {
+        "text": "Take the warning to heart.",
+        "effects": {
+          "Power": -5,
+          "Wealth": 0,
+          "People": 5,
+          "Knowledge": 15
+        },
+        "nextCardIndex": 16
+      },
+      "rightChoice": {
+        "text": "Have her escorted out; you make your own fate.",
+        "effects": {
+          "Power": 10,
+          "Wealth": 0,
+          "People": -5,
+          "Knowledge": -10
+        },
+        "nextCardIndex": 15
+      }
+    },
+    {
+      "prompt": "Deep in a cave your searchers find a dragon's egg, veined with light and warm as a heartbeat.",
+      "leftChoice": {
+        "text": "Guard it as a treasure of the realm.",
+        "effects": {
+          "Power": 0,
+          "Wealth": -10,
+          "People": -5,
+          "Knowledge": 15
+        },
+        "nextCardIndex": 17
+      },
+      "rightChoice": {
+        "text": "Destroy it before it can hatch.",
+        "effects": {
+          "Power": 10,
+          "Wealth": 0,
+          "People": 10,
+          "Knowledge": -15
+        },
+        "nextCardIndex": 18
+      }
+    },
+    {
+      "prompt": "Raw arcane force gathers over the capital like a coming storm, ready to tear or to bless.",
+      "leftChoice": {
+        "text": "Channel the surge through the guild's mages.",
+        "effects": {
+          "Power": 5,
+          "Wealth": 0,
+          "People": -10,
+          "Knowledge": 20
+        },
+        "nextCardIndex": 17
+      },
+      "rightChoice": {
+        "text": "Spend fortune and effort to seal it away.",
+        "effects": {
+          "Power": 5,
+          "Wealth": -10,
+          "People": 10,
+          "Knowledge": -15
+        },
+        "nextCardIndex": 18
+      }
+    },
+    {
+      "prompt": "A cousin with a forged pedigree and real soldiers declares themselves the rightful heir.",
+      "leftChoice": {
+        "text": "Settle it by single combat.",
+        "effects": {
+          "Power": 15,
+          "Wealth": -5,
+          "People": -5,
+          "Knowledge": 0
+        },
+        "nextCardIndex": 18
+      },
+      "rightChoice": {
+        "text": "Bind them to you by marriage and treaty.",
+        "effects": {
+          "Power": -5,
+          "Wealth": 20,
+          "People": 10,
+          "Knowledge": 0
+        },
+        "nextCardIndex": 17
+      }
+    },
+    {
+      "prompt": "In a dream that is not a dream, the old magic itself offers a pact: dominion over the waking power, at a price it will not name.",
+      "leftChoice": {
+        "text": "Accept the pact and its hidden cost.",
+        "effects": {
+          "Power": 5,
+          "Wealth": 0,
+          "People": -15,
+          "Knowledge": 25
+        },
+        "nextCardIndex": 17
+      },
+      "rightChoice": {
+        "text": "Refuse and trust in mortal hands.",
+        "effects": {
+          "Power": -5,
+          "Wealth": 0,
+          "People": 15,
+          "Knowledge": -10
+        },
+        "nextCardIndex": 18
+      }
+    },
+    {
+      "prompt": "All threads converge: dragon, guild, harvest, and prophecy await your final decree in a hall thick with waiting magic.",
+      "leftChoice": {
+        "text": "Unite crown, guild, and folk as one.",
+        "effects": {
+          "Power": 10,
+          "Wealth": -5,
+          "People": 15,
+          "Knowledge": -5
+        },
+        "nextCardIndex": 19
+      },
+      "rightChoice": {
+        "text": "Seize the arcane power for the throne alone.",
+        "effects": {
+          "Power": 10,
+          "Wealth": 0,
+          "People": -15,
+          "Knowledge": 20
+        },
+        "nextCardIndex": 19
+      }
+    },
+    {
+      "prompt": "The failing wards give way at last, and the world beyond pours through. There is time for one true act.",
+      "leftChoice": {
+        "text": "Sacrifice your own gathered power to hold the line.",
+        "effects": {
+          "Power": 5,
+          "Wealth": -10,
+          "People": 15,
+          "Knowledge": -15
+        },
+        "nextCardIndex": 19
+      },
+      "rightChoice": {
+        "text": "Rally the people to stand where magic cannot.",
+        "effects": {
+          "Power": 5,
+          "Wealth": -10,
+          "People": 20,
+          "Knowledge": -5
+        },
+        "nextCardIndex": 19
+      }
+    },
+    {
+      "prompt": "Dawn breaks over a kingdom forever changed. The old magic no longer sleeps—but it answers, now, to a crown that learned to listen. Your reign is remembered.",
+      "leftChoice": {
+        "text": "Rule with wisdom and open eyes.",
+        "effects": {
+          "Power": 5,
+          "Wealth": 5,
+          "People": 5,
+          "Knowledge": 5
+        }
+      },
+      "rightChoice": {
+        "text": "Rule with a strong and steady hand.",
+        "effects": {
+          "Power": 5,
+          "Wealth": 5,
+          "People": 5,
+          "Knowledge": 5
+        }
+      }
+    }
+  ]
+}

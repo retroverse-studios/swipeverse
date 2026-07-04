@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { Reality, Stats, CardData, StatName, Deck } from '../types';
-import { INITIAL_STATS, MIN_STAT_VALUE, MAX_STAT_VALUE, DEFAULT_SOUNDS } from '../constants';
+import { INITIAL_STATS, MIN_STAT_VALUE, MAX_STAT_VALUE, DEFAULT_SOUNDS, pickCardArt } from '../constants';
 import { generateInitialDeck, getActiveProviderLabel, hasConfiguredProvider } from '../services/aiService';
 import { Difficulty, applyDifficultyModifier } from '../services/gameHistory';
 import StatBar from './StatBar';
@@ -122,11 +122,13 @@ const GameScreen: React.FC<GameScreenProps> = ({ reality, difficulty, onGameOver
           const randomImageFromSet = imageSet.length > 0
               ? imageSet[Math.floor(Math.random() * imageSet.length)]
               : undefined;
-          
+          // Art priority: card's own image > bundled archetype art > reality's image pool
+          const archetypeArt = card.archetype ? pickCardArt(card.archetype) : undefined;
+
           return {
               ...card,
               id: `card-${Date.now()}-${index}`,
-              imageUrl: card.imageUrl || randomImageFromSet
+              imageUrl: card.imageUrl || archetypeArt || randomImageFromSet
           };
       });
       setDeck(processedDeck);

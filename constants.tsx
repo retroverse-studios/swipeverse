@@ -1,5 +1,39 @@
-import { Reality, Stats } from './types';
+import { Reality, Stats, CardArchetype } from './types';
 import { BUNDLED_DECKS } from './decks';
+
+/**
+ * Bundled pixel-art card scenes (public/cards/), keyed by archetype.
+ * Archetypes without dedicated art yet borrow the closest scene — replace
+ * as the art set grows.
+ */
+export const CARD_ART: Record<CardArchetype, string[]> = {
+  petitioner: ['/cards/petitioner_1.webp', '/cards/petitioner_2.webp', '/cards/petitioner_3.webp'],
+  crisis: ['/cards/crisis.webp'],
+  opportunity: ['/cards/opportunity.webp'],
+  faction: ['/cards/judgement.webp'],      // placeholder until faction art exists
+  advisor: ['/cards/petitioner_2.webp'],   // placeholder until advisor art exists
+  chain: ['/cards/chain.webp'],
+  judgement: ['/cards/judgement.webp'],
+  gamble: ['/cards/opportunity.webp'],     // placeholder until gamble art exists
+  terminal: ['/cards/crisis.webp'],        // placeholder until terminal art exists
+};
+
+export function pickCardArt(archetype: CardArchetype): string {
+  const options = CARD_ART[archetype];
+  return options[Math.floor(Math.random() * options.length)];
+}
+
+// Default per-reality card image pool, used when a card has neither its own
+// imageUrl nor an archetype. Local files — works offline.
+const DEFAULT_IMAGE_SET = [
+  '/cards/petitioner_1.webp',
+  '/cards/petitioner_2.webp',
+  '/cards/petitioner_3.webp',
+  '/cards/crisis.webp',
+  '/cards/opportunity.webp',
+  '/cards/judgement.webp',
+  '/cards/chain.webp',
+];
 
 export const INITIAL_STATS: Stats = {
   Power: 50,
@@ -42,13 +76,7 @@ const BASE_REALITIES: Reality[] = [
       People: 'PeopleIconCyber',
       Knowledge: 'KnowledgeIconCyber',
     },
-    imageSet: [
-        'https://images.unsplash.com/photo-1526723864239-3a58e063f256?q=80&w=600&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-        'https://images.unsplash.com/photo-1617812581989-341433946050?q=80&w=600&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-        'https://images.unsplash.com/photo-1555431182-398d5c4e474c?q=80&w=600&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-        'https://images.unsplash.com/photo-1633567531464-90a4240590a5?q=80&w=600&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-        'https://images.unsplash.com/photo-1603123853880-7b55f6453d10?q=80&w=600&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'
-    ],
+    imageSet: DEFAULT_IMAGE_SET,
     colors: {
       primary: 'text-cyber-pink',
       secondary: 'text-cyber-cyan',
@@ -81,13 +109,7 @@ const BASE_REALITIES: Reality[] = [
       People: 'PeopleIconMystic',
       Knowledge: 'KnowledgeIconMystic',
     },
-    imageSet: [
-      'https://images.unsplash.com/photo-1607903803273-96a9fea94558?q=80&w=600&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-      'https://images.unsplash.com/photo-1542037104-58f4a39524a2?q=80&w=600&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-      'https://images.unsplash.com/photo-1615205510700-41712a8e8013?q=80&w=600&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-      'https://images.unsplash.com/photo-1596723795138-12151672ac49?q=80&w=600&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-      'https://images.unsplash.com/photo-1519901768427-c1a74a1a3c5a?q=80&w=600&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'
-    ],
+    imageSet: DEFAULT_IMAGE_SET,
     colors: {
       primary: 'text-mystic-purple',
       secondary: 'text-mystic-gold',
@@ -120,13 +142,7 @@ const BASE_REALITIES: Reality[] = [
         People: 'PeopleIconSpace',
         Knowledge: 'KnowledgeIconSpace',
     },
-    imageSet: [
-        'https://images.unsplash.com/photo-1534796636912-3b95b3ab5986?q=80&w=600&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-        'https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=600&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-        'https://images.unsplash.com/photo-1543722530-53b934711645?q=80&w=600&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-        'https://images.unsplash.com/photo-1610296669228-602fa82798f9?q=80&w=600&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
-        'https://images.unsplash.com/photo-1506443432602-ac2dcd7e20b3?q=80&w=600&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'
-    ],
+    imageSet: DEFAULT_IMAGE_SET,
     colors: {
         primary: 'text-space-blue',
         secondary: 'text-space-silver',

@@ -26,9 +26,27 @@ export type Choice = {
   soundUrl?: string; // Optional: sound effect for this choice
 };
 
+/**
+ * Card archetypes — the genre's standard dilemma categories. Drives default
+ * card art selection and border styling; optional so untagged cards still work.
+ */
+export const CARD_ARCHETYPES = [
+  'petitioner',  // someone asks you for something
+  'crisis',      // something bad happens to you
+  'opportunity', // a windfall, offer, or lucky find
+  'faction',     // a power bloc acts (guild, corp, army, church)
+  'advisor',     // information or a warning
+  'chain',       // part of a multi-card storyline
+  'judgement',   // two parties in dispute; you pick a side
+  'gamble',      // uncertain outcome regardless of choice
+  'terminal',    // endings: death, collapse, coup
+] as const;
+export type CardArchetype = typeof CARD_ARCHETYPES[number];
+
 export type CardData = {
   id: string;
   prompt: string;
+  archetype?: CardArchetype; // Optional: selects default art and styling
   imageUrl?: string; // Optional image for the card
   leftChoice: Choice;
   rightChoice: Choice;

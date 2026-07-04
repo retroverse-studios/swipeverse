@@ -18,6 +18,7 @@ import { fileURLToPath } from "node:url";
 const DECK_SIZE = 20;
 const MAX_EFFECT = 50;
 const STAT_NAMES = ["Power", "Wealth", "People", "Knowledge"];
+const ARCHETYPES = ["petitioner", "crisis", "opportunity", "faction", "advisor", "chain", "judgement", "gamble", "terminal"];
 const OUT_DIR = join(dirname(fileURLToPath(import.meta.url)), "..", "decks");
 
 // Kept in sync by hand with REALITIES in constants.tsx (that file is TSX and
@@ -61,6 +62,7 @@ The Power stat is named ${reality.statNames.Power}.
 The Wealth stat is named ${reality.statNames.Wealth}.
 The People stat is named ${reality.statNames.People}.
 The Knowledge stat is named ${reality.statNames.Knowledge}.
+Tag each card with an "archetype" that best matches it: petitioner (someone asks you for something), crisis (something bad happens to you), opportunity (a windfall or offer), faction (a power bloc acts), advisor (information or a warning), chain (part of a multi-card storyline), judgement (two parties in dispute and you pick a side), gamble (uncertain outcome), terminal (endings, death, collapse). Most decks are roughly half petitioner cards.
 
 Generate exactly ${DECK_SIZE} cards.
 `.trim();
@@ -95,6 +97,7 @@ const deckSchema = {
                 type: "object",
                 properties: {
                     prompt: { type: "string" },
+                    archetype: { type: "string", enum: ARCHETYPES },
                     leftChoice: choiceSchema,
                     rightChoice: choiceSchema,
                 },
@@ -130,7 +133,9 @@ function validateAndRepairDeck(deck) {
         const leftChoice = sanitizeChoice(card.leftChoice);
         const rightChoice = sanitizeChoice(card.rightChoice);
         if (!leftChoice || !rightChoice) continue;
-        cards.push({ prompt: card.prompt, leftChoice, rightChoice });
+        const clean = { prompt: card.prompt, leftChoice, rightChoice };
+        if (ARCHETYPES.includes(card.archetype)) clean.archetype = card.archetype;
+        cards.push(clean);
     }
     if (cards.length === 0) throw new Error("No playable cards");
     if (cards.length !== deckSize) {

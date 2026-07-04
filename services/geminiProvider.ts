@@ -26,6 +26,11 @@ const cardSchema = {
     type: Type.OBJECT,
     properties: {
         prompt: { type: Type.STRING, description: "The scenario text." },
+        archetype: {
+            type: Type.STRING,
+            enum: ["petitioner", "crisis", "opportunity", "faction", "advisor", "chain", "judgement", "gamble", "terminal"],
+            description: "Optional card archetype."
+        },
         imageUrl: { type: Type.STRING, description: "Optional image URL." },
         leftChoice: choiceSchema,
         rightChoice: choiceSchema

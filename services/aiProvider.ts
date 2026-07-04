@@ -1,5 +1,7 @@
-import { Reality, Stats, Deck } from "../types";
+import { Reality, Stats, Deck, CARD_ARCHETYPES, CardArchetype } from "../types";
 import { DECK_SIZE } from "../constants";
+
+const ARCHETYPE_GUIDE = `Tag each card with an "archetype" that best matches it: petitioner (someone asks you for something), crisis (something bad happens to you), opportunity (a windfall or offer), faction (a power bloc acts), advisor (information or a warning), chain (part of a multi-card storyline), judgement (two parties in dispute and you pick a side), gamble (uncertain outcome), terminal (endings, death, collapse). Most decks are roughly half petitioner cards.`;
 
 // ─── Provider Interface ──────────────────────────────────────────
 
@@ -30,6 +32,7 @@ The Power stat is named ${reality.statNames.Power}.
 The Wealth stat is named ${reality.statNames.Wealth}.
 The People stat is named ${reality.statNames.People}.
 The Knowledge stat is named ${reality.statNames.Knowledge}.
+${ARCHETYPE_GUIDE}
 
 Respond with a JSON object matching this exact schema:
 {
@@ -38,6 +41,7 @@ Respond with a JSON object matching this exact schema:
   "cards": [
     {
       "prompt": "string - The scenario text",
+      "archetype": "string (optional) - one of: petitioner|crisis|opportunity|faction|advisor|chain|judgement|gamble|terminal",
       "imageUrl": "string (optional) - URL to a relevant image",
       "leftChoice": {
         "text": "string - Brief choice text",
@@ -72,6 +76,7 @@ The Power stat is named ${reality.statNames.Power}.
 The Wealth stat is named ${reality.statNames.Wealth}.
 The People stat is named ${reality.statNames.People}.
 The Knowledge stat is named ${reality.statNames.Knowledge}.
+${ARCHETYPE_GUIDE}
 
 Respond with a JSON object matching this exact schema:
 {
@@ -80,6 +85,7 @@ Respond with a JSON object matching this exact schema:
   "cards": [
     {
       "prompt": "string - The scenario text",
+      "archetype": "string (optional) - one of: petitioner|crisis|opportunity|faction|advisor|chain|judgement|gamble|terminal",
       "imageUrl": "string (optional)",
       "leftChoice": {
         "text": "string",
@@ -174,6 +180,7 @@ export function validateAndRepairDeck(deck: Deck): Deck {
         if (!leftChoice || !rightChoice) continue;
         cards.push({
             prompt: card.prompt,
+            ...(CARD_ARCHETYPES.includes(card.archetype as CardArchetype) ? { archetype: card.archetype } : {}),
             ...(typeof card.imageUrl === 'string' && card.imageUrl ? { imageUrl: card.imageUrl } : {}),
             leftChoice,
             rightChoice,

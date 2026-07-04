@@ -90,14 +90,13 @@ npm run build
 
 ## Roadmap
 
-### TODO: Generate and bundle starter decks
+### Starter decks (shipped — playtesting pending)
 
-The plumbing is in place (`decks/` folder — see `decks/README.md` for the
-workflow), but no starter decks have been generated yet. Use the editor's AI
-Story Director to create one deck per built-in reality (`cyberpunk`,
-`mystical`, `space`), playtest them, and save the exports as
-`decks/<realityId>.json`. Until then, new players still need an AI provider
-to play.
+Each built-in reality bundles a generated starter deck (`decks/*.json`), so
+the game is playable offline with no AI provider. Regenerate with
+`ANTHROPIC_API_KEY=... npm run generate:decks` (optionally pass reality ids),
+or author replacements in the editor — see `decks/README.md`. The current
+decks are machine-generated and balance-checked but **not yet playtested**.
 
 ### TODO: Open the Community Store for real
 

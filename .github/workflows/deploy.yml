@@ -29,10 +29,9 @@ jobs:
       - run: npm ci
       - run: npm run build
         env:
-          # Game is served at <site>/app/. While on github.io the site root is
-          # /swipeverse/; when the swipeverse.app custom domain is attached to
-          # this repo, change this to /app/.
-          PAGES_BASE: /swipeverse/app/
+          # Site root is https://swipeverse.app/ (custom domain); the game is
+          # served at /app/.
+          PAGES_BASE: /app/
       - name: Assemble site (landing at root, game at /app/)
         run: |
           mkdir -p _site/app

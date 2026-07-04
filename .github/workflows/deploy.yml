@@ -29,13 +29,18 @@ jobs:
       - run: npm ci
       - run: npm run build
         env:
-          # Serving from https://retroverse-studios.github.io/swipeverse/.
-          # When the swipeverse.app custom domain is attached to this repo,
-          # change this to '/' (or delete the env block).
-          PAGES_BASE: /swipeverse/
+          # Game is served at <site>/app/. While on github.io the site root is
+          # /swipeverse/; when the swipeverse.app custom domain is attached to
+          # this repo, change this to /app/.
+          PAGES_BASE: /swipeverse/app/
+      - name: Assemble site (landing at root, game at /app/)
+        run: |
+          mkdir -p _site/app
+          cp -r landing/. _site/
+          cp -r dist/. _site/app/
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: dist
+          path: _site
       - id: deployment
         uses: actions/deploy-pages@v4

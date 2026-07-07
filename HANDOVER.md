@@ -73,7 +73,7 @@ Everything below is live and pushed:
 | Regenerate starter decks with archetype tags | one command + API cost | your go (replaces unplaytested decks) |
 | Redo manifest icons with real artwork (current: rasterized diamond stopgap) | small | design refresh |
 | Process the 4 missing archetype scenes into `public/cards/` + update `CARD_ART` placeholders | small | art (#3) |
-| **Design refresh** — 3–4 radically different visual directions for the game shell + landing, pick one, implement; produces itch.io assets (cover, screenshots, gif) | session | nothing — ready when you are |
+| **Design refresh** — plan at `docs/design-refresh-plan.md`: direction mockups → pick → shell → card chrome + juice (deal-in, flip, drag stat-preview, meter feedback) → itch.io assets | session(s) | mockups ready anytime; final art improves them |
 | Store go-live: create GitHub repo, enable Pages, wire `services/apiService.ts` to the real catalog (keep samples as offline fallback), remove Demo badge | medium | #5 |
 | Publish on itch.io | small | playtesting + design refresh |
 | Post-launch: multiverse portals/sagas (schema design done in principle — see chat/roadmap), "My Artwork" library (IndexedDB), per-reality palette variants of card art | later | launch |

@@ -31,3 +31,6 @@ dist-ssr
 
 # CI site assembly
 _site/
+
+# Raw art drops (processed into public/cards/, originals not shipped)
+art-drops/

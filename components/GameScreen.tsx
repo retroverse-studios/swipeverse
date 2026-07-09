@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { Reality, Stats, CardData, StatName, Deck } from '../types';
-import { INITIAL_STATS, MIN_STAT_VALUE, MAX_STAT_VALUE, DEFAULT_SOUNDS, pickCardArt, resolveAssetUrl } from '../constants';
+import { INITIAL_STATS, MIN_STAT_VALUE, MAX_STAT_VALUE, DEFAULT_SOUNDS, pickCardArt, cardScenesFor, resolveAssetUrl } from '../constants';
 import { generateInitialDeck, getActiveProviderLabel, hasConfiguredProvider } from '../services/aiService';
 import { Difficulty, applyDifficultyModifier } from '../services/gameHistory';
 import StatBar from './StatBar';
@@ -118,12 +118,14 @@ const GameScreen: React.FC<GameScreenProps> = ({ reality, difficulty, onGameOver
       }
 
       const processedDeck = rawDeck.map((card, index) => {
-          const imageSet = reality.imageSet || [];
-          const randomImageFromSet = imageSet.length > 0
-              ? imageSet[Math.floor(Math.random() * imageSet.length)]
-              : undefined;
-          // Art priority: card's own image > bundled archetype art > reality's image pool
-          const archetypeArt = card.archetype ? pickCardArt(card.archetype) : undefined;
+          // Image pool for untagged cards: the reality's own imageSet if it has
+          // one, else the themed archetype scene set (base for custom realities)
+          const imagePool = reality.imageSet && reality.imageSet.length > 0
+              ? reality.imageSet
+              : cardScenesFor(reality.id);
+          const randomImageFromSet = imagePool[Math.floor(Math.random() * imagePool.length)];
+          // Art priority: card's own image > themed archetype art > random from pool
+          const archetypeArt = card.archetype ? pickCardArt(card.archetype, reality.id) : undefined;
           const chosenImage = card.imageUrl || archetypeArt || randomImageFromSet;
 
           return {
@@ -136,7 +138,7 @@ const GameScreen: React.FC<GameScreenProps> = ({ reality, difficulty, onGameOver
       setCurrentCardIndex(0);
       setDeckLoadError(null);
       onLoaded(); // This will trigger the final part of loading
-  }, [reality.deckUrl, reality.imageSet, reality.deck]);
+  }, [reality.id, reality.deckUrl, reality.imageSet, reality.deck]);
 
   useEffect(() => {
     const loadAssets = async () => {

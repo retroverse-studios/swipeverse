@@ -1,26 +1,36 @@
-import { Reality, Stats, CardArchetype } from './types';
+import { Reality, Stats, CardArchetype, CARD_ARCHETYPES } from './types';
 import { BUNDLED_DECKS } from './decks';
 
 /**
- * Bundled pixel-art card scenes (public/cards/), keyed by archetype.
- * Archetypes without dedicated art yet borrow the closest scene — replace
- * as the art set grows.
+ * Bundled pixel-art card sets (public/cards/<set>/<archetype>.webp).
+ * Each built-in reality ships a full themed set (9 archetype scenes, a card
+ * back, 4 stat badges); 'base' is the fallback for custom/community
+ * realities. The 20 additional themed sets live in the store's shared art
+ * palette, not the app bundle.
  */
-export const CARD_ART: Record<CardArchetype, string[]> = {
-  petitioner: ['/cards/petitioner_1.webp', '/cards/petitioner_2.webp', '/cards/petitioner_3.webp'],
-  crisis: ['/cards/crisis.webp'],
-  opportunity: ['/cards/opportunity.webp'],
-  faction: ['/cards/judgement.webp'],      // placeholder until faction art exists
-  advisor: ['/cards/petitioner_2.webp'],   // placeholder until advisor art exists
-  chain: ['/cards/chain.webp'],
-  judgement: ['/cards/judgement.webp'],
-  gamble: ['/cards/opportunity.webp'],     // placeholder until gamble art exists
-  terminal: ['/cards/crisis.webp'],        // placeholder until terminal art exists
-};
+export const BUNDLED_ART_SETS = ['base', 'cyberpunk', 'mystical', 'space'] as const;
 
-export function pickCardArt(archetype: CardArchetype): string {
-  const options = CARD_ART[archetype];
-  return options[Math.floor(Math.random() * options.length)];
+function artSetFor(realityId?: string): string {
+  return realityId && (BUNDLED_ART_SETS as readonly string[]).includes(realityId) ? realityId : 'base';
+}
+
+export function pickCardArt(archetype: CardArchetype, realityId?: string): string {
+  return `/cards/${artSetFor(realityId)}/${archetype}.webp`;
+}
+
+/** All 9 archetype scenes of a reality's art set (editor picker, image pools). */
+export function cardScenesFor(realityId?: string): string[] {
+  const set = artSetFor(realityId);
+  return CARD_ARCHETYPES.map(archetype => `/cards/${set}/${archetype}.webp`);
+}
+
+export function cardBackFor(realityId?: string): string {
+  return `/cards/backs/${artSetFor(realityId)}.webp`;
+}
+
+/** Themed stat badge (transparent icon) for one of the four universal stats. */
+export function statBadgeFor(stat: keyof Stats, realityId?: string): string {
+  return `/cards/badges/${artSetFor(realityId)}/${stat.toLowerCase()}.webp`;
 }
 
 /**
@@ -33,19 +43,6 @@ export function resolveAssetUrl(url: string): string {
   return url.startsWith('/cards/') ? import.meta.env.BASE_URL + url.slice(1) : url;
 }
 
-// All bundled card scenes — the editor's art picker offers these, and they
-// double as the default per-reality image pool for cards with neither their
-// own imageUrl nor an archetype. Local files — works offline.
-export const BUNDLED_CARD_SCENES = [
-  '/cards/petitioner_1.webp',
-  '/cards/petitioner_2.webp',
-  '/cards/petitioner_3.webp',
-  '/cards/crisis.webp',
-  '/cards/opportunity.webp',
-  '/cards/judgement.webp',
-  '/cards/chain.webp',
-];
-const DEFAULT_IMAGE_SET = BUNDLED_CARD_SCENES;
 
 export const INITIAL_STATS: Stats = {
   Power: 50,
@@ -88,7 +85,7 @@ const BASE_REALITIES: Reality[] = [
       People: 'PeopleIconCyber',
       Knowledge: 'KnowledgeIconCyber',
     },
-    imageSet: DEFAULT_IMAGE_SET,
+    imageSet: undefined, // untagged cards fall back to the reality's themed art via pickCardArt
     colors: {
       primary: 'text-cyber-pink',
       secondary: 'text-cyber-cyan',
@@ -121,7 +118,7 @@ const BASE_REALITIES: Reality[] = [
       People: 'PeopleIconMystic',
       Knowledge: 'KnowledgeIconMystic',
     },
-    imageSet: DEFAULT_IMAGE_SET,
+    imageSet: undefined, // untagged cards fall back to the reality's themed art via pickCardArt
     colors: {
       primary: 'text-mystic-purple',
       secondary: 'text-mystic-gold',
@@ -154,7 +151,7 @@ const BASE_REALITIES: Reality[] = [
         People: 'PeopleIconSpace',
         Knowledge: 'KnowledgeIconSpace',
     },
-    imageSet: DEFAULT_IMAGE_SET,
+    imageSet: undefined, // untagged cards fall back to the reality's themed art via pickCardArt
     colors: {
         primary: 'text-space-blue',
         secondary: 'text-space-silver',

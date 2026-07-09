@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Reality, CardData, StatName, Deck, CARD_ARCHETYPES, CardArchetype } from '../types';
-import { REALITIES, INITIAL_STATS, BUNDLED_CARD_SCENES, resolveAssetUrl } from '../constants';
+import { REALITIES, INITIAL_STATS, cardScenesFor, resolveAssetUrl } from '../constants';
 import { BackIcon, SaveIcon, DeleteIcon, UploadIcon, ExportIcon, AddIcon, GenerateIcon, CloudUploadIcon, FormIcon, GraphIcon } from './icons';
 import { generateBranchingDeckFromPrompt } from '../services/aiService';
 import { VisualEditor } from './VisualEditor';
@@ -358,7 +358,7 @@ const EditorScreen: React.FC<EditorScreenProps> = ({
                             >
                                 AUTO
                             </button>
-                            {BUNDLED_CARD_SCENES.map(scene => (
+                            {cardScenesFor(formData?.id).map(scene => (
                                 <button
                                     key={scene}
                                     onClick={() => onCardChange('imageUrl', scene)}
@@ -371,7 +371,7 @@ const EditorScreen: React.FC<EditorScreenProps> = ({
                         </div>
                         <input
                             type="text"
-                            value={card.imageUrl && !BUNDLED_CARD_SCENES.includes(card.imageUrl) ? card.imageUrl : ''}
+                            value={card.imageUrl && !cardScenesFor(formData?.id).includes(card.imageUrl) ? card.imageUrl : ''}
                             onChange={e => onCardChange('imageUrl', e.target.value || undefined)}
                             className="w-full bg-gray-900 p-2 rounded text-sm"
                             placeholder="Custom image URL (optional — store decks must use bundled art)"

@@ -6,7 +6,12 @@ _Last updated: 2026-07-05_
 
 1. ~~DNS → custom domain → base flip → PNG icons~~ ✅ done (2026-07-05)
    → **install-test on a phone** (remaining bit of step 1)
-2. Art pieces (4 missing archetypes) → regenerate starter decks with tags → playtest
+2. ~~Art pieces~~ ✅ delivered big: 24 complete themed sets (9 scenes + back +
+   4 badges each) in `art-processed/` (gitignored full-res staging).
+   base+cyberpunk+mystical+space are bundled and wired; the other 20 sets are
+   **store art palette** content — publish with the store repo, then surface
+   in the deck builder's art picker so community creators can use them.
+   Remaining from step 2: regenerate starter decks with tags → playtest
 3. Design refresh (full art set in hand; produces itch.io assets)
 4. Store: create GitHub repo, Pages + store.swipeverse.app, wire apiService, remove Demo badge
 5. Publish on itch.io
@@ -75,6 +80,7 @@ Everything below is live and pushed:
 | Process the 4 missing archetype scenes into `public/cards/` + update `CARD_ART` placeholders | small | art (#3) |
 | **Design refresh** — plan at `docs/design-refresh-plan.md`: direction mockups → pick → shell → card chrome + juice (deal-in, flip, drag stat-preview, meter feedback) → itch.io assets | session(s) | mockups ready anytime; final art improves them |
 | Store go-live: create GitHub repo, enable Pages, wire `services/apiService.ts` to the real catalog (keep samples as offline fallback), remove Demo badge | medium | #5 |
+| Store art palette: publish the 20 non-bundled themed sets (from `art-processed/`) to the store site; extend the editor's art picker with a store-palette source; allowlist the store host in the validator | medium | store go-live |
 | Publish on itch.io | small | playtesting + design refresh |
 | Post-launch: multiverse portals/sagas (schema design done in principle — see chat/roadmap), "My Artwork" library (IndexedDB), per-reality palette variants of card art | later | launch |
 

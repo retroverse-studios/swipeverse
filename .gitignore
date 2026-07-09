@@ -31,9 +31,3 @@ dist-ssr
 
 # CI site assembly
 _site/
-
-# Raw art drops (processed into public/cards/, originals not shipped)
-art-drops/
-
-# Full-res art staging (bundled subset lives in public/cards/; rest -> store palette)
-art-processed/

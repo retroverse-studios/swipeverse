@@ -7,10 +7,11 @@ _Last updated: 2026-07-05_
 1. ~~DNS → custom domain → base flip → PNG icons~~ ✅ done (2026-07-05)
    → **install-test on a phone** (remaining bit of step 1)
 2. ~~Art pieces~~ ✅ delivered big: 24 complete themed sets (9 scenes + back +
-   4 badges each) in `art-processed/` (gitignored full-res staging).
-   base+cyberpunk+mystical+space are bundled and wired; the other 20 sets are
-   **store art palette** content — publish with the store repo, then surface
-   in the deck builder's art picker so community creators can use them.
+   4 badges each). Tooling, originals, and masters live in the private
+   **swipeverse-art** repo (local: `../art`). base+cyberpunk+mystical+space
+   are bundled and wired; the other 20 sets are **store art palette** content
+   — publish with the store repo, then surface in the deck builder's art
+   picker so community creators can use them.
    Remaining from step 2: regenerate starter decks with tags → playtest
 3. Design refresh (full art set in hand; produces itch.io assets)
 4. Store: create GitHub repo, Pages + store.swipeverse.app, wire apiService, remove Demo badge

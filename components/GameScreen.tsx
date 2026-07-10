@@ -397,7 +397,10 @@ const GameScreen: React.FC<GameScreenProps> = ({ reality, difficulty, onGameOver
           <div className="flex flex-col h-full items-center justify-between px-4 py-5">{gameContent}</div>
         </CrtShell>
       ) : shellTheme === 'handheld' ? (
-        <HandheldShell>
+        <HandheldShell
+          onB={!hidden ? () => currentCard && handleSwipe(currentCard, 'left') : undefined}
+          onA={!hidden ? () => currentCard && handleSwipe(currentCard, 'right') : undefined}
+        >
           <div className="flex flex-col h-full items-center justify-between px-2 py-3">{gameContent}</div>
         </HandheldShell>
       ) : (

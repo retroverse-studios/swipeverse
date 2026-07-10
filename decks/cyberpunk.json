@@ -1,466 +1,484 @@
 {
-  "name": "Wetware Ascendant",
-  "description": "A mid-level fixer stumbles into ownership of a prototype neural implant, and every faction in the megacity will kill, bribe, or betray to claim it.",
+  "name": "Ghost Circuit: The Prototype Wars",
+  "description": "As a mid-level fixer clutching a stolen prototype neural implant, you must navigate corps, gangs, citizens, and black-market techs who all want a piece of your future.",
   "cards": [
     {
-      "prompt": "A dead courier's satchel spills open in your hands: a prototype neural implant still warm with encrypted firmware. Zenith Corp's logo glints on the case. What now?",
+      "prompt": "A courier dies at your feet, and in his hand is a sealed corp case holding a prototype neural implant every faction in the megacity would kill for. What now?",
       "leftChoice": {
-        "text": "Pocket it and vanish into the undercity",
+        "text": "Crack the case open and study it alone",
         "effects": {
-          "Power": -10,
-          "Wealth": 15,
-          "People": 5,
-          "Knowledge": 10
+          "Power": -5,
+          "Wealth": 0,
+          "People": 0,
+          "Knowledge": 15
         },
         "nextCardIndex": 1
       },
       "rightChoice": {
-        "text": "Call your Zenith Corp handler immediately",
+        "text": "Alert your corporate contact immediately",
         "effects": {
-          "Power": 20,
+          "Power": 15,
           "Wealth": -10,
-          "People": -5,
-          "Knowledge": -5
+          "People": 0,
+          "Knowledge": 0
         },
         "nextCardIndex": 2
-      }
-    },
-    {
-      "prompt": "Word travels fast in the slums. The Rustfang gang corners you in a noodle alley, demanding the implant so their techs can copy it for the streets.",
-      "leftChoice": {
-        "text": "Hand it over for a cut of the copies",
-        "effects": {
-          "Power": -15,
-          "Wealth": 25,
-          "People": 10,
-          "Knowledge": 15
-        },
-        "nextCardIndex": 3
       },
-      "rightChoice": {
-        "text": "Bluff that it's already sold and slip away",
-        "effects": {
-          "Power": 5,
-          "Wealth": -10,
-          "People": -5,
-          "Knowledge": 5
-        },
-        "nextCardIndex": 4
-      }
+      "archetype": "chain"
     },
     {
-      "prompt": "Zenith's handler, Ms. Voss, smiles too warmly. 'Return the prototype and we forget your... liabilities. Or keep it and become a liability yourself.'",
+      "prompt": "Vex, a legendary black-market tech, offers to slice open the implant's encryption for a cut of the payout.",
       "leftChoice": {
-        "text": "Surrender the implant for corporate protection",
+        "text": "Let her crack it wide open",
         "effects": {
-          "Power": 30,
-          "Wealth": -5,
-          "People": -15,
-          "Knowledge": -20
+          "Power": -10,
+          "Wealth": 12,
+          "People": 0,
+          "Knowledge": 18
         },
         "nextCardIndex": 5
       },
       "rightChoice": {
-        "text": "Negotiate to keep it as 'insurance'",
+        "text": "Refuse and keep it sealed",
         "effects": {
-          "Power": -5,
-          "Wealth": 15,
-          "People": 5,
-          "Knowledge": 20
+          "Power": 10,
+          "Wealth": -5,
+          "People": 8,
+          "Knowledge": -5
         },
-        "nextCardIndex": 6
-      }
+        "nextCardIndex": 3
+      },
+      "archetype": "petitioner"
     },
     {
-      "prompt": "The Rustfang techs botch the first copy; a kid tester seizes and drops. The gang blames your firmware. Their leader Kell wants answers.",
+      "prompt": "Zaibatsu Corp sends a chrome-suited agent demanding the return of their stolen property.",
       "leftChoice": {
-        "text": "Bring in a black-market tech to fix it",
+        "text": "Hand the implant over cleanly",
+        "effects": {
+          "Power": 25,
+          "Wealth": -18,
+          "People": 0,
+          "Knowledge": -10
+        },
+        "nextCardIndex": 6
+      },
+      "rightChoice": {
+        "text": "Stall and open negotiations",
+        "effects": {
+          "Power": -8,
+          "Wealth": 10,
+          "People": 5,
+          "Knowledge": 0
+        },
+        "nextCardIndex": 8
+      },
+      "archetype": "faction"
+    },
+    {
+      "prompt": "The Razorfang gang corners you in the neon alleys, wanting the implant copied so every runner can wear one.",
+      "leftChoice": {
+        "text": "Promise them a bootleg copy",
+        "effects": {
+          "Power": -12,
+          "Wealth": 20,
+          "People": -5,
+          "Knowledge": 8
+        },
+        "nextCardIndex": 11
+      },
+      "rightChoice": {
+        "text": "Turn them down flat",
+        "effects": {
+          "Power": 8,
+          "Wealth": -12,
+          "People": 12,
+          "Knowledge": 0
+        },
+        "nextCardIndex": 4
+      },
+      "archetype": "petitioner"
+    },
+    {
+      "prompt": "Citizens riot near your safehouse, protesting corp surveillance drones that swarmed the district after the theft.",
+      "leftChoice": {
+        "text": "Help evacuate the trapped families",
         "effects": {
           "Power": -5,
-          "Wealth": -10,
-          "People": 15,
-          "Knowledge": 25
+          "Wealth": 8,
+          "People": 20,
+          "Knowledge": -5
+        },
+        "nextCardIndex": 9
+      },
+      "rightChoice": {
+        "text": "Hide and protect the implant",
+        "effects": {
+          "Power": 5,
+          "Wealth": -5,
+          "People": -18,
+          "Knowledge": 10
         },
         "nextCardIndex": 7
       },
-      "rightChoice": {
-        "text": "Deny fault and let them figure it out",
-        "effects": {
-          "Power": 10,
-          "Wealth": -15,
-          "People": -20,
-          "Knowledge": -5
-        },
-        "nextCardIndex": 8
-      }
+      "archetype": "crisis"
     },
     {
-      "prompt": "Zenith enforcers sweep the block looking for you, terrorizing residents. Citizens whisper your name as the reason drones circle their homes.",
+      "prompt": "Your old fixer mentor sends an encrypted warning: unlocking corp wetware always draws the reaper.",
       "leftChoice": {
-        "text": "Leak the implant's existence to the media",
+        "text": "Heed him and lay low",
         "effects": {
-          "Power": -25,
-          "Wealth": 5,
-          "People": 25,
-          "Knowledge": 5
+          "Power": 6,
+          "Wealth": -5,
+          "People": 10,
+          "Knowledge": -10
         },
         "nextCardIndex": 9
       },
       "rightChoice": {
-        "text": "Pay off enforcers to look elsewhere",
+        "text": "Push forward regardless",
         "effects": {
-          "Power": 15,
-          "Wealth": -20,
-          "People": -10,
-          "Knowledge": 0
-        },
-        "nextCardIndex": 8
-      }
-    },
-    {
-      "prompt": "Loyal to the corp now, you're offered a promotion: hunt down the leaked schematics circulating in the undercity. Old friends are on that list.",
-      "leftChoice": {
-        "text": "Take the job and betray the streets",
-        "effects": {
-          "Power": 25,
-          "Wealth": 10,
-          "People": -25,
-          "Knowledge": -10
-        },
-        "nextCardIndex": 10
-      },
-      "rightChoice": {
-        "text": "Tip off your street contacts secretly",
-        "effects": {
-          "Power": -15,
-          "Wealth": 10,
-          "People": 20,
-          "Knowledge": 10
+          "Power": -8,
+          "Wealth": 12,
+          "People": -8,
+          "Knowledge": 15
         },
         "nextCardIndex": 11
-      }
+      },
+      "archetype": "advisor"
     },
     {
-      "prompt": "Holding the implant as leverage, you need it decrypted. A legendary ripperdoc named Solace agrees to meet in a flooded subway station.",
+      "prompt": "Both Razorfangs and Zaibatsu arrive at the same drop, each claiming the reward is rightfully theirs.",
       "leftChoice": {
-        "text": "Let Solace jack into the implant",
+        "text": "Side with the corporation",
         "effects": {
-          "Power": -10,
-          "Wealth": -5,
-          "People": 5,
-          "Knowledge": 30
-        },
-        "nextCardIndex": 12
-      },
-      "rightChoice": {
-        "text": "Refuse, fearing a Zenith trap",
-        "effects": {
-          "Power": 10,
-          "Wealth": 0,
+          "Power": 20,
+          "Wealth": -18,
           "People": -5,
-          "Knowledge": -15
-        },
-        "nextCardIndex": 9
-      }
-    },
-    {
-      "prompt": "The black-market tech, Wire, reveals the implant carries a hidden Zenith backdoor that would enslave any user. Copies would be a leash, not liberation.",
-      "leftChoice": {
-        "text": "Strip the backdoor before releasing copies",
-        "effects": {
-          "Power": -20,
-          "Wealth": 10,
-          "People": 25,
-          "Knowledge": 20
-        },
-        "nextCardIndex": 13
-      },
-      "rightChoice": {
-        "text": "Sell the intact backdoor back to Zenith",
-        "effects": {
-          "Power": 25,
-          "Wealth": 20,
-          "People": -20,
-          "Knowledge": -10
-        },
-        "nextCardIndex": 10
-      }
-    },
-    {
-      "prompt": "Rustfang gang war erupts as rival crews fight over the incomplete tech. The neighborhood burns. People beg you to end it.",
-      "leftChoice": {
-        "text": "Broker a truce using the implant as collateral",
-        "effects": {
-          "Power": -5,
-          "Wealth": -10,
-          "People": 30,
-          "Knowledge": 5
-        },
-        "nextCardIndex": 13
-      },
-      "rightChoice": {
-        "text": "Sell to the highest-bidding crew and bolt",
-        "effects": {
-          "Power": 5,
-          "Wealth": 30,
-          "People": -25,
-          "Knowledge": 10
-        },
-        "nextCardIndex": 14
-      }
-    },
-    {
-      "prompt": "The media leak explodes. Citizens rally, but Zenith frames the story as terrorism and you as the terrorist. A journalist offers to tell your side.",
-      "leftChoice": {
-        "text": "Go on record with everything you know",
-        "effects": {
-          "Power": -20,
-          "Wealth": -5,
-          "People": 30,
-          "Knowledge": 10
-        },
-        "nextCardIndex": 15
-      },
-      "rightChoice": {
-        "text": "Stay hidden and let the story fade",
-        "effects": {
-          "Power": 10,
-          "Wealth": 5,
-          "People": -15,
-          "Knowledge": -5
-        },
-        "nextCardIndex": 14
-      }
-    },
-    {
-      "prompt": "Ms. Voss trusts you now, granting access to Zenith's R&D core. Inside, you find plans to deploy the implant citywide as a compliance tool.",
-      "leftChoice": {
-        "text": "Sabotage the deployment servers",
-        "effects": {
-          "Power": -25,
-          "Wealth": 0,
-          "People": 25,
-          "Knowledge": 20
-        },
-        "nextCardIndex": 15
-      },
-      "rightChoice": {
-        "text": "Report the sabotage attempt to earn Voss's trust",
-        "effects": {
-          "Power": 30,
-          "Wealth": 10,
-          "People": -25,
-          "Knowledge": -15
-        },
-        "nextCardIndex": 16
-      }
-    },
-    {
-      "prompt": "Your tip saved a dozen street lives, and the undercity now sees you as a folk hero. Kell offers you a permanent seat at the Rustfang table.",
-      "leftChoice": {
-        "text": "Accept and organize the gangs against Zenith",
-        "effects": {
-          "Power": -15,
-          "Wealth": 15,
-          "People": 20,
-          "Knowledge": 10
-        },
-        "nextCardIndex": 13
-      },
-      "rightChoice": {
-        "text": "Decline; stay independent and mobile",
-        "effects": {
-          "Power": 5,
-          "Wealth": 10,
-          "People": -5,
-          "Knowledge": 5
-        },
-        "nextCardIndex": 12
-      }
-    },
-    {
-      "prompt": "Solace decrypts the implant and something stirs: a fragment of a dead scientist's uploaded mind, pleading to be freed rather than copied or sold.",
-      "leftChoice": {
-        "text": "Promise to free the trapped consciousness",
-        "effects": {
-          "Power": -10,
-          "Wealth": -15,
-          "People": 20,
-          "Knowledge": 25
-        },
-        "nextCardIndex": 17
-      },
-      "rightChoice": {
-        "text": "Ignore the ghost; the tech matters more",
-        "effects": {
-          "Power": 10,
-          "Wealth": 15,
-          "People": -20,
-          "Knowledge": -5
-        },
-        "nextCardIndex": 16
-      }
-    },
-    {
-      "prompt": "With the backdoor stripped, clean implants flow to the people. Zenith declares open war on the undercity, and both sides look to you to lead.",
-      "leftChoice": {
-        "text": "Unite gangs and citizens into a resistance",
-        "effects": {
-          "Power": -20,
-          "Wealth": 5,
-          "People": 30,
-          "Knowledge": 10
-        },
-        "nextCardIndex": 17
-      },
-      "rightChoice": {
-        "text": "Cut a private deal with Zenith to stand down",
-        "effects": {
-          "Power": 25,
-          "Wealth": 15,
-          "People": -25,
-          "Knowledge": -10
-        },
-        "nextCardIndex": 16
-      }
-    },
-    {
-      "prompt": "Rich but hunted, you hole up in a luxury capsule. A ghost from your past, a fixer you burned, tracks you down with a gun and a grudge.",
-      "leftChoice": {
-        "text": "Buy your way out with cred",
-        "effects": {
-          "Power": 0,
-          "Wealth": -25,
-          "People": 10,
           "Knowledge": 0
         },
-        "nextCardIndex": 18
+        "nextCardIndex": 10
       },
       "rightChoice": {
-        "text": "Offer them the implant to disappear",
+        "text": "Side with the gang",
         "effects": {
-          "Power": -10,
-          "Wealth": 15,
-          "People": -10,
-          "Knowledge": -25
-        },
-        "nextCardIndex": 18
-      }
-    },
-    {
-      "prompt": "The city teeters on revolt. Every faction demands you pick a side once and for all before the whole megacity ignites.",
-      "leftChoice": {
-        "text": "Stand with the people in the streets",
-        "effects": {
-          "Power": -20,
-          "Wealth": -5,
-          "People": 30,
+          "Power": -18,
+          "Wealth": 20,
+          "People": 5,
           "Knowledge": 5
         },
-        "nextCardIndex": 18
+        "nextCardIndex": 11
+      },
+      "archetype": "judgement"
+    },
+    {
+      "prompt": "A corp strike team kicks in your hideout door at 3 a.m., rifles hot.",
+      "leftChoice": {
+        "text": "Shoot your way out through the vents",
+        "effects": {
+          "Power": -15,
+          "Wealth": 15,
+          "People": -5,
+          "Knowledge": 5
+        },
+        "nextCardIndex": 13
       },
       "rightChoice": {
-        "text": "Stand with the corp behind the walls",
+        "text": "Surrender the implant to save your skin",
         "effects": {
-          "Power": 30,
+          "Power": 20,
+          "Wealth": -15,
+          "People": 5,
+          "Knowledge": -15
+        },
+        "nextCardIndex": 16
+      },
+      "archetype": "crisis"
+    },
+    {
+      "prompt": "An invitation arrives for an underground auction where the implant could fetch a fortune from anonymous bidders.",
+      "leftChoice": {
+        "text": "Put it up for auction",
+        "effects": {
+          "Power": -10,
+          "Wealth": 18,
+          "People": -8,
+          "Knowledge": 5
+        },
+        "nextCardIndex": 14
+      },
+      "rightChoice": {
+        "text": "Withdraw before it's too public",
+        "effects": {
+          "Power": 10,
+          "Wealth": -5,
+          "People": 6,
+          "Knowledge": 0
+        },
+        "nextCardIndex": 10
+      },
+      "archetype": "opportunity"
+    },
+    {
+      "prompt": "A muckraking journalist wants to expose the implant as illegal citizen-tracking tech.",
+      "leftChoice": {
+        "text": "Leak everything to her",
+        "effects": {
+          "Power": -20,
+          "Wealth": 5,
+          "People": 25,
+          "Knowledge": 5
+        },
+        "nextCardIndex": 15
+      },
+      "rightChoice": {
+        "text": "Keep your mouth shut",
+        "effects": {
+          "Power": 12,
+          "Wealth": 0,
+          "People": -15,
+          "Knowledge": 0
+        },
+        "nextCardIndex": 12
+      },
+      "archetype": "petitioner"
+    },
+    {
+      "prompt": "Kade, a rival fixer, starts poaching your contacts and spreading lies about your loyalty.",
+      "leftChoice": {
+        "text": "Offer him an alliance",
+        "effects": {
+          "Power": 8,
           "Wealth": 10,
-          "People": -25,
+          "People": 0,
+          "Knowledge": -5
+        },
+        "nextCardIndex": 16
+      },
+      "rightChoice": {
+        "text": "Sabotage his operation",
+        "effects": {
+          "Power": -5,
+          "Wealth": 15,
+          "People": -10,
+          "Knowledge": 8
+        },
+        "nextCardIndex": 13
+      },
+      "archetype": "faction"
+    },
+    {
+      "prompt": "You have a window to duplicate the implant. Copy it fast and dirty, or slow and controlled?",
+      "leftChoice": {
+        "text": "Rush a risky mass-copy",
+        "effects": {
+          "Power": -20,
+          "Wealth": 18,
+          "People": -8,
+          "Knowledge": 25
+        },
+        "nextCardIndex": 14
+      },
+      "rightChoice": {
+        "text": "Make one careful controlled copy",
+        "effects": {
+          "Power": -5,
+          "Wealth": 8,
+          "People": -5,
+          "Knowledge": 10
+        },
+        "nextCardIndex": 16
+      },
+      "archetype": "gamble"
+    },
+    {
+      "prompt": "An old friend, now a corp beat-cop, begs you to help cover his gambling debts before internal affairs finds out.",
+      "leftChoice": {
+        "text": "Pull strings to help him",
+        "effects": {
+          "Power": 15,
+          "Wealth": -15,
+          "People": 5,
+          "Knowledge": 0
+        },
+        "nextCardIndex": 16
+      },
+      "rightChoice": {
+        "text": "Refuse to get involved",
+        "effects": {
+          "Power": -10,
+          "Wealth": 10,
+          "People": 8,
+          "Knowledge": 0
+        },
+        "nextCardIndex": 15
+      },
+      "archetype": "petitioner"
+    },
+    {
+      "prompt": "You jacked into the implant to test it, and now neural feedback is frying your synapses.",
+      "leftChoice": {
+        "text": "Trust a back-alley ripper's emergency surgery",
+        "effects": {
+          "Power": -5,
+          "Wealth": -8,
+          "People": 5,
+          "Knowledge": 15
+        },
+        "nextCardIndex": 17
+      },
+      "rightChoice": {
+        "text": "Crawl to a corp med-bay for help",
+        "effects": {
+          "Power": 20,
+          "Wealth": -18,
+          "People": 5,
+          "Knowledge": -15
+        },
+        "nextCardIndex": 16
+      },
+      "archetype": "crisis"
+    },
+    {
+      "prompt": "After the auction dust settles, every faction is circling. You can broker peace or set them against each other.",
+      "leftChoice": {
+        "text": "Broker a fragile peace deal",
+        "effects": {
+          "Power": 8,
+          "Wealth": 8,
+          "People": 12,
           "Knowledge": -10
         },
         "nextCardIndex": 18
-      }
+      },
+      "rightChoice": {
+        "text": "Play the factions against one another",
+        "effects": {
+          "Power": -10,
+          "Wealth": 15,
+          "People": -8,
+          "Knowledge": 10
+        },
+        "nextCardIndex": 15
+      },
+      "archetype": "chain"
     },
     {
-      "prompt": "Ms. Voss reveals her endgame: she wants you as her personal fixer, running Zenith's shadow operations across the megacity. The implant sealed your fate.",
+      "prompt": "The leaked schematics spark a fight: neighborhood councils want the tech buried, the gangs want it distributed.",
       "leftChoice": {
-        "text": "Accept the crown of corporate power",
+        "text": "Empower the citizen councils",
+        "effects": {
+          "Power": -5,
+          "Wealth": -15,
+          "People": 22,
+          "Knowledge": -5
+        },
+        "nextCardIndex": 18
+      },
+      "rightChoice": {
+        "text": "Empower the street gangs",
+        "effects": {
+          "Power": -8,
+          "Wealth": 20,
+          "People": -15,
+          "Knowledge": 8
+        },
+        "nextCardIndex": 17
+      },
+      "archetype": "judgement"
+    },
+    {
+      "prompt": "A shadow broker offers one final deal that could end the whole affair, for a price paid in principles.",
+      "leftChoice": {
+        "text": "Sell the implant to the highest corp bidder",
         "effects": {
           "Power": 25,
-          "Wealth": 15,
-          "People": -20,
-          "Knowledge": -15
+          "Wealth": -15,
+          "People": -10,
+          "Knowledge": -5
         },
         "nextCardIndex": 18
       },
       "rightChoice": {
-        "text": "Turn on Voss with everything you've learned",
+        "text": "Destroy the implant for good",
         "effects": {
-          "Power": -25,
-          "Wealth": 0,
-          "People": 25,
-          "Knowledge": 20
-        },
-        "nextCardIndex": 18
-      }
-    },
-    {
-      "prompt": "Wire and Solace propose the impossible: broadcast the freed consciousness across the whole net, gifting the implant's power to every citizen at once.",
-      "leftChoice": {
-        "text": "Trigger the citywide broadcast",
-        "effects": {
-          "Power": -15,
-          "Wealth": -10,
-          "People": 30,
-          "Knowledge": 25
-        },
-        "nextCardIndex": 18
-      },
-      "rightChoice": {
-        "text": "Hold back; the risk is too great",
-        "effects": {
-          "Power": 10,
-          "Wealth": 15,
-          "People": -15,
-          "Knowledge": -20
-        },
-        "nextCardIndex": 18
-      }
-    },
-    {
-      "prompt": "The megacity holds its breath. Whatever alliances you forged now converge on a single rooftop showdown where the implant's fate is decided for good.",
-      "leftChoice": {
-        "text": "Destroy the implant so no faction can rule it",
-        "effects": {
-          "Power": -15,
-          "Wealth": -10,
-          "People": 25,
+          "Power": -10,
+          "Wealth": 5,
+          "People": 20,
           "Knowledge": -25
         },
         "nextCardIndex": 19
       },
-      "rightChoice": {
-        "text": "Keep it and become the new power broker",
+      "archetype": "opportunity"
+    },
+    {
+      "prompt": "Corps, gangs, and cops all converge on your last bolt-hole. There is no clean way out now.",
+      "leftChoice": {
+        "text": "Go out fighting in a blaze of chrome",
         "effects": {
-          "Power": 20,
+          "Power": -20,
           "Wealth": 20,
-          "People": -15,
+          "People": -5,
+          "Knowledge": 5
+        },
+        "nextCardIndex": 19
+      },
+      "rightChoice": {
+        "text": "Broker a final surrender",
+        "effects": {
+          "Power": 15,
+          "Wealth": -15,
+          "People": 8,
+          "Knowledge": -10
+        },
+        "nextCardIndex": 19
+      },
+      "archetype": "terminal"
+    },
+    {
+      "prompt": "The city teeters on the edge of upheaval, and your next move will decide the legacy of the ghost circuit.",
+      "leftChoice": {
+        "text": "Vanish into the sprawl with the tech",
+        "effects": {
+          "Power": -10,
+          "Wealth": 12,
+          "People": -5,
           "Knowledge": 15
         },
         "nextCardIndex": 19
-      }
-    },
-    {
-      "prompt": "Dawn breaks over the megacity, its skyline forever altered by your choices. Corp boardrooms, gang dens, citizen crowds, and hidden tech-shrines all whisper your legend now.",
-      "leftChoice": {
-        "text": "Fade into myth, a fixer who reshaped the city",
+      },
+      "rightChoice": {
+        "text": "Broadcast the truth to the whole grid",
         "effects": {
-          "Power": 0,
-          "Wealth": 0,
-          "People": 5,
-          "Knowledge": 0
+          "Power": -15,
+          "Wealth": 5,
+          "People": 22,
+          "Knowledge": 5
         },
         "nextCardIndex": 19
       },
-      "rightChoice": {
-        "text": "Step into the light to rule what you built",
+      "archetype": "terminal"
+    },
+    {
+      "prompt": "The neon dust settles. Whatever became of the prototype, the megacity will remember the fixer who held its future in their palm. How do you record your final ledger?",
+      "leftChoice": {
+        "text": "As a survivor who kept the balance",
         "effects": {
           "Power": 5,
           "Wealth": 5,
-          "People": 0,
-          "Knowledge": 0
-        },
-        "nextCardIndex": 19
-      }
+          "People": 5,
+          "Knowledge": -5
+        }
+      },
+      "rightChoice": {
+        "text": "As a legend who changed the game",
+        "effects": {
+          "Power": -5,
+          "Wealth": 5,
+          "People": 5,
+          "Knowledge": 5
+        }
+      },
+      "archetype": "terminal"
     }
   ]
 }

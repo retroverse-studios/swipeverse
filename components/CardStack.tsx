@@ -187,9 +187,22 @@ const Card: React.FC<CardProps> = ({ card, onSwipe, onDragPreview, isTop, realit
             <p className={`text-base md:text-xl text-center leading-relaxed ${chrome.prompt}`}>{card.prompt}</p>
         </div>
 
+        {/* Hints double as tap targets for players who don't discover the swipe */}
         <div className={`flex justify-between gap-3 text-[0.68rem] mt-3 ${chrome.hintText}`}>
-            <span className="text-left w-2/5"><span className={chrome.hintAccent}>⇦</span> {card.leftChoice.text}</span>
-            <span className="text-right w-2/5">{card.rightChoice.text} <span className={chrome.hintAccent}>⇨</span></span>
+            <button
+                onClick={(e) => { e.stopPropagation(); if (isTop) onSwipe('left'); }}
+                className="text-left w-2/5 py-1.5 -my-1.5 opacity-90 hover:opacity-100 cursor-pointer"
+                aria-label={`Choose: ${card.leftChoice.text}`}
+            >
+                <span className={chrome.hintAccent}>⇦</span> {card.leftChoice.text}
+            </button>
+            <button
+                onClick={(e) => { e.stopPropagation(); if (isTop) onSwipe('right'); }}
+                className="text-right w-2/5 py-1.5 -my-1.5 opacity-90 hover:opacity-100 cursor-pointer"
+                aria-label={`Choose: ${card.rightChoice.text}`}
+            >
+                {card.rightChoice.text} <span className={chrome.hintAccent}>⇨</span>
+            </button>
         </div>
       </div>
     </div>

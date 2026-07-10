@@ -22,9 +22,10 @@ export const CrtShell: React.FC<{ children: React.ReactNode }> = ({ children }) 
 /**
  * Handheld: a console body around a green-tinted screen. On small viewports
  * the plastic slims down and the decorative controls disappear ("LCD mode")
- * so the game keeps its screen space.
+ * so the game keeps its screen space. When onA/onB are provided (game
+ * screen), the A/B buttons are real controls: B = left choice, A = right.
  */
-export const HandheldShell: React.FC<{ children: React.ReactNode }> = ({ children }) => (
+export const HandheldShell: React.FC<{ children: React.ReactNode; onA?: () => void; onB?: () => void }> = ({ children, onA, onB }) => (
   <div className="min-h-full h-full flex items-center justify-center p-2 md:p-6 font-vt">
     <div className="hh-body w-full max-w-md p-3 pb-4 md:p-6 md:pb-8 max-h-full flex flex-col">
       <div className="hidden md:flex justify-between items-center text-[#2c2a4d] font-pixel text-[8px] tracking-[0.18em] mb-2.5 select-none">
@@ -45,11 +46,17 @@ export const HandheldShell: React.FC<{ children: React.ReactNode }> = ({ childre
           <i className="absolute top-0 left-[24px] w-[24px] h-[72px] bg-[#2c2a4d] rounded shadow-[inset_0_-3px_0_rgba(0,0,0,.4)]" />
         </div>
         <div className="flex gap-3 -rotate-12">
-          {['B', 'A'].map(b => (
-            <span key={b} className="w-9 h-9 rounded-full bg-[#b0355a] shadow-[inset_0_-4px_0_rgba(0,0,0,.35),0_2px_4px_rgba(0,0,0,.4)] text-[#f7d9e2] flex items-center justify-center font-pixel text-[9px]">
-              {b}
-            </span>
-          ))}
+          {([['B', onB], ['A', onA]] as const).map(([label, handler]) => {
+            const cls = "w-9 h-9 rounded-full bg-[#b0355a] shadow-[inset_0_-4px_0_rgba(0,0,0,.35),0_2px_4px_rgba(0,0,0,.4)] text-[#f7d9e2] flex items-center justify-center font-pixel text-[9px]";
+            return handler ? (
+              <button key={label} onClick={handler} className={`${cls} active:translate-y-0.5 active:shadow-[inset_0_-2px_0_rgba(0,0,0,.35)]`}
+                      aria-label={label === 'B' ? 'Choose left option' : 'Choose right option'}>
+                {label}
+              </button>
+            ) : (
+              <span key={label} className={cls}>{label}</span>
+            );
+          })}
         </div>
       </div>
     </div>

@@ -1,466 +1,482 @@
 {
-  "name": "The Dormant Colossus",
-  "description": "Your imperium's survey ships have woken a sleeping precursor megastructure, and every faction wants its power for their own ends.",
+  "name": "The Precursor Rim",
+  "description": "Your survey fleet has found a dormant precursor megastructure at the edge of known space, and every choice trades fleet strength, credits, alien goodwill, and forbidden knowledge on the road to controlling it.",
   "cards": [
     {
-      "prompt": "Survey ship Meridian pings a colossal precursor structure adrift at the rim. Its systems stir at your fleet's approach. Do you signal a peaceful survey or seize it as a prize?",
+      "prompt": "Survey Ship Meridian pings home: a dormant precursor megastructure drifts at the rim, its hull older than your empire's charters. How do you claim it?",
       "leftChoice": {
-        "text": "Broadcast peaceful intent",
+        "text": "Commit a war fleet to secure the site",
         "effects": {
-          "Power": -5,
-          "Wealth": -10,
-          "People": 15,
-          "Knowledge": 10
+          "Power": -10,
+          "Wealth": -15,
+          "People": -5,
+          "Knowledge": 20
         },
         "nextCardIndex": 1
       },
       "rightChoice": {
-        "text": "Claim it by force",
+        "text": "Slip in a small science team quietly",
         "effects": {
-          "Power": 15,
-          "Wealth": -10,
-          "People": -15,
-          "Knowledge": 5
+          "Power": 0,
+          "Wealth": -5,
+          "People": 5,
+          "Knowledge": 8
         },
         "nextCardIndex": 2
-      }
+      },
+      "archetype": "opportunity"
     },
     {
-      "prompt": "The neighboring Vasari Concord names the structure 'the Loom of the First Ones' and calls it sacred. Their envoy requests a joint expedition.",
+      "prompt": "Your science officer warns that the structure's fields spike when probed too hard, frying instruments and crew alike.",
       "leftChoice": {
-        "text": "Accept a joint mission",
+        "text": "Heed her caution and advance slowly",
         "effects": {
-          "Power": -10,
-          "Wealth": 5,
-          "People": 20,
-          "Knowledge": 15
+          "Power": 0,
+          "Wealth": -10,
+          "People": 0,
+          "Knowledge": 10
         },
         "nextCardIndex": 3
       },
       "rightChoice": {
-        "text": "Politely refuse and go alone",
+        "text": "Push hard for data now",
         "effects": {
-          "Power": 5,
-          "Wealth": -10,
-          "People": -15,
-          "Knowledge": 10
+          "Power": -5,
+          "Wealth": 0,
+          "People": -10,
+          "Knowledge": 20
         },
         "nextCardIndex": 4
-      }
+      },
+      "archetype": "advisor"
     },
     {
-      "prompt": "Your marines board the megastructure, but internal defenses awaken. Automated pylons fire on the boarding party.",
+      "prompt": "House Varrus, an ambitious rival, declares the megastructure lies within their trade sphere and demands you withdraw.",
       "leftChoice": {
-        "text": "Withdraw and study the defenses",
+        "text": "Reject their claim outright",
         "effects": {
-          "Power": -15,
+          "Power": -10,
           "Wealth": 0,
           "People": 5,
-          "Knowledge": 20
+          "Knowledge": 0
+        },
+        "nextCardIndex": 4
+      },
+      "rightChoice": {
+        "text": "Share findings to buy their peace",
+        "effects": {
+          "Power": 0,
+          "Wealth": 15,
+          "People": 5,
+          "Knowledge": -10
         },
         "nextCardIndex": 5
       },
-      "rightChoice": {
-        "text": "Push deeper regardless of losses",
-        "effects": {
-          "Power": -25,
-          "Wealth": 5,
-          "People": -5,
-          "Knowledge": 15
-        },
-        "nextCardIndex": 6
-      }
+      "archetype": "faction"
     },
     {
-      "prompt": "Vasari scholars share ancient star-charts pointing to the megastructure's control chamber. In return they ask you to slow your data extraction.",
+      "prompt": "Deck crews whisper of mutiny; wages are late and the structure terrifies them. The tension could snap at any moment.",
       "leftChoice": {
-        "text": "Honor their pace",
+        "text": "Crack down with your officers",
+        "effects": {
+          "Power": 10,
+          "Wealth": 0,
+          "People": -15,
+          "Knowledge": 0
+        },
+        "nextCardIndex": 6
+      },
+      "rightChoice": {
+        "text": "Negotiate and back-pay the crew",
         "effects": {
           "Power": 0,
-          "Wealth": -5,
+          "Wealth": -10,
+          "People": 10,
+          "Knowledge": 0
+        },
+        "nextCardIndex": 7
+      },
+      "archetype": "crisis"
+    },
+    {
+      "prompt": "An envoy of the 699 Concordance arrives, robes glittering. They name the megastructure sacred ground of their ancestors.",
+      "leftChoice": {
+        "text": "Vow to respect their holy site",
+        "effects": {
+          "Power": 0,
+          "Wealth": 0,
           "People": 20,
           "Knowledge": -10
         },
         "nextCardIndex": 7
       },
       "rightChoice": {
-        "text": "Extract data secretly at full speed",
+        "text": "Dismiss the claim as superstition",
         "effects": {
           "Power": 5,
-          "Wealth": 10,
+          "Wealth": 0,
           "People": -20,
-          "Knowledge": 25
+          "Knowledge": 10
         },
         "nextCardIndex": 8
-      }
+      },
+      "archetype": "petitioner"
     },
     {
-      "prompt": "Alone at the rim, your expedition's costs balloon. House Rennick offers financing—if the structure is eventually weaponized.",
+      "prompt": "A mercenary flotilla offers its guns to guard the expedition — for a princely fee.",
       "leftChoice": {
-        "text": "Take their credits",
+        "text": "Hire the mercenaries",
         "effects": {
-          "Power": 10,
-          "Wealth": 25,
-          "People": -10,
+          "Power": 20,
+          "Wealth": -20,
+          "People": 0,
+          "Knowledge": 0
+        },
+        "nextCardIndex": 8
+      },
+      "rightChoice": {
+        "text": "Decline and rely on your own ships",
+        "effects": {
+          "Power": -5,
+          "Wealth": 5,
+          "People": 0,
           "Knowledge": 0
         },
         "nextCardIndex": 9
       },
-      "rightChoice": {
-        "text": "Refuse the strings",
-        "effects": {
-          "Power": -5,
-          "Wealth": -20,
-          "People": 10,
-          "Knowledge": 5
-        },
-        "nextCardIndex": 10
-      }
+      "archetype": "opportunity"
     },
     {
-      "prompt": "Studying the pylons reveals a resonance key that safely pacifies the defenses. Engineers debate how widely to share the discovery.",
+      "prompt": "The structure yawns open a docking maw. Your crews debate whether to enter its ancient throat.",
       "leftChoice": {
-        "text": "Share the key with allies",
+        "text": "Attempt a full manned docking",
         "effects": {
-          "Power": -5,
+          "Power": -15,
           "Wealth": 0,
-          "People": 25,
-          "Knowledge": 10
-        },
-        "nextCardIndex": 11
-      },
-      "rightChoice": {
-        "text": "Keep it a state secret",
-        "effects": {
-          "Power": 15,
-          "Wealth": 10,
-          "People": -15,
-          "Knowledge": 15
-        },
-        "nextCardIndex": 11
-      }
-    },
-    {
-      "prompt": "Your battered marines reach a vault humming with precursor energy. It could be a reactor—or a weapon core.",
-      "leftChoice": {
-        "text": "Cautiously map the vault",
-        "effects": {
-          "Power": -5,
-          "Wealth": -5,
-          "People": 10,
-          "Knowledge": 20
-        },
-        "nextCardIndex": 12
-      },
-      "rightChoice": {
-        "text": "Attempt to tap its power now",
-        "effects": {
-          "Power": 20,
-          "Wealth": 15,
-          "People": -20,
-          "Knowledge": -5
-        },
-        "nextCardIndex": 12
-      }
-    },
-    {
-      "prompt": "With Vasari trust earned, they gift you a living precursor archive. But your admirals grumble that you serve aliens over your own houses.",
-      "leftChoice": {
-        "text": "Reassure the admirals with a promotion tour",
-        "effects": {
-          "Power": 15,
-          "Wealth": -15,
-          "People": -5,
-          "Knowledge": 5
-        },
-        "nextCardIndex": 13
-      },
-      "rightChoice": {
-        "text": "Dive into the archive with the Vasari",
-        "effects": {
-          "Power": -10,
-          "Wealth": -5,
-          "People": 15,
+          "People": 0,
           "Knowledge": 25
         },
-        "nextCardIndex": 13
-      }
-    },
-    {
-      "prompt": "Your secret extraction is discovered. The Vasari fleet massing at the rim demands an explanation.",
-      "leftChoice": {
-        "text": "Confess and offer reparations",
-        "effects": {
-          "Power": -10,
-          "Wealth": -25,
-          "People": 20,
-          "Knowledge": -5
-        },
-        "nextCardIndex": 14
+        "nextCardIndex": 9
       },
       "rightChoice": {
-        "text": "Bluff and reinforce your position",
-        "effects": {
-          "Power": 20,
-          "Wealth": -10,
-          "People": -20,
-          "Knowledge": 10
-        },
-        "nextCardIndex": 14
-      }
-    },
-    {
-      "prompt": "House Rennick's engineers arrive to install weapon retrofits. Your own crews resent the interlopers running your discovery.",
-      "leftChoice": {
-        "text": "Let Rennick take the lead",
-        "effects": {
-          "Power": 20,
-          "Wealth": 15,
-          "People": -25,
-          "Knowledge": -5
-        },
-        "nextCardIndex": 15
-      },
-      "rightChoice": {
-        "text": "Keep them on a tight leash",
-        "effects": {
-          "Power": 5,
-          "Wealth": -10,
-          "People": 10,
-          "Knowledge": 10
-        },
-        "nextCardIndex": 15
-      }
-    },
-    {
-      "prompt": "Broke but proud, you rally your crews to work unpaid for glory. Morale is high, but supplies dwindle fast.",
-      "leftChoice": {
-        "text": "Ration everything strictly",
-        "effects": {
-          "Power": -10,
-          "Wealth": 15,
-          "People": -10,
-          "Knowledge": 5
-        },
-        "nextCardIndex": 15
-      },
-      "rightChoice": {
-        "text": "Trade precursor trinkets to passing merchants",
+        "text": "Send only remote probes",
         "effects": {
           "Power": 0,
-          "Wealth": 20,
-          "People": 5,
-          "Knowledge": -15
+          "Wealth": -5,
+          "People": 0,
+          "Knowledge": 10
         },
-        "nextCardIndex": 15
-      }
+        "nextCardIndex": 10
+      },
+      "archetype": "gamble"
     },
     {
-      "prompt": "The pacified megastructure opens a grand gallery of star-maps. A rival admiral, Corvane, whispers of mutiny to claim the find for himself.",
+      "prompt": "House Varrus and the Concordance both demand you arbitrate who may set foot on the megastructure first.",
       "leftChoice": {
-        "text": "Confront Corvane openly",
-        "effects": {
-          "Power": -15,
-          "Wealth": 0,
-          "People": 10,
-          "Knowledge": 5
-        },
-        "nextCardIndex": 16
-      },
-      "rightChoice": {
-        "text": "Buy his loyalty quietly",
+        "text": "Rule in favor of House Varrus",
         "effects": {
           "Power": 10,
-          "Wealth": -25,
+          "Wealth": 10,
+          "People": -20,
+          "Knowledge": 0
+        },
+        "nextCardIndex": 10
+      },
+      "rightChoice": {
+        "text": "Rule in favor of the Concordance",
+        "effects": {
+          "Power": -10,
+          "Wealth": -10,
+          "People": 20,
+          "Knowledge": 0
+        },
+        "nextCardIndex": 11
+      },
+      "archetype": "judgement"
+    },
+    {
+      "prompt": "The Merchant Guild offers a vast loan to sustain the strained expedition — with strings attached.",
+      "leftChoice": {
+        "text": "Accept the guild's loan",
+        "effects": {
+          "Power": 0,
+          "Wealth": 25,
           "People": -5,
           "Knowledge": 0
         },
-        "nextCardIndex": 16
-      }
-    },
-    {
-      "prompt": "The vault's power surges through the structure. Systems dormant for eons blaze to life across the entire megastructure.",
-      "leftChoice": {
-        "text": "Stabilize the surge slowly",
-        "effects": {
-          "Power": -5,
-          "Wealth": -15,
-          "People": 10,
-          "Knowledge": 20
-        },
-        "nextCardIndex": 16
+        "nextCardIndex": 11
       },
       "rightChoice": {
-        "text": "Ride the surge to activate everything",
+        "text": "Refuse and levy new colony taxes",
         "effects": {
-          "Power": 15,
-          "Wealth": 10,
+          "Power": 0,
+          "Wealth": 15,
           "People": -15,
-          "Knowledge": 15
+          "Knowledge": 0
         },
-        "nextCardIndex": 16
-      }
+        "nextCardIndex": 12
+      },
+      "archetype": "petitioner"
     },
     {
-      "prompt": "The archive reveals the megastructure is a galaxy-spanning gate network. Whoever controls it commands travel between the stars.",
+      "prompt": "Raiders drawn by rumors of precursor tech ambush your supply lanes.",
       "leftChoice": {
-        "text": "Propose shared galactic stewardship",
+        "text": "Meet them in open battle",
         "effects": {
           "Power": -15,
-          "Wealth": -5,
-          "People": 25,
-          "Knowledge": 10
+          "Wealth": 10,
+          "People": 0,
+          "Knowledge": 5
         },
-        "nextCardIndex": 17
+        "nextCardIndex": 12
       },
       "rightChoice": {
-        "text": "Secure the gates for the imperium alone",
+        "text": "Pay them to disappear",
+        "effects": {
+          "Power": 0,
+          "Wealth": -20,
+          "People": 5,
+          "Knowledge": 0
+        },
+        "nextCardIndex": 13
+      },
+      "archetype": "crisis"
+    },
+    {
+      "prompt": "Codebreakers decode a fragment: a star-map of precursor waystations. Its value is immense — and dangerous.",
+      "leftChoice": {
+        "text": "Publish the map to all the galaxy",
+        "effects": {
+          "Power": 0,
+          "Wealth": -5,
+          "People": 15,
+          "Knowledge": -5
+        },
+        "nextCardIndex": 13
+      },
+      "rightChoice": {
+        "text": "Seal it for military eyes only",
+        "effects": {
+          "Power": 15,
+          "Wealth": 0,
+          "People": -10,
+          "Knowledge": 10
+        },
+        "nextCardIndex": 14
+      },
+      "archetype": "chain"
+    },
+    {
+      "prompt": "Grand Admiral Kesh insists the megastructure be reforged into the ultimate weapon before rivals do the same.",
+      "leftChoice": {
+        "text": "Approve weaponization",
         "effects": {
           "Power": 25,
-          "Wealth": 10,
+          "Wealth": 0,
           "People": -20,
           "Knowledge": 5
         },
-        "nextCardIndex": 17
-      }
+        "nextCardIndex": 14
+      },
+      "rightChoice": {
+        "text": "Forbid it as too reckless",
+        "effects": {
+          "Power": -10,
+          "Wealth": 0,
+          "People": 15,
+          "Knowledge": 0
+        },
+        "nextCardIndex": 15
+      },
+      "archetype": "faction"
     },
     {
-      "prompt": "The Vasari standoff reaches its breaking point. Their war-priests offer one final chance to prove your intentions are pure.",
+      "prompt": "An intelligence officer brings evidence that saboteurs have infiltrated the expedition's inner circle.",
       "leftChoice": {
-        "text": "Undergo their trial of trust",
+        "text": "Purge the suspected agents",
         "effects": {
-          "Power": -15,
+          "Power": 5,
+          "Wealth": -5,
+          "People": -10,
+          "Knowledge": 0
+        },
+        "nextCardIndex": 15
+      },
+      "rightChoice": {
+        "text": "Feed them false data instead",
+        "effects": {
+          "Power": 0,
+          "Wealth": 5,
+          "People": 0,
+          "Knowledge": 5
+        },
+        "nextCardIndex": 16
+      },
+      "archetype": "advisor"
+    },
+    {
+      "prompt": "A drifting colony of refugees begs sanctuary aboard your growing rim stations.",
+      "leftChoice": {
+        "text": "Grant them asylum",
+        "effects": {
+          "Power": 0,
+          "Wealth": -15,
+          "People": 20,
+          "Knowledge": 0
+        },
+        "nextCardIndex": 16
+      },
+      "rightChoice": {
+        "text": "Turn them away to protect security",
+        "effects": {
+          "Power": 0,
+          "Wealth": 10,
+          "People": -15,
+          "Knowledge": 0
+        },
+        "nextCardIndex": 17
+      },
+      "archetype": "petitioner"
+    },
+    {
+      "prompt": "The megastructure's core hums to life on your command. Full activation could reveal everything — or shatter it.",
+      "leftChoice": {
+        "text": "Trigger full activation",
+        "effects": {
+          "Power": -20,
+          "Wealth": 0,
+          "People": -10,
+          "Knowledge": 30
+        },
+        "nextCardIndex": 17
+      },
+      "rightChoice": {
+        "text": "Attempt a cautious partial activation",
+        "effects": {
+          "Power": 0,
           "Wealth": -10,
-          "People": 30,
+          "People": 0,
+          "Knowledge": 15
+        },
+        "nextCardIndex": 18
+      },
+      "archetype": "gamble"
+    },
+    {
+      "prompt": "Sabotage detonates in the reactor bays; systems flicker as blame flies across the command deck.",
+      "leftChoice": {
+        "text": "Launch a thorough investigation",
+        "effects": {
+          "Power": 0,
+          "Wealth": -15,
+          "People": 0,
           "Knowledge": 10
         },
         "nextCardIndex": 17
       },
       "rightChoice": {
-        "text": "Answer with a show of force",
+        "text": "Rush emergency repairs",
         "effects": {
-          "Power": 25,
-          "Wealth": -15,
-          "People": -25,
+          "Power": -10,
+          "Wealth": -5,
+          "People": 0,
           "Knowledge": 0
         },
-        "nextCardIndex": 17
-      }
+        "nextCardIndex": 18
+      },
+      "archetype": "crisis"
     },
     {
-      "prompt": "With Rennick weapons half-installed, precursor guardians reactivate, seeing the retrofits as an attack. Chaos erupts aboard.",
+      "prompt": "Chief Researcher Ilun pleads for one last funding surge to translate the precursor command lexicon.",
       "leftChoice": {
-        "text": "Strip out the weapons to calm the guardians",
+        "text": "Fund the final research push",
         "effects": {
-          "Power": -20,
+          "Power": 0,
           "Wealth": -15,
-          "People": 20,
-          "Knowledge": 15
+          "People": 0,
+          "Knowledge": 20
         },
-        "nextCardIndex": 17
+        "nextCardIndex": 18
       },
       "rightChoice": {
-        "text": "Fight the guardians with the new arms",
+        "text": "Divert the credits to the war fleet",
         "effects": {
           "Power": 15,
-          "Wealth": -10,
-          "People": -15,
+          "Wealth": 0,
+          "People": 0,
           "Knowledge": -10
         },
         "nextCardIndex": 17
-      }
-    },
-    {
-      "prompt": "Corvane's faction and loyalists face off in the gallery. The mutiny will decide who speaks for the imperium at the megastructure.",
-      "leftChoice": {
-        "text": "Personally lead the loyalists",
-        "effects": {
-          "Power": 10,
-          "Wealth": -5,
-          "People": 15,
-          "Knowledge": -5
-        },
-        "nextCardIndex": 18
       },
-      "rightChoice": {
-        "text": "Let the factions negotiate a truce",
-        "effects": {
-          "Power": -10,
-          "Wealth": 5,
-          "People": 20,
-          "Knowledge": 5
-        },
-        "nextCardIndex": 18
-      }
+      "archetype": "petitioner"
     },
     {
-      "prompt": "The megastructure's core intelligence awakens and addresses you directly, asking who you are and what you seek among the stars.",
+      "prompt": "The command lexicon is deciphered. The megastructure awaits a master — step to the control altar, or turn back.",
       "leftChoice": {
-        "text": "Answer with humility and curiosity",
-        "effects": {
-          "Power": -5,
-          "Wealth": 0,
-          "People": 15,
-          "Knowledge": 25
-        },
-        "nextCardIndex": 19
-      },
-      "rightChoice": {
-        "text": "Declare yourself its rightful master",
-        "effects": {
-          "Power": 20,
-          "Wealth": 10,
-          "People": -20,
-          "Knowledge": 5
-        },
-        "nextCardIndex": 19
-      }
-    },
-    {
-      "prompt": "The core offers a choice: it will bond with a single custodian civilization. Your decisions have shaped whether it trusts your imperium.",
-      "leftChoice": {
-        "text": "Offer to share it with all peoples",
-        "effects": {
-          "Power": -10,
-          "Wealth": -5,
-          "People": 25,
-          "Knowledge": 15
-        },
-        "nextCardIndex": 19
-      },
-      "rightChoice": {
-        "text": "Claim the bond for the imperium",
-        "effects": {
-          "Power": 20,
-          "Wealth": 15,
-          "People": -15,
-          "Knowledge": 10
-        },
-        "nextCardIndex": 19
-      }
-    },
-    {
-      "prompt": "The precursor Loom hums with purpose, its gates aligning to your command. The rim of known space has become the center of a new age—shaped by every choice you made. History will remember how the imperium met the Colossus.",
-      "leftChoice": {
-        "text": "Open the gates to a new galactic era",
+        "text": "Take command of the megastructure",
         "effects": {
           "Power": 5,
-          "Wealth": 5,
-          "People": 10,
+          "Wealth": 0,
+          "People": 5,
           "Knowledge": 10
         },
         "nextCardIndex": 19
       },
       "rightChoice": {
-        "text": "Seal the Loom and guard its secrets",
+        "text": "Hesitate and order a retreat",
+        "effects": {
+          "Power": -15,
+          "Wealth": 0,
+          "People": -10,
+          "Knowledge": 0
+        },
+        "nextCardIndex": 18
+      },
+      "archetype": "chain"
+    },
+    {
+      "prompt": "Overloaded and abandoned, the megastructure convulses and collapses into a searing nova, taking your rim fleet and reputation with it. The dream of the precursors dies in fire.",
+      "leftChoice": {
+        "text": "Mourn the fallen and rebuild from ashes",
+        "effects": {
+          "Power": -20,
+          "Wealth": -20,
+          "People": -10,
+          "Knowledge": -20
+        }
+      },
+      "rightChoice": {
+        "text": "Accept the ruin of your ambition",
+        "effects": {
+          "Power": -20,
+          "Wealth": -20,
+          "People": -10,
+          "Knowledge": -20
+        }
+      },
+      "archetype": "terminal"
+    },
+    {
+      "prompt": "The precursor megastructure answers your hand, its ancient light bathing your throne. Houses bow, the Concordance kneels in awe, and the Imperium enters a golden age at the rim of the galaxy.",
+      "leftChoice": {
+        "text": "Rule wisely as steward of the precursors",
         "effects": {
           "Power": 10,
+          "Wealth": 10,
+          "People": 10,
+          "Knowledge": 10
+        }
+      },
+      "rightChoice": {
+        "text": "Wield its power to reshape known space",
+        "effects": {
+          "Power": 15,
           "Wealth": 5,
-          "People": 5,
-          "Knowledge": 5
-        },
-        "nextCardIndex": 19
-      }
+          "People": -5,
+          "Knowledge": 10
+        }
+      },
+      "archetype": "terminal"
     }
   ]
 }

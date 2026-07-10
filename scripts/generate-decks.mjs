@@ -14,6 +14,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import { writeFileSync, mkdirSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { checkPlayable } from "./deck-solver.mjs";
 
 const DECK_SIZE = 20;
 const MAX_EFFECT = 50;
@@ -55,6 +56,7 @@ A story creator wants a deck of ${DECK_SIZE} cards for the game based on this hi
 Generate a full, unique, and challenging deck of ${DECK_SIZE} scenario cards that follows the creator's prompt.
 Give the generated deck a cool, thematic name based on the prompt, and write a one-sentence synopsis as the deck's description.
 Create a branching narrative using the 'nextCardIndex' property on choices to make the story interactive and replayable. Make sure jumps are valid (within the 0 to ${DECK_SIZE - 1} range). The final card in the array (index ${DECK_SIZE - 1}) should be the 'win' or final ending card.
+CRITICAL — the story must be completable: there must exist at least one sequence of choices that reaches the final card (index ${DECK_SIZE - 1}) and finishes the story. Trace a main path from card 0 to card ${DECK_SIZE - 1} first, then add loops and detours that branch off and rejoin it. Never create a set of loops the player can't escape toward the ending.
 The choices should have plausible but non-obvious consequences.
 Stat changes should generally be between -35 and +35. Balance matters: this is the first deck a new player experiences, so avoid choices where several stats swing hard in the same direction, and make sure a player who mixes left and right choices can plausibly survive to the final card.
 Ensure the prompts are engaging, varied, and fit the ${reality.name} theme.
@@ -162,8 +164,9 @@ function balanceReport(deck) {
 
 const client = new Anthropic();
 
-async function generateDeck(reality) {
-    console.log(`\nGenerating "${reality.name}" (${reality.id})...`);
+async function generateDeck(reality, attempt = 1) {
+    const MAX_ATTEMPTS = 3;
+    console.log(`\nGenerating "${reality.name}" (${reality.id})${attempt > 1 ? ` — attempt ${attempt}` : ''}...`);
     const stream = client.messages.stream({
         model: "claude-opus-4-8",
         max_tokens: 32000,
@@ -177,6 +180,15 @@ async function generateDeck(reality) {
     if (message.stop_reason === "max_tokens") throw new Error("Output truncated (max_tokens)");
     const text = message.content.filter(b => b.type === "text").map(b => b.text).join("");
     const deck = validateAndRepairDeck(JSON.parse(text));
+
+    // Playability gate: the deck must be winnable AND losable at every
+    // difficulty (exact solver over the game's rules). Reject and retry.
+    const playable = checkPlayable(deck);
+    if (!playable.ok) {
+        console.log(`  ✗ rejected: ${playable.failures.join(", ")}`);
+        if (attempt >= MAX_ATTEMPTS) throw new Error(`"${reality.name}" failed the playability gate ${MAX_ATTEMPTS} times`);
+        return generateDeck(reality, attempt + 1);
+    }
 
     const outPath = join(OUT_DIR, `${reality.id}.json`);
     writeFileSync(outPath, JSON.stringify(deck, null, 2) + "\n");

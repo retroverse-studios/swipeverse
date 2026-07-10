@@ -2,29 +2,37 @@
 
 _Drafted 2026-07-07, while themed art is being generated (docs/art-prompts.md)._
 
-## DECISION (2026-07-10): Neon Tarot
+## DECISION (2026-07-10, revised): three player-selectable shells, scoped to the game loop
 
-Four direction mockups were built and reviewed (commit `6cd5352`); **B — Neon
-Tarot** won. A user-facing shell-theme toggle (all four as a setting) was
-considered and rejected: it makes every screen and every future feature a 4×
-design/maintenance surface, splits the juice work per theme, and dilutes the
-game's identity for launch. Mitigations kept instead: the Tarot shell is built
-on a CSS-variable token layer (`:root` `--tarot-*` in `index.html`), so a
-second shell theme later is a token/values change, and the CRT direction can
-return someday as a cheap scanline-overlay *effect toggle* rather than a full
-theme. Per-reality variety stays where it already lives: reality art sets,
-palettes, and fonts.
+Four direction mockups were built and reviewed (commit `6cd5352`). Final
+architecture — **shell themes are a player setting, but only for the
+player-facing screens** (main menu, game screen, game over):
+
+- **Shells:** Neon Tarot (default — canonical look for screenshots/landing),
+  CRT Arcade, Handheld. Picker lives in Settings, persists in localStorage,
+  applies instantly.
+- **Utility screens stay single-themed** (editor, store/library, settings,
+  modals): one neutral chrome. This kills the hard cases (graph editor in a
+  Game Boy bezel) and keeps future features from multiplying across themes.
+- With AI doing implementation the original "4× maintenance" objection mostly
+  reduced to *review* cost — scoping themes to three screens bounds that.
+- Handheld's console body is desktop/tablet dressing; on small viewports it
+  slims to "LCD mode" (decorative d-pad/buttons hidden) so phones keep their
+  screen space.
+- Per-theme structure: `services/shellTheme.ts` (setting) +
+  `ShellThemeContext` + `components/shells.tsx` (CrtShell/HandheldShell
+  wrappers); StatBar/CardStack/MainMenu/GameOverScreen branch per shell;
+  theme CSS lives in `index.html` alongside the tarot token layer.
 
 Implementation status:
-- ✅ Main menu (tarot spread of real card backs, difficulty as "readings")
-- ✅ Game screen: stat orbs (badge + conic ring + value), gold card frame,
-  wax-seal dominant-stat badge, card backs behind the stack, rise-from-deck
-  deal-in (juice #2/#3), **drag stat-preview** (juice #1), persistent danger
-  state on orbs at ≤15/≥85 (juice #4a)
+- ✅ All three shells: main menu, game screen, game over
+- ✅ Juice on all shells: drag stat-preview (#1), per-shell deal-in
+  (#2/#3 — tarot rise / CRT flicker / handheld slide), danger states (#4a),
+  card backs behind the stack, dominant-stat seal/badge
 - ⏳ Remaining: meter pulse-on-change (#4b), game-over ceremony (#5),
-  micro-feedback/haptics (#6), shell consistency pass (editor, store/library,
-  modals, toasts, game-over, About panel), landing page reskin, real app
-  icons, itch.io asset export.
+  micro-feedback/haptics (#6), utility-chrome consistency pass (editor,
+  store/library, modals, toasts, About panel), landing page reskin, real app
+  icons, itch.io asset export (shot in Tarot).
 
 ## Goal
 

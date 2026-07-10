@@ -6,6 +6,8 @@ import { Difficulty, applyDifficultyModifier } from '../services/gameHistory';
 import StatBar from './StatBar';
 import CardStack from './CardStack';
 import { ExitIcon } from './icons';
+import { useShellTheme } from './ShellThemeContext';
+import { CrtShell, HandheldShell } from './shells';
 
 interface GameScreenProps {
   reality: Reality;
@@ -73,6 +75,7 @@ const AudioContextClass = window.AudioContext || (window as unknown as { webkitA
 const audioContext = new AudioContextClass();
 
 const GameScreen: React.FC<GameScreenProps> = ({ reality, difficulty, onGameOver, onExit, requestConfirmation, isMuted }) => {
+  const { shellTheme } = useShellTheme();
   const [stats, setStats] = useState<Stats>(INITIAL_STATS);
   const [deck, setDeck] = useState<CardData[]>([]);
   const [currentCardIndex, setCurrentCardIndex] = useState<number>(0);
@@ -315,32 +318,23 @@ const GameScreen: React.FC<GameScreenProps> = ({ reality, difficulty, onGameOver
 
   const currentCard = deck[currentCardIndex];
 
-  return (
-    <div className={`flex flex-col h-full w-full items-center justify-between p-4 md:p-8 relative ${reality.font}`}>
-       <div className="absolute top-5 right-5 z-20 flex space-x-2">
-            <button
-                onClick={handleExitClick}
-                className="p-2 rounded-full bg-black/30 text-gray-300 hover:text-white hover:bg-white/20 transition-colors duration-300 border-2 border-transparent hover:border-current"
-                aria-label="Exit to main menu"
-                title="Exit to Main Menu"
-            >
-                <ExitIcon />
-            </button>
-       </div>
-       
-       {isLoading && <LoadingSpinner text={loadingText} />}
-       {deckLoadError && (
-           <ErrorModal
-                reality={reality}
-                error={deckLoadError}
-                onExit={onExit}
-                onRetry={() => setLoadAttempt(n => n + 1)}
-                onRetryWithAI={() => { setForceAI(true); setLoadAttempt(n => n + 1); }}
-                onUseBundled={() => { setPreferBundled(true); setLoadAttempt(n => n + 1); }}
-            />
-        )}
+  const hidden = isLoading || deckLoadError || !currentCard;
 
-      <div className={`w-full max-w-2xl flex justify-center gap-4 md:gap-8 pt-2 transition-opacity duration-300 ${isLoading || deckLoadError || !currentCard ? 'opacity-0' : 'opacity-100'}`}>
+  const statRowClass = {
+    tarot: 'w-full max-w-2xl flex justify-center gap-4 md:gap-8 pt-2',
+    crt: 'w-full max-w-2xl flex gap-4 md:gap-6 px-2 pt-2 font-vt',
+    handheld: 'w-full grid grid-cols-2 gap-x-5 gap-y-1.5 px-2 pt-1 justify-items-center',
+  }[shellTheme];
+
+  const nodeClass = {
+    tarot: 'text-tarot-muted text-[0.68rem] uppercase tracking-[0.35em]',
+    crt: 'font-vt text-[#5f6a80] text-lg tracking-[0.3em]',
+    handheld: 'font-vt text-[#5c8a6b] text-base tracking-[0.2em]',
+  }[shellTheme];
+
+  const gameContent = (
+    <>
+      <div className={`${statRowClass} transition-opacity duration-300 ${hidden ? 'opacity-0' : 'opacity-100'}`}>
         {statKeys.map((key) => {
           const previewEffect = statPreview?.[key as StatName];
           return (
@@ -355,7 +349,7 @@ const GameScreen: React.FC<GameScreenProps> = ({ reality, difficulty, onGameOver
         })}
       </div>
 
-      <div className={`flex-grow flex items-center justify-center w-full transition-opacity duration-300 ${isLoading || deckLoadError || !currentCard ? 'opacity-0' : 'opacity-100'}`}>
+      <div className={`flex-grow flex items-center justify-center w-full transition-opacity duration-300 ${hidden ? 'opacity-0' : 'opacity-100'}`}>
         {currentCard &&
             <CardStack
               cards={deck}
@@ -367,9 +361,48 @@ const GameScreen: React.FC<GameScreenProps> = ({ reality, difficulty, onGameOver
         }
       </div>
 
-      <div className={`h-16 flex items-center justify-center text-tarot-muted text-[0.68rem] uppercase tracking-[0.35em] transition-opacity duration-300 ${isLoading || deckLoadError || !currentCard ? 'opacity-0' : 'opacity-100'}`}>
+      <div className={`h-12 flex items-center justify-center ${nodeClass} transition-opacity duration-300 ${hidden ? 'opacity-0' : 'opacity-100'}`}>
         {!isLoading && deck.length > 0 && <span>Node {currentCardIndex + 1} · {deck.length}</span>}
       </div>
+    </>
+  );
+
+  return (
+    <div className={`h-full w-full relative ${shellTheme === 'tarot' ? reality.font : ''}`}>
+       <div className="absolute top-4 right-4 z-50 flex space-x-2">
+            <button
+                onClick={handleExitClick}
+                className="p-2 rounded-full bg-black/30 text-gray-300 hover:text-white hover:bg-white/20 transition-colors duration-300 border-2 border-transparent hover:border-current"
+                aria-label="Exit to main menu"
+                title="Exit to Main Menu"
+            >
+                <ExitIcon />
+            </button>
+       </div>
+
+       {isLoading && <LoadingSpinner text={loadingText} />}
+       {deckLoadError && (
+           <ErrorModal
+                reality={reality}
+                error={deckLoadError}
+                onExit={onExit}
+                onRetry={() => setLoadAttempt(n => n + 1)}
+                onRetryWithAI={() => { setForceAI(true); setLoadAttempt(n => n + 1); }}
+                onUseBundled={() => { setPreferBundled(true); setLoadAttempt(n => n + 1); }}
+            />
+        )}
+
+      {shellTheme === 'crt' ? (
+        <CrtShell>
+          <div className="flex flex-col h-full items-center justify-between px-4 py-5">{gameContent}</div>
+        </CrtShell>
+      ) : shellTheme === 'handheld' ? (
+        <HandheldShell>
+          <div className="flex flex-col h-full items-center justify-between px-2 py-3">{gameContent}</div>
+        </HandheldShell>
+      ) : (
+        <div className="flex flex-col h-full w-full items-center justify-between p-4 md:p-8">{gameContent}</div>
+      )}
     </div>
   );
 };

@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { AISettings, AIProviderType, loadAISettings, saveAISettings } from '../services/aiService';
+import { SHELL_THEMES } from '../services/shellTheme';
+import { useShellTheme } from './ShellThemeContext';
 import { CloseIcon } from './icons';
 
 interface AISettingsModalProps {
@@ -16,6 +18,7 @@ const PROVIDER_OPTIONS: { value: AIProviderType; label: string; description: str
 
 const AISettingsModal: React.FC<AISettingsModalProps> = ({ onClose, addToast }) => {
     const [settings, setSettings] = useState<AISettings>(loadAISettings);
+    const { shellTheme, setShellTheme } = useShellTheme();
 
     const handleChange = (field: keyof AISettings, value: string) => {
         setSettings(prev => ({ ...prev, [field]: value }));
@@ -31,11 +34,35 @@ const AISettingsModal: React.FC<AISettingsModalProps> = ({ onClose, addToast }) 
         <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/70 backdrop-blur-sm animate-fade-in">
             <div className="bg-gray-900 border border-gray-700 rounded-lg shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
                 <div className="flex items-center justify-between p-4 border-b border-gray-800">
-                    <h2 className="text-xl font-bold font-orbitron">AI Settings</h2>
+                    <h2 className="text-xl font-bold font-orbitron">Settings</h2>
                     <button onClick={onClose} className="p-1 hover:bg-white/10 rounded"><CloseIcon /></button>
                 </div>
 
                 <div className="p-4 space-y-4">
+                    {/* Shell theme — applies immediately to menu / game / game over */}
+                    <div>
+                        <label className="block text-sm font-bold text-gray-400 mb-2">Game Shell</label>
+                        <div className="grid grid-cols-3 gap-2">
+                            {SHELL_THEMES.map(theme => (
+                                <button
+                                    key={theme.id}
+                                    onClick={() => setShellTheme(theme.id)}
+                                    title={theme.description}
+                                    className={`p-2.5 rounded-lg border text-sm font-bold transition-colors ${
+                                        shellTheme === theme.id
+                                            ? 'border-cyber-pink bg-cyber-pink/10 text-white'
+                                            : 'border-gray-700 text-gray-400 hover:border-gray-500'
+                                    }`}
+                                >
+                                    {theme.name}
+                                </button>
+                            ))}
+                        </div>
+                        <p className="text-xs text-gray-500 mt-1">Changes the look of the menu and game screens. Applies instantly.</p>
+                    </div>
+
+                    <div className="border-t border-gray-800" />
+
                     {/* Provider Selection */}
                     <div>
                         <label className="block text-sm font-bold text-gray-400 mb-2">AI Provider</label>

@@ -11,6 +11,8 @@ import { submitReality } from './services/apiService';
 import { Difficulty, recordGame, GameSummary } from './services/gameHistory';
 import AISettingsModal from './components/AISettingsModal';
 import { VolumeOffIcon, VolumeOnIcon, CloseIcon } from './components/icons';
+import { loadShellTheme, saveShellTheme, ShellThemeId } from './services/shellTheme';
+import { ShellThemeContext, SHELL_BACKGROUNDS } from './components/ShellThemeContext';
 
 const REALITIES_STORAGE_KEY = 'swipeverse-realities';
 const DECK_LIBRARY_STORAGE_KEY = 'swipeverse-deck-library';
@@ -34,6 +36,12 @@ const App: React.FC = () => {
           setToasts(prev => prev.filter(t => t.id !== id));
       }, 5000);
   }, []);
+
+  const [shellTheme, setShellTheme] = useState<ShellThemeId>(loadShellTheme);
+
+  useEffect(() => {
+    saveShellTheme(shellTheme);
+  }, [shellTheme]);
 
   const [isMuted, setIsMuted] = useState<boolean>(() => {
     try {
@@ -308,11 +316,21 @@ const App: React.FC = () => {
     }
   };
 
-  const currentRealityForTheme = gameState === GameState.Playing ? selectedReality : (gameState === GameState.Editor ? editingReality : null);
-  const backgroundClass = currentRealityForTheme?.colors.background || 'bg-velvet';
-  const fontClass = currentRealityForTheme?.font || 'font-exo';
+  // Player-facing screens (menu, game, game over) take the shell theme's
+  // backdrop; utility screens (editor, store) keep the neutral chrome.
+  const isPlayerFacing = gameState === GameState.MainMenu || gameState === GameState.Playing || gameState === GameState.GameOver;
+  let backgroundClass: string;
+  if (!isPlayerFacing) {
+    backgroundClass = (gameState === GameState.Editor && editingReality?.colors.background) || 'bg-velvet';
+  } else if (shellTheme === 'tarot') {
+    backgroundClass = (gameState === GameState.Playing && selectedReality?.colors.background) || 'bg-velvet';
+  } else {
+    backgroundClass = SHELL_BACKGROUNDS[shellTheme];
+  }
+  const fontClass = (gameState === GameState.Editor ? editingReality?.font : undefined) || 'font-exo';
 
   return (
+    <ShellThemeContext.Provider value={{ shellTheme, setShellTheme }}>
     <main className={`w-screen h-screen overflow-hidden ${backgroundClass} ${fontClass} text-white transition-all duration-500`}>
       <div className="absolute inset-0 bg-black/30 backdrop-blur-sm"></div>
       <button 
@@ -352,6 +370,7 @@ const App: React.FC = () => {
         )}
       </div>
     </main>
+    </ShellThemeContext.Provider>
   );
 };
 

@@ -2,6 +2,30 @@
 
 _Drafted 2026-07-07, while themed art is being generated (docs/art-prompts.md)._
 
+## DECISION (2026-07-10): Neon Tarot
+
+Four direction mockups were built and reviewed (commit `6cd5352`); **B — Neon
+Tarot** won. A user-facing shell-theme toggle (all four as a setting) was
+considered and rejected: it makes every screen and every future feature a 4×
+design/maintenance surface, splits the juice work per theme, and dilutes the
+game's identity for launch. Mitigations kept instead: the Tarot shell is built
+on a CSS-variable token layer (`:root` `--tarot-*` in `index.html`), so a
+second shell theme later is a token/values change, and the CRT direction can
+return someday as a cheap scanline-overlay *effect toggle* rather than a full
+theme. Per-reality variety stays where it already lives: reality art sets,
+palettes, and fonts.
+
+Implementation status:
+- ✅ Main menu (tarot spread of real card backs, difficulty as "readings")
+- ✅ Game screen: stat orbs (badge + conic ring + value), gold card frame,
+  wax-seal dominant-stat badge, card backs behind the stack, rise-from-deck
+  deal-in (juice #2/#3), **drag stat-preview** (juice #1), persistent danger
+  state on orbs at ≤15/≥85 (juice #4a)
+- ⏳ Remaining: meter pulse-on-change (#4b), game-over ceremony (#5),
+  micro-feedback/haptics (#6), shell consistency pass (editor, store/library,
+  modals, toasts, game-over, About panel), landing page reskin, real app
+  icons, itch.io asset export.
+
 ## Goal
 
 The game plays well but presents like a web app: generic dark-slate Tailwind

@@ -309,7 +309,7 @@ const App: React.FC = () => {
   };
 
   const currentRealityForTheme = gameState === GameState.Playing ? selectedReality : (gameState === GameState.Editor ? editingReality : null);
-  const backgroundClass = currentRealityForTheme?.colors.background || 'bg-gray-900';
+  const backgroundClass = currentRealityForTheme?.colors.background || 'bg-velvet';
   const fontClass = currentRealityForTheme?.font || 'font-exo';
 
   return (

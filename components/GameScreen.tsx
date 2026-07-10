@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { Reality, Stats, CardData, StatName, Deck } from '../types';
-import { INITIAL_STATS, MIN_STAT_VALUE, MAX_STAT_VALUE, DEFAULT_SOUNDS, pickCardArt, cardScenesFor, resolveAssetUrl } from '../constants';
+import { INITIAL_STATS, MIN_STAT_VALUE, MAX_STAT_VALUE, DEFAULT_SOUNDS, pickCardArt, cardScenesFor, statBadgeFor, resolveAssetUrl } from '../constants';
 import { generateInitialDeck, getActiveProviderLabel, hasConfiguredProvider } from '../services/aiService';
 import { Difficulty, applyDifficultyModifier } from '../services/gameHistory';
 import StatBar from './StatBar';
 import CardStack from './CardStack';
-import { iconRegistry, ExitIcon } from './icons';
+import { ExitIcon } from './icons';
 
 interface GameScreenProps {
   reality: Reality;
@@ -83,6 +83,8 @@ const GameScreen: React.FC<GameScreenProps> = ({ reality, difficulty, onGameOver
   const [loadAttempt, setLoadAttempt] = useState(0);
   const [forceAI, setForceAI] = useState(false);
   const [preferBundled, setPreferBundled] = useState(false);
+  // Drag stat-preview: effects of the choice currently being dragged toward
+  const [statPreview, setStatPreview] = useState<Partial<Stats> | null>(null);
   
   const [audioBuffers, setAudioBuffers] = useState<Record<string, AudioBuffer>>({});
   const bgmAudioRef = useRef<HTMLAudioElement | null>(null);
@@ -338,34 +340,35 @@ const GameScreen: React.FC<GameScreenProps> = ({ reality, difficulty, onGameOver
             />
         )}
 
-      <div className={`w-full max-w-2xl flex justify-around p-4 rounded-xl bg-black/30 border-2 ${reality.colors.accent} backdrop-blur-md transition-opacity duration-300 ${isLoading || deckLoadError || !currentCard ? 'opacity-0' : 'opacity-100'}`}>
+      <div className={`w-full max-w-2xl flex justify-center gap-4 md:gap-8 pt-2 transition-opacity duration-300 ${isLoading || deckLoadError || !currentCard ? 'opacity-0' : 'opacity-100'}`}>
         {statKeys.map((key) => {
-          const IconComponent = iconRegistry[reality.statIconNames[key as StatName]];
+          const previewEffect = statPreview?.[key as StatName];
           return (
             <StatBar
               key={key}
               name={reality.statNames[key as StatName]}
               value={stats[key as StatName]}
-              icon={IconComponent ? <IconComponent /> : null}
-              color={reality.colors.secondary}
+              badgeUrl={resolveAssetUrl(statBadgeFor(key as StatName, reality.id))}
+              preview={previewEffect ? Math.min(1, Math.abs(previewEffect) / 35) : null}
             />
           )
         })}
       </div>
 
       <div className={`flex-grow flex items-center justify-center w-full transition-opacity duration-300 ${isLoading || deckLoadError || !currentCard ? 'opacity-0' : 'opacity-100'}`}>
-        {currentCard && 
+        {currentCard &&
             <CardStack
               cards={deck}
               currentIndex={currentCardIndex}
               onSwipe={handleSwipe}
+              onDragPreview={setStatPreview}
               reality={reality}
             />
         }
       </div>
 
-      <div className={`h-16 flex items-center justify-center text-gray-400 transition-opacity duration-300 ${isLoading || deckLoadError || !currentCard ? 'opacity-0' : 'opacity-100'}`}>
-        {!isLoading && deck.length > 0 && <span>Node {currentCardIndex + 1} / {deck.length}</span>}
+      <div className={`h-16 flex items-center justify-center text-tarot-muted text-[0.68rem] uppercase tracking-[0.35em] transition-opacity duration-300 ${isLoading || deckLoadError || !currentCard ? 'opacity-0' : 'opacity-100'}`}>
+        {!isLoading && deck.length > 0 && <span>Node {currentCardIndex + 1} · {deck.length}</span>}
       </div>
     </div>
   );

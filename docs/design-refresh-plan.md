@@ -72,6 +72,15 @@ assets needed for the itch.io launch page.
 Each mockup uses real card art (whatever sets exist by then) so the pick is
 made against reality, not lorem-ipsum vibes.
 
+## Settings pattern (decided 2026-07-11)
+
+One global Settings page with context tabs (Game / Deck Building, Store tab
+reserved for when the store scope firms up) — never mode-scoped settings
+that only appear inside certain screens. Rationale: it's the established
+mobile-game pattern, keeps every option discoverable, and AI settings
+straddle contexts anyway (editor Story Director *and* game-start deck
+generation).
+
 ## Card anatomy (the chrome system)
 
 One card = frame + art window + prompt plate + hint row. Specified so every

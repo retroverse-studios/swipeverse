@@ -80,26 +80,26 @@ const TarotMenu: React.FC<MenuLayoutProps> = ({
               >
                 <EditIcon />
               </button>
-            </div>
 
-            {isSelected && (
-              <div className="absolute left-1/2 -translate-x-1/2 top-full mt-3 w-56 z-30 animate-fade-in">
-                <p className="text-center text-tarot-muted text-[0.6rem] uppercase tracking-[0.25em] mb-2">Choose your reading</p>
-                <div className="flex flex-col gap-1.5">
+              {/* Difficulty appears ON the card face — no layout shift, works at any viewport */}
+              {isSelected && (
+                <div className="absolute inset-[10px] rounded-lg bg-tarot-velvet/90 backdrop-blur-[2px] z-20 flex flex-col items-center justify-center gap-2 px-3 animate-fade-in">
+                  <p className={`font-cinzel font-bold text-sm tracking-wide text-center ${reality.colors.secondary}`}>{reality.name}</p>
+                  <p className="text-tarot-muted text-[0.58rem] uppercase tracking-[0.25em] mb-1">Choose your reading</p>
                   {DIFFICULTIES.map(d => (
                     <button
                       key={d}
-                      onClick={() => onStartGame(reality, d)}
-                      className="tarot-plaque rounded-lg py-2 px-3 text-sm font-cinzel font-semibold tracking-wide transition-colors"
+                      onClick={(e) => { e.stopPropagation(); onStartGame(reality, d); }}
+                      className="tarot-plaque rounded-lg py-1.5 px-3 w-full text-sm font-cinzel font-semibold tracking-wide transition-colors"
                     >
                       {TAROT_DIFFICULTY[d].label}
-                      <span className="block text-[0.62rem] text-tarot-muted font-exo font-normal">{TAROT_DIFFICULTY[d].desc}</span>
+                      <span className="block text-[0.6rem] text-tarot-muted font-exo font-normal">{TAROT_DIFFICULTY[d].desc}</span>
                     </button>
                   ))}
+                  <p className="text-tarot-muted/70 text-[0.55rem] mt-1">tap the card to close</p>
                 </div>
-              </div>
-            )}
-            {isSelected && <div className="h-44" />}
+              )}
+            </div>
           </div>
         );
       })}

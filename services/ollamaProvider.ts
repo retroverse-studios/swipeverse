@@ -2,20 +2,25 @@ import { Deck } from "../types";
 import { AIProvider, parseDeckFromResponse } from "./aiProvider";
 
 export class OllamaProvider implements AIProvider {
-    readonly name = "Ollama (Local)";
+    readonly name = "Ollama";
     readonly type = "ollama" as const;
     private baseUrl: string;
     private model: string;
+    private apiKey?: string;
 
-    constructor(model: string = "llama3.1", baseUrl: string = "http://localhost:11434") {
+    constructor(model: string = "llama3.1", baseUrl: string = "http://localhost:11434", apiKey?: string) {
         this.model = model;
-        this.baseUrl = baseUrl;
+        this.baseUrl = baseUrl.replace(/\/$/, '');
+        this.apiKey = apiKey;
     }
 
     async generateDeck(prompt: string, systemInstruction: string): Promise<Deck> {
+        const headers: Record<string, string> = { "Content-Type": "application/json" };
+        // Optional bearer token for remote/proxied Ollama (e.g. behind a reverse proxy or Ollama cloud)
+        if (this.apiKey) headers["Authorization"] = `Bearer ${this.apiKey}`;
         const response = await fetch(`${this.baseUrl}/api/chat`, {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers,
             body: JSON.stringify({
                 model: this.model,
                 messages: [

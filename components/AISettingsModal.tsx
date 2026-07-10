@@ -9,15 +9,78 @@ interface AISettingsModalProps {
     addToast: (message: string, type?: 'success' | 'error') => void;
 }
 
-const PROVIDER_OPTIONS: { value: AIProviderType; label: string; description: string }[] = [
-    { value: 'gemini', label: 'Google Gemini', description: 'Best structured output. Requires API key from ai.google.dev' },
-    { value: 'openai', label: 'OpenAI', description: 'GPT-4o-mini or any OpenAI-compatible API' },
-    { value: 'claude', label: 'Anthropic Claude', description: 'Claude models. Requires API key from console.anthropic.com' },
-    { value: 'ollama', label: 'Ollama (Local)', description: 'Free, runs locally. Requires Ollama running on your machine' },
+type SettingsField = {
+    key: keyof AISettings;
+    label: string;
+    type: 'password' | 'text';
+    placeholder?: string;
+    hint?: string;
+};
+
+const PROVIDERS: { value: AIProviderType; label: string; blurb: string; fields: SettingsField[] }[] = [
+    {
+        value: 'gemini', label: 'Google Gemini',
+        blurb: 'Native JSON output, free tier available — get a key at ai.google.dev',
+        fields: [
+            { key: 'geminiApiKey', label: 'API Key', type: 'password', placeholder: 'Your Gemini API key' },
+            { key: 'geminiModel', label: 'Model', type: 'text' },
+        ],
+    },
+    {
+        value: 'openai', label: 'OpenAI',
+        blurb: 'GPT models — get a key at platform.openai.com',
+        fields: [
+            { key: 'openaiApiKey', label: 'API Key', type: 'password', placeholder: 'sk-...' },
+            { key: 'openaiModel', label: 'Model', type: 'text' },
+        ],
+    },
+    {
+        value: 'claude', label: 'Anthropic Claude',
+        blurb: 'Claude models — get a key at console.anthropic.com',
+        fields: [
+            { key: 'claudeApiKey', label: 'API Key', type: 'password', placeholder: 'sk-ant-...' },
+            { key: 'claudeModel', label: 'Model', type: 'text' },
+        ],
+    },
+    {
+        value: 'openrouter', label: 'OpenRouter',
+        blurb: 'One key, hundreds of models — get a key at openrouter.ai/keys',
+        fields: [
+            { key: 'openrouterApiKey', label: 'API Key', type: 'password', placeholder: 'sk-or-...' },
+            { key: 'openrouterModel', label: 'Model', type: 'text', hint: 'e.g. openai/gpt-4o-mini, anthropic/claude-sonnet-4.5' },
+        ],
+    },
+    {
+        value: 'grok', label: 'Grok (xAI)',
+        blurb: 'xAI models — get a key at console.x.ai',
+        fields: [
+            { key: 'grokApiKey', label: 'API Key', type: 'password', placeholder: 'xai-...' },
+            { key: 'grokModel', label: 'Model', type: 'text', hint: 'e.g. grok-3-mini, grok-3' },
+        ],
+    },
+    {
+        value: 'compatible', label: 'OpenAI-Compatible',
+        blurb: 'Any service speaking the OpenAI chat API: LM Studio, Groq, Together, Azure, Mistral...',
+        fields: [
+            { key: 'compatBaseUrl', label: 'Base URL', type: 'text', placeholder: 'http://localhost:1234/v1' },
+            { key: 'compatApiKey', label: 'API Key (if required)', type: 'password', placeholder: 'optional' },
+            { key: 'compatModel', label: 'Model', type: 'text', placeholder: 'model name as the service expects it' },
+        ],
+    },
+    {
+        value: 'ollama', label: 'Ollama',
+        blurb: 'Free, runs on your machine — no key needed for localhost',
+        fields: [
+            { key: 'ollamaBaseUrl', label: 'Base URL', type: 'text' },
+            { key: 'ollamaModel', label: 'Model', type: 'text', hint: 'e.g. llama3.1, mistral, gemma2' },
+            { key: 'ollamaApiKey', label: 'Bearer Token (optional)', type: 'password', hint: 'Only for remote or proxied Ollama servers' },
+        ],
+    },
 ];
 
 const AISettingsModal: React.FC<AISettingsModalProps> = ({ onClose, addToast }) => {
     const [settings, setSettings] = useState<AISettings>(loadAISettings);
+    const [activeTab, setActiveTab] = useState<'game' | 'deck'>('game');
     const { shellTheme, setShellTheme } = useShellTheme();
 
     const handleChange = (field: keyof AISettings, value: string) => {
@@ -26,138 +89,96 @@ const AISettingsModal: React.FC<AISettingsModalProps> = ({ onClose, addToast }) 
 
     const handleSave = () => {
         saveAISettings(settings);
-        addToast('AI settings saved!', 'success');
+        addToast('Settings saved!', 'success');
         onClose();
     };
 
+    const activeProvider = PROVIDERS.find(p => p.value === settings.provider) ?? PROVIDERS[0];
+
     return (
         <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/70 backdrop-blur-sm animate-fade-in">
-            <div className="bg-gray-900 border border-gray-700 rounded-lg shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
-                <div className="flex items-center justify-between p-4 border-b border-gray-800">
+            <div className="bg-gray-900 border border-gray-700 rounded-lg shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto flex flex-col">
+                <div className="flex items-center justify-between p-4 pb-0">
                     <h2 className="text-xl font-bold font-orbitron">Settings</h2>
                     <button onClick={onClose} className="p-1 hover:bg-white/10 rounded"><CloseIcon /></button>
                 </div>
 
-                <div className="p-4 space-y-4">
-                    {/* Shell theme — applies immediately to menu / game / game over */}
-                    <div>
-                        <label className="block text-sm font-bold text-gray-400 mb-2">Game Shell</label>
-                        <div className="grid grid-cols-3 gap-2">
-                            {SHELL_THEMES.map(theme => (
-                                <button
-                                    key={theme.id}
-                                    onClick={() => setShellTheme(theme.id)}
-                                    title={theme.description}
-                                    className={`p-2.5 rounded-lg border text-sm font-bold transition-colors ${
-                                        shellTheme === theme.id
-                                            ? 'border-cyber-pink bg-cyber-pink/10 text-white'
-                                            : 'border-gray-700 text-gray-400 hover:border-gray-500'
-                                    }`}
-                                >
-                                    {theme.name}
-                                </button>
-                            ))}
+                {/* Tabs */}
+                <div className="flex gap-1 px-4 mt-3 border-b border-gray-800">
+                    {([['game', 'Game'], ['deck', 'Deck Building']] as const).map(([tab, label]) => (
+                        <button
+                            key={tab}
+                            onClick={() => setActiveTab(tab)}
+                            className={`py-2 px-4 text-sm font-bold rounded-t-md transition-colors ${
+                                activeTab === tab
+                                    ? 'bg-gray-800 text-white border border-gray-700 border-b-transparent'
+                                    : 'text-gray-500 hover:text-gray-300'
+                            }`}
+                        >
+                            {label}
+                        </button>
+                    ))}
+                </div>
+
+                <div className="p-4 space-y-4 flex-grow">
+                    {activeTab === 'game' && (
+                        <div>
+                            <label className="block text-sm font-bold text-gray-400 mb-2">Game Shell</label>
+                            <div className="grid grid-cols-3 gap-2">
+                                {SHELL_THEMES.map(theme => (
+                                    <button
+                                        key={theme.id}
+                                        onClick={() => setShellTheme(theme.id)}
+                                        title={theme.description}
+                                        className={`p-2.5 rounded-lg border text-sm font-bold transition-colors ${
+                                            shellTheme === theme.id
+                                                ? 'border-cyber-pink bg-cyber-pink/10 text-white'
+                                                : 'border-gray-700 text-gray-400 hover:border-gray-500'
+                                        }`}
+                                    >
+                                        {theme.name}
+                                    </button>
+                                ))}
+                            </div>
+                            <p className="text-xs text-gray-500 mt-2">Changes the look of the menu and game screens. Applies instantly.</p>
                         </div>
-                        <p className="text-xs text-gray-500 mt-1">Changes the look of the menu and game screens. Applies instantly.</p>
-                    </div>
+                    )}
 
-                    <div className="border-t border-gray-800" />
+                    {activeTab === 'deck' && (
+                        <>
+                            <p className="text-xs text-gray-400 bg-gray-800/60 border border-gray-700 rounded-md p-2.5 leading-relaxed">
+                                An AI provider is <span className="text-white font-semibold">only used to generate new stories</span> — fresh decks
+                                when you start a game, and the editor's Story Director. The built-in and downloaded stories play without any of this.
+                            </p>
 
-                    {/* Provider Selection */}
-                    <div>
-                        <label className="block text-sm font-bold text-gray-400 mb-2">AI Provider</label>
-                        <div className="space-y-2">
-                            {PROVIDER_OPTIONS.map(opt => (
-                                <label key={opt.value}
-                                    className={`flex items-start gap-3 p-3 rounded-lg border cursor-pointer transition-colors ${
-                                        settings.provider === opt.value
-                                            ? 'border-cyber-pink bg-cyber-pink/10'
-                                            : 'border-gray-700 hover:border-gray-600'
-                                    }`}
+                            <div>
+                                <label className="block text-sm font-bold text-gray-400 mb-1">Provider</label>
+                                <select
+                                    value={settings.provider}
+                                    onChange={e => handleChange('provider', e.target.value)}
+                                    className="w-full bg-gray-800 p-2.5 rounded text-sm border border-gray-700"
                                 >
-                                    <input
-                                        type="radio"
-                                        name="provider"
-                                        value={opt.value}
-                                        checked={settings.provider === opt.value}
-                                        onChange={() => handleChange('provider', opt.value)}
-                                        className="mt-1"
-                                    />
-                                    <div>
-                                        <span className="font-bold text-white">{opt.label}</span>
-                                        <p className="text-xs text-gray-400 mt-0.5">{opt.description}</p>
+                                    {PROVIDERS.map(p => <option key={p.value} value={p.value}>{p.label}</option>)}
+                                </select>
+                                <p className="text-xs text-gray-500 mt-1">{activeProvider.blurb}</p>
+                            </div>
+
+                            <div className="space-y-3 pt-1">
+                                {activeProvider.fields.map(field => (
+                                    <div key={field.key}>
+                                        <label className="block text-sm text-gray-400 mb-1">{field.label}</label>
+                                        <input
+                                            type={field.type}
+                                            value={settings[field.key] as string}
+                                            onChange={e => handleChange(field.key, e.target.value)}
+                                            className="w-full bg-gray-800 p-2 rounded text-sm"
+                                            placeholder={field.placeholder}
+                                        />
+                                        {field.hint && <p className="text-xs text-gray-500 mt-1">{field.hint}</p>}
                                     </div>
-                                </label>
-                            ))}
-                        </div>
-                    </div>
-
-                    {/* Provider-specific settings */}
-                    {settings.provider === 'gemini' && (
-                        <div className="space-y-3 pt-2 border-t border-gray-800">
-                            <div>
-                                <label className="block text-sm text-gray-400 mb-1">API Key</label>
-                                <input type="password" value={settings.geminiApiKey} onChange={e => handleChange('geminiApiKey', e.target.value)}
-                                    className="w-full bg-gray-800 p-2 rounded text-sm" placeholder="Your Gemini API key" />
+                                ))}
                             </div>
-                            <div>
-                                <label className="block text-sm text-gray-400 mb-1">Model</label>
-                                <input type="text" value={settings.geminiModel} onChange={e => handleChange('geminiModel', e.target.value)}
-                                    className="w-full bg-gray-800 p-2 rounded text-sm" />
-                            </div>
-                        </div>
-                    )}
-
-                    {settings.provider === 'openai' && (
-                        <div className="space-y-3 pt-2 border-t border-gray-800">
-                            <div>
-                                <label className="block text-sm text-gray-400 mb-1">API Key</label>
-                                <input type="password" value={settings.openaiApiKey} onChange={e => handleChange('openaiApiKey', e.target.value)}
-                                    className="w-full bg-gray-800 p-2 rounded text-sm" placeholder="sk-..." />
-                            </div>
-                            <div>
-                                <label className="block text-sm text-gray-400 mb-1">Model</label>
-                                <input type="text" value={settings.openaiModel} onChange={e => handleChange('openaiModel', e.target.value)}
-                                    className="w-full bg-gray-800 p-2 rounded text-sm" />
-                            </div>
-                            <div>
-                                <label className="block text-sm text-gray-400 mb-1">Base URL</label>
-                                <input type="text" value={settings.openaiBaseUrl} onChange={e => handleChange('openaiBaseUrl', e.target.value)}
-                                    className="w-full bg-gray-800 p-2 rounded text-sm" placeholder="https://api.openai.com/v1" />
-                                <p className="text-xs text-gray-500 mt-1">Change for OpenAI-compatible APIs (Azure, Groq, Together, etc.)</p>
-                            </div>
-                        </div>
-                    )}
-
-                    {settings.provider === 'claude' && (
-                        <div className="space-y-3 pt-2 border-t border-gray-800">
-                            <div>
-                                <label className="block text-sm text-gray-400 mb-1">API Key</label>
-                                <input type="password" value={settings.claudeApiKey} onChange={e => handleChange('claudeApiKey', e.target.value)}
-                                    className="w-full bg-gray-800 p-2 rounded text-sm" placeholder="sk-ant-..." />
-                            </div>
-                            <div>
-                                <label className="block text-sm text-gray-400 mb-1">Model</label>
-                                <input type="text" value={settings.claudeModel} onChange={e => handleChange('claudeModel', e.target.value)}
-                                    className="w-full bg-gray-800 p-2 rounded text-sm" />
-                            </div>
-                        </div>
-                    )}
-
-                    {settings.provider === 'ollama' && (
-                        <div className="space-y-3 pt-2 border-t border-gray-800">
-                            <div>
-                                <label className="block text-sm text-gray-400 mb-1">Model</label>
-                                <input type="text" value={settings.ollamaModel} onChange={e => handleChange('ollamaModel', e.target.value)}
-                                    className="w-full bg-gray-800 p-2 rounded text-sm" />
-                                <p className="text-xs text-gray-500 mt-1">e.g. llama3.1, mistral, gemma2</p>
-                            </div>
-                            <div>
-                                <label className="block text-sm text-gray-400 mb-1">Base URL</label>
-                                <input type="text" value={settings.ollamaBaseUrl} onChange={e => handleChange('ollamaBaseUrl', e.target.value)}
-                                    className="w-full bg-gray-800 p-2 rounded text-sm" />
-                            </div>
-                        </div>
+                        </>
                     )}
                 </div>
 

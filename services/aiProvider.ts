@@ -5,7 +5,7 @@ const ARCHETYPE_GUIDE = `Tag each card with an "archetype" that best matches it:
 
 // ─── Provider Interface ──────────────────────────────────────────
 
-export type AIProviderType = 'gemini' | 'openai' | 'claude' | 'ollama';
+export type AIProviderType = 'gemini' | 'openai' | 'claude' | 'openrouter' | 'grok' | 'compatible' | 'ollama';
 
 export interface AIProvider {
     readonly name: string;

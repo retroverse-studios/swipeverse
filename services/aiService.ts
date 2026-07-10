@@ -27,8 +27,16 @@ export interface AISettings {
     openaiBaseUrl: string;
     claudeApiKey: string;
     claudeModel: string;
+    openrouterApiKey: string;
+    openrouterModel: string;
+    grokApiKey: string;
+    grokModel: string;
+    compatApiKey: string;
+    compatModel: string;
+    compatBaseUrl: string;
     ollamaModel: string;
     ollamaBaseUrl: string;
+    ollamaApiKey: string;
 }
 
 const DEFAULT_SETTINGS: AISettings = {
@@ -40,8 +48,16 @@ const DEFAULT_SETTINGS: AISettings = {
     openaiBaseUrl: 'https://api.openai.com/v1',
     claudeApiKey: process.env.ANTHROPIC_API_KEY || '',
     claudeModel: 'claude-sonnet-5',
+    openrouterApiKey: '',
+    openrouterModel: 'openai/gpt-4o-mini',
+    grokApiKey: '',
+    grokModel: 'grok-3-mini',
+    compatApiKey: '',
+    compatModel: '',
+    compatBaseUrl: '',
     ollamaModel: 'llama3.1',
     ollamaBaseUrl: 'http://localhost:11434',
+    ollamaApiKey: '',
 };
 
 export function loadAISettings(): AISettings {
@@ -80,8 +96,21 @@ function createProvider(settings: AISettings): AIProvider {
             if (!settings.claudeApiKey) throw new Error("Claude API key not configured. Go to Settings to add one.");
             return new ClaudeProvider(settings.claudeApiKey, settings.claudeModel);
 
+        case 'openrouter':
+            if (!settings.openrouterApiKey) throw new Error("OpenRouter API key not configured. Go to Settings to add one.");
+            return new OpenAIProvider(settings.openrouterApiKey, settings.openrouterModel, 'https://openrouter.ai/api/v1', 'OpenRouter', 'openrouter');
+
+        case 'grok':
+            if (!settings.grokApiKey) throw new Error("Grok (xAI) API key not configured. Go to Settings to add one.");
+            return new OpenAIProvider(settings.grokApiKey, settings.grokModel, 'https://api.x.ai/v1', 'Grok (xAI)', 'grok');
+
+        case 'compatible':
+            if (!settings.compatBaseUrl) throw new Error("Base URL not configured for the OpenAI-compatible provider. Go to Settings to add one.");
+            if (!settings.compatModel) throw new Error("Model not configured for the OpenAI-compatible provider. Go to Settings to add one.");
+            return new OpenAIProvider(settings.compatApiKey, settings.compatModel, settings.compatBaseUrl, 'OpenAI-Compatible', 'compatible');
+
         case 'ollama':
-            return new OllamaProvider(settings.ollamaModel, settings.ollamaBaseUrl);
+            return new OllamaProvider(settings.ollamaModel, settings.ollamaBaseUrl, settings.ollamaApiKey || undefined);
 
         default:
             throw new Error(`Unknown AI provider: ${settings.provider}`);
@@ -97,6 +126,9 @@ export function hasConfiguredProvider(): boolean {
         case 'gemini': return !!settings.geminiApiKey;
         case 'openai': return !!settings.openaiApiKey;
         case 'claude': return !!settings.claudeApiKey;
+        case 'openrouter': return !!settings.openrouterApiKey;
+        case 'grok': return !!settings.grokApiKey;
+        case 'compatible': return !!settings.compatBaseUrl && !!settings.compatModel;
         case 'ollama': return true;
         default: return false;
     }
@@ -108,6 +140,9 @@ export function getActiveProviderLabel(): string {
         case 'gemini': return 'Google Gemini';
         case 'openai': return 'OpenAI';
         case 'claude': return 'Anthropic Claude';
+        case 'openrouter': return 'OpenRouter';
+        case 'grok': return 'Grok (xAI)';
+        case 'compatible': return 'your OpenAI-compatible provider';
         case 'ollama': return 'Ollama (local)';
         default: return 'AI';
     }

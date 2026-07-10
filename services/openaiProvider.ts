@@ -1,17 +1,30 @@
 import { Deck } from "../types";
-import { AIProvider, parseDeckFromResponse } from "./aiProvider";
+import { AIProvider, AIProviderType, parseDeckFromResponse } from "./aiProvider";
 
+/**
+ * OpenAI chat-completions provider. Also powers every OpenAI-compatible
+ * service (OpenRouter, Grok/xAI, LM Studio, Groq, Together, ...) via the
+ * baseUrl + display name/type overrides.
+ */
 export class OpenAIProvider implements AIProvider {
-    readonly name = "OpenAI";
-    readonly type = "openai" as const;
+    readonly name: string;
+    readonly type: AIProviderType;
     private apiKey: string;
     private model: string;
     private baseUrl: string;
 
-    constructor(apiKey: string, model: string = "gpt-4o-mini", baseUrl: string = "https://api.openai.com/v1") {
+    constructor(
+        apiKey: string,
+        model: string = "gpt-4o-mini",
+        baseUrl: string = "https://api.openai.com/v1",
+        name: string = "OpenAI",
+        type: AIProviderType = "openai",
+    ) {
         this.apiKey = apiKey;
         this.model = model;
-        this.baseUrl = baseUrl;
+        this.baseUrl = baseUrl.replace(/\/$/, '');
+        this.name = name;
+        this.type = type;
     }
 
     async generateDeck(prompt: string, systemInstruction: string): Promise<Deck> {

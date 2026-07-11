@@ -52,9 +52,13 @@ export type CardData = {
   rightChoice: Choice;
 };
 
+/** Store catalog classification — set on store entries, optional elsewhere. */
+export type ContentCategory = 'game' | 'education';
+
 export type Deck = {
     name?: string;
     description?: string;
+    category?: ContentCategory;
     /**
      * 'bundled' marks starter decks shipped with the app (see decks/). They act as
      * defaults: a newer app version may replace them, and AI generation takes over
@@ -77,6 +81,7 @@ export type Reality = {
   deckUrl?: string; // Optional URL to a pre-defined deck of cards
   deck?: Deck; // Optional user-imported deck data for persistence
   soundConfig?: SoundConfig; // Optional sound configuration for the reality
+  category?: ContentCategory; // Store catalog classification
   colors: {
     primary: string;
     secondary: string;

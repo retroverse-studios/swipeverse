@@ -133,6 +133,9 @@ const StoreScreen: React.FC<StoreScreenProps> = ({ onExit, onAddReality, onAddDe
                 >
                     <div>
                         <h2 className={`text-3xl font-bold ${reality.colors.secondary} mb-2`}>{reality.name}</h2>
+                        {reality.category === 'education' && (
+                            <span className="inline-block mb-2 text-[0.62rem] font-bold tracking-widest uppercase bg-cyan-500/15 text-cyan-300 border border-cyan-500/40 rounded px-2 py-0.5">Education</span>
+                        )}
                         <p className="text-gray-300 mb-4 h-24 overflow-y-auto">{reality.description}</p>
                     </div>
                     <button
@@ -155,6 +158,9 @@ const StoreScreen: React.FC<StoreScreenProps> = ({ onExit, onAddReality, onAddDe
                 >
                     <div>
                         <h2 className={`text-3xl font-bold text-mystic-gold mb-2`}>{deck.name}</h2>
+                        {deck.category === 'education' && (
+                            <span className="inline-block mb-2 text-[0.62rem] font-bold tracking-widest uppercase bg-cyan-500/15 text-cyan-300 border border-cyan-500/40 rounded px-2 py-0.5">Education</span>
+                        )}
                         <p className="text-gray-300 mb-4 h-24 overflow-y-auto">{deck.description}</p>
                     </div>
                     <button
@@ -244,12 +250,8 @@ const StoreScreen: React.FC<StoreScreenProps> = ({ onExit, onAddReality, onAddDe
             <header className="flex items-center mb-6">
                 <button onClick={onExit} className="p-2 mr-4 rounded-full hover:bg-white/10"><BackIcon /></button>
                 <div>
-                    <h1 className="text-5xl font-bold font-orbitron text-shadow">
-                        Community Store
-                        <span className="ml-4 align-middle text-sm font-bold tracking-widest uppercase bg-mystic-gold/20 text-mystic-gold border border-mystic-gold rounded px-2 py-1">Demo</span>
-                    </h1>
+                    <h1 className="text-5xl font-bold font-orbitron text-shadow">Community Store</h1>
                     <p className="text-gray-400">Discover realities and stories crafted by other creators.</p>
-                    <p className="text-sm text-amber-400/80 mt-1">The live store isn't open yet — these are built-in sample entries.</p>
                 </div>
             </header>
             <div className="flex items-center gap-2 mb-6 border-b-2 border-gray-800">

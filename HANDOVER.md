@@ -67,9 +67,10 @@ Everything below is live and pushed:
 4. **Review the reskinned landing page** (Tarot palette + shells section,
    commit "Reskin landing page"). Hate it? `git revert` that one commit
    restores the old page exactly.
-5. **Store go-live decision** — say the word to create
-   `retroverse-studios/swipeverse-store` on GitHub (public), then Pages +
-   `store.swipeverse.app` CNAME.
+5. ~~Store go-live~~ ✅ live: github.com/retroverse-studios/swipeverse-store,
+   catalog served via Pages, app wired with offline fallback. Remaining on
+   you: add Cloudflare CNAME `store` -> `retroverse-studios.github.io`
+   (grey cloud), then tell Claude to attach the domain + flip CATALOG_BASE.
 6. **Update retroverse.studio** — point its SwipeVerse link at swipeverse.app
    once the domain is live. (Old `swipeverse.app` site repo: you're deleting it.)
 
@@ -81,7 +82,7 @@ Everything below is live and pushed:
 | Redo manifest icons with real artwork (current: rasterized diamond stopgap) | small | design refresh |
 | Process the 4 missing archetype scenes into `public/cards/` + update `CARD_ART` placeholders | small | art (#3) |
 | **Design refresh** — plan at `docs/design-refresh-plan.md`: direction mockups → pick → shell → card chrome + juice (deal-in, flip, drag stat-preview, meter feedback) → itch.io assets | session(s) | mockups ready anytime; final art improves them |
-| Store go-live: create GitHub repo, enable Pages, wire `services/apiService.ts` to the real catalog (keep samples as offline fallback), remove Demo badge. Scope: **Education section** + category tags (education/game) on catalog entries; store-hosted scenarios get `?play=` deep links | medium | #5 |
+| Store: remaining after go-live — DNS CNAME `store` -> retroverse-studios.github.io (Cloudflare, grey cloud), set cname on store repo, flip `CATALOG_BASE` in apiService.ts; then "New from the store" menu shelf, art palette hosting, Creator Guide page | medium | DNS |
 | Store art palette: publish the 20 non-bundled themed sets (from `art-processed/`) to the store site; extend the editor's art picker with a store-palette source; allowlist the store host in the validator | medium | store go-live |
 | Publish on itch.io | small | playtesting + design refresh |
 | Editor: AI co-writing verbs (rewrite this card, add N cards in this style, fill in effects, continue from card X) — AI as collaborator, not just whole-deck drafter | medium | post-launch |

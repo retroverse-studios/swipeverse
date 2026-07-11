@@ -1,4 +1,4 @@
-const CACHE_NAME = 'swipeverse-v2';
+const CACHE_NAME = 'swipeverse-v3';
 
 // Never intercept AI provider traffic
 const NEVER_CACHE = [
@@ -6,6 +6,12 @@ const NEVER_CACHE = [
   'api.openai.com',
   'api.anthropic.com',
   'localhost:11434',
+];
+
+// Store catalog: fetch fresh when online, fall back to cache offline
+const NETWORK_FIRST = [
+  'retroverse-studios.github.io/swipeverse-store',
+  'store.swipeverse.app',
 ];
 
 self.addEventListener('install', () => {
@@ -24,9 +30,9 @@ self.addEventListener('fetch', (event) => {
   const { request } = event;
   if (request.method !== 'GET' || NEVER_CACHE.some((h) => request.url.includes(h))) return;
 
-  // Network-first for page navigations so new deploys arrive promptly;
-  // fall back to cache when offline.
-  if (request.mode === 'navigate') {
+  // Network-first for page navigations (new deploys arrive promptly) and the
+  // store catalog (content updates arrive promptly); cache fallback offline.
+  if (request.mode === 'navigate' || NETWORK_FIRST.some((h) => request.url.includes(h))) {
     event.respondWith(
       fetch(request)
         .then((response) => {

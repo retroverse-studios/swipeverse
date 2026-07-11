@@ -26,8 +26,14 @@ interface MenuLayoutProps extends MainMenuProps {
 
 const DIFFICULTIES: Difficulty[] = ['easy', 'standard', 'hard'];
 
-const survivalHint = (survival: Record<Difficulty, number> | null, difficulty: Difficulty): string | null =>
-  survival ? `~${Math.round(survival[difficulty] * 100)}% survive` : null;
+const survivalHint = (survival: Record<Difficulty, number> | null, difficulty: Difficulty): string | null => {
+  if (!survival) return null;
+  const pct = survival[difficulty] * 100;
+  // Never display 0%: sub-1% decks are brutal, not unwinnable (the generator
+  // guarantees winnability), and rounding to zero reads as "impossible".
+  if (pct < 1) return '<1% survive';
+  return `~${Math.round(pct)}% survive`;
+};
 
 /* ── Neon Tarot ─────────────────────────────────────────────────────── */
 

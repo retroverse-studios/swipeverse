@@ -64,8 +64,9 @@ Everything below is live and pushed:
      spilled liquid pooling beneath it, a single shaft of cold light"
    - Style suffix for all: _16-bit pixel art, flat colors with subtle texture,
      landscape 3:2, moody two-tone palette, no text_
-4. **Review the landing page copy** (`landing/index.html`) — placeholder
-   quality by design; edit freely or leave for the design refresh.
+4. **Review the reskinned landing page** (Tarot palette + shells section,
+   commit "Reskin landing page"). Hate it? `git revert` that one commit
+   restores the old page exactly.
 5. **Store go-live decision** — say the word to create
    `retroverse-studios/swipeverse-store` on GitHub (public), then Pages +
    `store.swipeverse.app` CNAME.

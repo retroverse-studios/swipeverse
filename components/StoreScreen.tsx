@@ -16,7 +16,7 @@ interface StoreScreenProps {
 
 const LoadingSpinner: React.FC = () => (
     <div className="flex flex-col items-center justify-center h-full">
-        <div className="w-16 h-16 border-4 border-dashed rounded-full animate-spin border-mystic-purple mb-4"></div>
+        <div className="w-16 h-16 border-4 border-dashed rounded-full animate-spin border-tarot-gold mb-4"></div>
         <p className="text-lg text-white">Connecting to Community Store...</p>
     </div>
 );
@@ -27,8 +27,8 @@ const SelectRealityModal: React.FC<{
     onCancel: () => void;
 }> = ({ realities, onSelect, onCancel }) => (
     <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 animate-fade-in p-4">
-        <div className="bg-slate-900 border-2 border-mystic-purple rounded-lg shadow-2xl p-6 max-w-lg w-full">
-            <h2 className="text-2xl font-bold mb-4 text-mystic-purple">Add Story To...</h2>
+        <div className="bg-tarot-velvet-2 border-2 border-tarot-gold rounded-lg shadow-2xl p-6 max-w-lg w-full">
+            <h2 className="text-2xl font-bold mb-4 font-cinzel text-tarot-gold-bright">Add Story To...</h2>
             <p className="text-gray-400 mb-6">Select one of your existing realities to play this story in. It replaces the deck currently loaded in that reality — your library copy is kept.</p>
             <div className="space-y-2 max-h-64 overflow-y-auto pr-2 mb-6">
                 {realities.map(reality => (
@@ -154,10 +154,10 @@ const StoreScreen: React.FC<StoreScreenProps> = ({ onExit, onAddReality, onAddDe
             {storeDecks.map((deck, index) => (
                 <div
                     key={`${deck.name}-${index}`}
-                    className={`flex flex-col justify-between p-6 border-2 border-mystic-gold bg-black/40 rounded-lg shadow-lg backdrop-blur-md hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 font-exo`}
+                    className={`flex flex-col justify-between p-6 border-2 border-tarot-gold bg-black/40 rounded-lg shadow-lg backdrop-blur-md hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 font-exo`}
                 >
                     <div>
-                        <h2 className={`text-3xl font-bold text-mystic-gold mb-2`}>{deck.name}</h2>
+                        <h2 className={`text-3xl font-bold text-tarot-gold-bright mb-2`}>{deck.name}</h2>
                         {deck.category === 'education' && (
                             <span className="inline-block mb-2 text-[0.62rem] font-bold tracking-widest uppercase bg-cyan-500/15 text-cyan-300 border border-cyan-500/40 rounded px-2 py-0.5">Education</span>
                         )}
@@ -165,7 +165,7 @@ const StoreScreen: React.FC<StoreScreenProps> = ({ onExit, onAddReality, onAddDe
                     </div>
                     <button
                         onClick={() => onAddDeckToLibrary(deck)}
-                        className={`w-full mt-auto pt-4 flex items-center justify-center gap-2 py-3 px-6 font-bold text-lg rounded-md transition-colors duration-300 text-mystic-purple border-2 border-mystic-gold bg-transparent hover:bg-white/10`}
+                        className={`w-full mt-auto pt-4 flex items-center justify-center gap-2 py-3 px-6 font-bold text-lg rounded-md transition-colors duration-300 text-tarot-gold-bright border-2 border-tarot-gold bg-transparent hover:bg-white/10`}
                     >
                        <AddIcon /> Add to Library
                     </button>
@@ -191,23 +191,23 @@ const StoreScreen: React.FC<StoreScreenProps> = ({ onExit, onAddReality, onAddDe
             {libraryImportError && <p className="text-red-400 mb-4">{libraryImportError}</p>}
             {deckLibrary.length === 0 ? (
                 <div className="text-center text-gray-400 text-lg py-16">
-                    Your library is empty. Add stories from the <button onClick={() => setView('stories')} className="underline text-mystic-gold">Stories</button> tab,
+                    Your library is empty. Add stories from the <button onClick={() => setView('stories')} className="underline text-tarot-gold-bright">Stories</button> tab,
                     or import a backup from disk.
                 </div>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {deckLibrary.map((entry) => (
                         <div key={entry.id}
-                            className="flex flex-col justify-between p-6 border-2 border-mystic-gold bg-black/40 rounded-lg shadow-lg backdrop-blur-md font-exo">
+                            className="flex flex-col justify-between p-6 border-2 border-tarot-gold bg-black/40 rounded-lg shadow-lg backdrop-blur-md font-exo">
                             <div>
-                                <h2 className="text-2xl font-bold text-mystic-gold mb-2">{entry.deck.name || 'Untitled Story'}</h2>
+                                <h2 className="text-2xl font-bold text-tarot-gold-bright mb-2">{entry.deck.name || 'Untitled Story'}</h2>
                                 <p className="text-gray-300 mb-2 h-20 overflow-y-auto">{entry.deck.description}</p>
                                 <p className="text-xs text-gray-500 mb-4">{entry.deck.cards.length} cards · added {new Date(entry.addedAt).toLocaleDateString()}</p>
                             </div>
                             <div className="flex gap-2 mt-auto">
                                 <button
                                     onClick={() => setSelectedDeck(entry.deck)}
-                                    className="flex-grow py-2 px-3 font-bold rounded-md text-mystic-purple border-2 border-mystic-gold bg-transparent hover:bg-white/10">
+                                    className="flex-grow py-2 px-3 font-bold rounded-md text-tarot-gold-bright border-2 border-tarot-gold bg-transparent hover:bg-white/10">
                                     Load into Reality
                                 </button>
                                 <button
@@ -250,14 +250,14 @@ const StoreScreen: React.FC<StoreScreenProps> = ({ onExit, onAddReality, onAddDe
             <header className="flex items-center mb-6">
                 <button onClick={onExit} className="p-2 mr-4 rounded-full hover:bg-white/10"><BackIcon /></button>
                 <div>
-                    <h1 className="text-5xl font-bold font-orbitron text-shadow">Community Store</h1>
+                    <h1 className="text-5xl font-extrabold font-cinzel text-gold-gradient">Community Store</h1>
                     <p className="text-gray-400">Discover realities and stories crafted by other creators.</p>
                 </div>
             </header>
-            <div className="flex items-center gap-2 mb-6 border-b-2 border-gray-800">
-                <button onClick={() => setView('realities')} className={`py-2 px-4 font-bold text-lg transition-colors ${view === 'realities' ? 'border-b-2 border-cyber-pink text-white' : 'text-gray-500'}`}>Realities</button>
-                <button onClick={() => setView('stories')} className={`py-2 px-4 font-bold text-lg transition-colors ${view === 'stories' ? 'border-b-2 border-cyber-pink text-white' : 'text-gray-500'}`}>Stories</button>
-                <button onClick={() => setView('library')} className={`py-2 px-4 font-bold text-lg transition-colors ${view === 'library' ? 'border-b-2 border-cyber-pink text-white' : 'text-gray-500'}`}>My Library{deckLibrary.length > 0 ? ` (${deckLibrary.length})` : ''}</button>
+            <div className="flex items-center gap-2 mb-6 border-b-2 border-tarot-gold/20">
+                <button onClick={() => setView('realities')} className={`py-2 px-4 font-bold text-lg transition-colors ${view === 'realities' ? 'border-b-2 border-tarot-gold text-tarot-gold-bright' : 'text-gray-500'}`}>Realities</button>
+                <button onClick={() => setView('stories')} className={`py-2 px-4 font-bold text-lg transition-colors ${view === 'stories' ? 'border-b-2 border-tarot-gold text-tarot-gold-bright' : 'text-gray-500'}`}>Stories</button>
+                <button onClick={() => setView('library')} className={`py-2 px-4 font-bold text-lg transition-colors ${view === 'library' ? 'border-b-2 border-tarot-gold text-tarot-gold-bright' : 'text-gray-500'}`}>My Library{deckLibrary.length > 0 ? ` (${deckLibrary.length})` : ''}</button>
             </div>
             <main className="flex-grow overflow-y-auto">
                 {renderContent()}

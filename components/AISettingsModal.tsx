@@ -97,9 +97,9 @@ const AISettingsModal: React.FC<AISettingsModalProps> = ({ onClose, addToast }) 
 
     return (
         <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/70 backdrop-blur-sm animate-fade-in">
-            <div className="bg-gray-900 border border-gray-700 rounded-lg shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto flex flex-col">
+            <div className="bg-tarot-velvet-2 border border-tarot-gold/30 rounded-lg shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto flex flex-col">
                 <div className="flex items-center justify-between p-4 pb-0">
-                    <h2 className="text-xl font-bold font-orbitron">Settings</h2>
+                    <h2 className="text-xl font-bold font-cinzel text-tarot-gold-bright">Settings</h2>
                     <button onClick={onClose} className="p-1 hover:bg-white/10 rounded"><CloseIcon /></button>
                 </div>
 
@@ -111,7 +111,7 @@ const AISettingsModal: React.FC<AISettingsModalProps> = ({ onClose, addToast }) 
                             onClick={() => setActiveTab(tab)}
                             className={`py-2 px-4 text-sm font-bold rounded-t-md transition-colors ${
                                 activeTab === tab
-                                    ? 'bg-gray-800 text-white border border-gray-700 border-b-transparent'
+                                    ? 'bg-white/5 text-tarot-gold-bright border border-tarot-gold/30 border-b-transparent'
                                     : 'text-gray-500 hover:text-gray-300'
                             }`}
                         >
@@ -132,7 +132,7 @@ const AISettingsModal: React.FC<AISettingsModalProps> = ({ onClose, addToast }) 
                                         title={theme.description}
                                         className={`p-2.5 rounded-lg border text-sm font-bold transition-colors ${
                                             shellTheme === theme.id
-                                                ? 'border-cyber-pink bg-cyber-pink/10 text-white'
+                                                ? 'border-tarot-gold bg-tarot-gold/10 text-white'
                                                 : 'border-gray-700 text-gray-400 hover:border-gray-500'
                                         }`}
                                     >
@@ -146,7 +146,7 @@ const AISettingsModal: React.FC<AISettingsModalProps> = ({ onClose, addToast }) 
 
                     {activeTab === 'deck' && (
                         <>
-                            <p className="text-xs text-gray-400 bg-gray-800/60 border border-gray-700 rounded-md p-2.5 leading-relaxed">
+                            <p className="text-xs text-gray-400 bg-black/30 border border-tarot-gold/20 rounded-md p-2.5 leading-relaxed">
                                 An AI provider is <span className="text-white font-semibold">only used to generate new stories</span> — fresh decks
                                 when you start a game, and the editor's Story Director. The built-in and downloaded stories play without any of this.
                             </p>
@@ -156,7 +156,7 @@ const AISettingsModal: React.FC<AISettingsModalProps> = ({ onClose, addToast }) 
                                 <select
                                     value={settings.provider}
                                     onChange={e => handleChange('provider', e.target.value)}
-                                    className="w-full bg-gray-800 p-2.5 rounded text-sm border border-gray-700"
+                                    className="w-full bg-black/40 p-2.5 rounded text-sm border border-tarot-gold/20"
                                 >
                                     {PROVIDERS.map(p => <option key={p.value} value={p.value}>{p.label}</option>)}
                                 </select>
@@ -171,7 +171,7 @@ const AISettingsModal: React.FC<AISettingsModalProps> = ({ onClose, addToast }) 
                                             type={field.type}
                                             value={settings[field.key] as string}
                                             onChange={e => handleChange(field.key, e.target.value)}
-                                            className="w-full bg-gray-800 p-2 rounded text-sm"
+                                            className="w-full bg-black/40 border border-white/10 p-2 rounded text-sm"
                                             placeholder={field.placeholder}
                                         />
                                         {field.hint && <p className="text-xs text-gray-500 mt-1">{field.hint}</p>}
@@ -184,7 +184,7 @@ const AISettingsModal: React.FC<AISettingsModalProps> = ({ onClose, addToast }) 
 
                 <div className="flex justify-end gap-2 p-4 border-t border-gray-800">
                     <button onClick={onClose} className="py-2 px-4 text-sm rounded-md text-gray-400 hover:bg-white/10">Cancel</button>
-                    <button onClick={handleSave} className="py-2 px-4 text-sm font-bold rounded-md bg-cyber-pink/80 text-white hover:bg-cyber-pink">Save Settings</button>
+                    <button onClick={handleSave} className="py-2 px-4 text-sm font-bold rounded-md bg-tarot-gold text-[#241503] hover:bg-tarot-gold-bright">Save Settings</button>
                 </div>
             </div>
         </div>

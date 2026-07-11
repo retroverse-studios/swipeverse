@@ -29,7 +29,7 @@ const createNewReality = (): Reality => ({
     statNames: { Power: 'Stat A', Wealth: 'Stat B', People: 'Stat C', Knowledge: 'Stat D' },
     statIconNames: { Power: 'PowerIconCyber', Wealth: 'WealthIconCyber', People: 'PeopleIconCyber', Knowledge: 'KnowledgeIconCyber' },
     imageSet: [],
-    colors: { primary: 'text-cyber-pink', secondary: 'text-cyber-cyan', background: 'bg-gray-900', accent: 'border-cyber-pink' },
+    colors: { primary: 'text-cyber-pink', secondary: 'text-cyber-cyan', background: 'bg-velvet', accent: 'border-cyber-pink' },
     deck: { cards: [] },
     soundConfig: {},
 });
@@ -354,16 +354,16 @@ const EditorScreen: React.FC<EditorScreenProps> = ({
         };
         
         return (
-            <div className="bg-slate-800/50 p-3 rounded-lg border border-gray-700 space-y-2">
+            <div className="bg-tarot-velvet-2/70 p-3 rounded-lg border border-gray-700 space-y-2">
                 <div className="flex justify-between items-start gap-2">
                     <div className='flex-grow space-y-1'>
-                        <textarea value={card.prompt} onChange={e => onCardChange('prompt', e.target.value)} className="w-full bg-gray-900 p-2 rounded text-sm" rows={2} placeholder="Scenario Prompt"></textarea>
+                        <textarea value={card.prompt} onChange={e => onCardChange('prompt', e.target.value)} className="w-full bg-black/40 p-2 rounded text-sm" rows={2} placeholder="Scenario Prompt"></textarea>
                         <div className="flex items-center gap-2">
                             <label className="text-xs text-gray-400" title="Card archetype — selects the default art and helps the AI understand the card">Archetype</label>
                             <select
                                 value={card.archetype || ''}
                                 onChange={e => onCardChange('archetype', (e.target.value || undefined) as CardArchetype | undefined)}
-                                className="bg-gray-900 p-1.5 rounded text-sm flex-grow"
+                                className="bg-black/40 p-1.5 rounded text-sm flex-grow"
                             >
                                 <option value="">(none — random art)</option>
                                 {CARD_ARCHETYPES.map(a => <option key={a} value={a}>{a}</option>)}
@@ -373,7 +373,7 @@ const EditorScreen: React.FC<EditorScreenProps> = ({
                             <button
                                 onClick={() => onCardChange('imageUrl', undefined)}
                                 title="Auto: use the archetype's default art"
-                                className={`h-12 w-16 rounded text-[10px] font-bold border-2 flex items-center justify-center ${!card.imageUrl ? 'border-cyber-pink text-cyber-pink bg-cyber-pink/10' : 'border-gray-700 text-gray-400 hover:border-gray-500'}`}
+                                className={`h-12 w-16 rounded text-[10px] font-bold border-2 flex items-center justify-center ${!card.imageUrl ? 'border-tarot-gold text-tarot-gold-bright bg-tarot-gold/10' : 'border-gray-700 text-gray-400 hover:border-gray-500'}`}
                             >
                                 AUTO
                             </button>
@@ -382,7 +382,7 @@ const EditorScreen: React.FC<EditorScreenProps> = ({
                                     key={scene}
                                     onClick={() => onCardChange('imageUrl', scene)}
                                     title={scene}
-                                    className={`h-12 w-16 rounded overflow-hidden border-2 ${card.imageUrl === scene ? 'border-cyber-pink' : 'border-transparent hover:border-gray-500'}`}
+                                    className={`h-12 w-16 rounded overflow-hidden border-2 ${card.imageUrl === scene ? 'border-tarot-gold' : 'border-transparent hover:border-gray-500'}`}
                                 >
                                     <img src={resolveAssetUrl(scene)} alt="" className="w-full h-full object-cover" loading="lazy" />
                                 </button>
@@ -393,7 +393,7 @@ const EditorScreen: React.FC<EditorScreenProps> = ({
                             <select
                                 value={storeArtSet}
                                 onChange={e => setStoreArtSet(e.target.value)}
-                                className="bg-gray-900 p-1.5 rounded text-sm flex-grow"
+                                className="bg-black/40 p-1.5 rounded text-sm flex-grow"
                             >
                                 <option value="">(browse a theme…)</option>
                                 <optgroup label="Built-in (works offline)">
@@ -420,7 +420,7 @@ const EditorScreen: React.FC<EditorScreenProps> = ({
                                             key={archetype}
                                             onClick={() => onCardChange('imageUrl', url)}
                                             title={`${storeArtSet.replace('bundled:', '')} · ${archetype}`}
-                                            className={`h-12 w-16 rounded overflow-hidden border-2 ${card.imageUrl === url ? 'border-cyber-pink' : 'border-transparent hover:border-gray-500'}`}
+                                            className={`h-12 w-16 rounded overflow-hidden border-2 ${card.imageUrl === url ? 'border-tarot-gold' : 'border-transparent hover:border-gray-500'}`}
                                         >
                                             <img src={resolveAssetUrl(url)} alt="" className="w-full h-full object-cover" loading="lazy" />
                                         </button>
@@ -432,7 +432,7 @@ const EditorScreen: React.FC<EditorScreenProps> = ({
                             type="text"
                             value={card.imageUrl && !card.imageUrl.startsWith('/cards/') && !card.imageUrl.startsWith(STORE_ART_BASE) ? card.imageUrl : ''}
                             onChange={e => onCardChange('imageUrl', e.target.value || undefined)}
-                            className="w-full bg-gray-900 p-2 rounded text-sm"
+                            className="w-full bg-black/40 p-2 rounded text-sm"
                             placeholder="Custom image URL (optional — store decks: bundled or palette art only)"
                         />
                     </div>
@@ -441,19 +441,19 @@ const EditorScreen: React.FC<EditorScreenProps> = ({
                 <div className="grid grid-cols-2 gap-2 text-xs">
                     {(['leftChoice', 'rightChoice'] as const).map(choiceKey => (
                        <div key={choiceKey} className="space-y-1 bg-black/20 p-2 rounded">
-                            <input type="text" value={card[choiceKey].text} onChange={e => onChoiceChange(choiceKey, 'text', e.target.value)} className="w-full bg-gray-900 p-1 rounded font-bold" placeholder={`${choiceKey === 'leftChoice' ? 'Left' : 'Right'} Choice Text`} />
-                             <input type="text" value={card[choiceKey].soundUrl || ''} onChange={e => onChoiceChange(choiceKey, 'soundUrl', e.target.value)} className="w-full bg-gray-900 p-1 rounded" placeholder="Optional Sound URL" />
+                            <input type="text" value={card[choiceKey].text} onChange={e => onChoiceChange(choiceKey, 'text', e.target.value)} className="w-full bg-black/40 p-1 rounded font-bold" placeholder={`${choiceKey === 'leftChoice' ? 'Left' : 'Right'} Choice Text`} />
+                             <input type="text" value={card[choiceKey].soundUrl || ''} onChange={e => onChoiceChange(choiceKey, 'soundUrl', e.target.value)} className="w-full bg-black/40 p-1 rounded" placeholder="Optional Sound URL" />
                             <div className="grid grid-cols-2 gap-1">
                                 {Object.keys(INITIAL_STATS).map(stat => (
                                     <div key={stat} className="flex items-center">
                                         <label className="mr-1 w-10 text-gray-400 text-xs truncate" title={stat}>{formData?.statNames[stat as StatName]}</label>
-                                        <input type="number" value={card[choiceKey].effects[stat as StatName] || 0} onChange={e => onEffectChange(choiceKey, stat as StatName, e.target.value)} className="w-full bg-gray-800 p-1 rounded" />
+                                        <input type="number" value={card[choiceKey].effects[stat as StatName] || 0} onChange={e => onEffectChange(choiceKey, stat as StatName, e.target.value)} className="w-full bg-black/30 p-1 rounded" />
                                     </div>
                                 ))}
                             </div>
                             <div className="flex items-center pt-1">
                                 <label className="mr-1 text-gray-400 text-xs" title="Next Card Index">Next Card #</label>
-                                <input type="number" value={card[choiceKey].nextCardIndex ?? ''} onChange={e => onChoiceChange(choiceKey, 'nextCardIndex', e.target.value)} className="w-full bg-gray-800 p-1 rounded" placeholder={(index + 1).toString()} min="0" />
+                                <input type="number" value={card[choiceKey].nextCardIndex ?? ''} onChange={e => onChoiceChange(choiceKey, 'nextCardIndex', e.target.value)} className="w-full bg-black/30 p-1 rounded" placeholder={(index + 1).toString()} min="0" />
                             </div>
                        </div>
                     ))}
@@ -463,23 +463,23 @@ const EditorScreen: React.FC<EditorScreenProps> = ({
     }
 
     return (
-        <div className="flex h-screen w-screen animate-fade-in bg-gray-900 text-gray-200">
+        <div className="flex h-screen w-screen animate-fade-in bg-velvet text-gray-200">
             {/* Sidebar */}
-            <aside className="w-1/4 min-w-[300px] bg-gray-950/50 flex flex-col p-4 border-r border-gray-800">
+            <aside className="w-1/4 min-w-[300px] bg-black/40 flex flex-col p-4 border-r border-tarot-gold/20">
                 <div className="flex items-center mb-4">
                     <button onClick={handleAttemptClose} className="p-2 rounded-full hover:bg-white/10"><BackIcon /></button>
-                    <h1 className="text-2xl font-bold ml-2 font-orbitron">Creator Hub</h1>
+                    <h1 className="text-2xl font-extrabold ml-2 font-cinzel text-gold-gradient">Creator Hub</h1>
                 </div>
                 <div className="flex-grow overflow-y-auto pr-2 space-y-1">
                     {realities.map(r => (
-                        <div key={r.id} onClick={() => handleAttemptSelectReality(r)} className={`p-3 rounded-md cursor-pointer border-l-4 ${editingReality?.id === r.id ? 'bg-cyber-pink/20 border-cyber-pink' : 'border-transparent hover:bg-white/5'}`}>
+                        <div key={r.id} onClick={() => handleAttemptSelectReality(r)} className={`p-3 rounded-md cursor-pointer border-l-4 ${editingReality?.id === r.id ? 'bg-tarot-gold/15 border-tarot-gold' : 'border-transparent hover:bg-white/5'}`}>
                             <p className="font-bold truncate">{r.name}</p>
                             <p className="text-xs text-gray-400 truncate">{r.id}</p>
                         </div>
                     ))}
                 </div>
                 <div className="mt-auto space-y-2 pt-4 border-t border-gray-800">
-                   <button onClick={handleCreateClick} className="w-full flex items-center justify-center gap-2 py-2 px-4 font-bold rounded-md bg-cyber-pink/80 text-white hover:bg-cyber-pink">
+                   <button onClick={handleCreateClick} className="w-full flex items-center justify-center gap-2 py-2 px-4 font-bold rounded-md bg-tarot-gold text-[#241503] hover:bg-tarot-gold-bright">
                        <AddIcon /> Create New Reality
                    </button>
                    <div className="grid grid-cols-3 gap-2 text-sm">
@@ -500,13 +500,13 @@ const EditorScreen: React.FC<EditorScreenProps> = ({
                 ) : (
                 <div className="max-w-7xl mx-auto space-y-4 flex-grow flex flex-col w-full">
                     <div className="flex justify-between items-center">
-                        <input type="text" name="name" value={formData.name} onChange={handleInputChange} className="text-4xl font-bold bg-transparent border-b-2 border-transparent focus:border-cyber-pink outline-none" />
+                        <input type="text" name="name" value={formData.name} onChange={handleInputChange} className="text-4xl font-bold bg-transparent border-b-2 border-transparent focus:border-tarot-gold outline-none" />
                         <div className="flex items-center gap-2">
                            <button onClick={() => onDelete(formData.id)} className="p-3 rounded-md text-red-400 border-2 border-red-400/50 bg-transparent hover:bg-red-400/10" title="Delete Reality"><DeleteIcon /></button>
                            <button 
                              onClick={handleSubmitClick}
                              disabled={isDirty}
-                             className={`flex items-center gap-2 py-2 px-4 font-bold rounded-md transition-all duration-300 ${!isDirty ? 'bg-mystic-purple/80 text-white hover:bg-mystic-purple' : 'bg-gray-700 text-gray-400 cursor-not-allowed'}`}
+                             className={`flex items-center gap-2 py-2 px-4 font-bold rounded-md transition-all duration-300 ${!isDirty ? 'bg-tarot-gold text-[#241503] hover:bg-tarot-gold-bright' : 'bg-gray-700 text-gray-400 cursor-not-allowed'}`}
                              title={isDirty ? "Save changes before submitting" : "Submit to Community Store"}
                            >
                             <CloudUploadIcon /> Submit
@@ -514,7 +514,7 @@ const EditorScreen: React.FC<EditorScreenProps> = ({
                            <button 
                              onClick={handleSaveClick}
                              disabled={!isDirty}
-                             className={`flex items-center gap-2 py-2 px-4 font-bold rounded-md transition-all duration-300 ${isDirty ? 'bg-cyber-pink/80 text-white hover:bg-cyber-pink animate-pulse-fast' : 'bg-gray-700 text-gray-400'}`}
+                             className={`flex items-center gap-2 py-2 px-4 font-bold rounded-md transition-all duration-300 ${isDirty ? 'bg-tarot-gold text-[#241503] hover:bg-tarot-gold-bright animate-pulse-fast' : 'bg-gray-700 text-gray-400'}`}
                            >
                             <SaveIcon /> {isDirty ? 'Save Changes' : 'Saved'}
                            </button>
@@ -522,26 +522,26 @@ const EditorScreen: React.FC<EditorScreenProps> = ({
                     </div>
                     
                     {/* Main Reality Details */}
-                    <details className="bg-slate-800/50 p-4 rounded-lg" open>
+                    <details className="bg-tarot-velvet-2/70 p-4 rounded-lg" open>
                         <summary className="text-xl font-bold cursor-pointer">Reality Configuration</summary>
                         <div className='grid grid-cols-1 md:grid-cols-2 gap-4 mt-4'>
                             <div>
                                 <label className='text-sm text-gray-400'>Description</label>
-                                <textarea name="description" value={formData.description} onChange={handleInputChange} className="w-full bg-gray-900 p-2 rounded" rows={3}></textarea>
+                                <textarea name="description" value={formData.description} onChange={handleInputChange} className="w-full bg-black/40 p-2 rounded" rows={3}></textarea>
                             </div>
                             <div>
                                 <label className='text-sm text-gray-400'>System Instruction (for AI)</label>
-                                <textarea name="systemInstruction" value={formData.systemInstruction} onChange={handleInputChange} className="w-full bg-gray-900 p-2 rounded" rows={3}></textarea>
+                                <textarea name="systemInstruction" value={formData.systemInstruction} onChange={handleInputChange} className="w-full bg-black/40 p-2 rounded" rows={3}></textarea>
                             </div>
                             <div>
                                 <label className='text-sm text-gray-400'>Image Set (one URL per line)</label>
-                                <textarea value={formData.imageSet?.join('\n') || ''} onChange={handleImageSetChange} className="w-full bg-gray-900 p-2 rounded" rows={3}></textarea>
+                                <textarea value={formData.imageSet?.join('\n') || ''} onChange={handleImageSetChange} className="w-full bg-black/40 p-2 rounded" rows={3}></textarea>
                             </div>
                             <div className="grid grid-cols-2 gap-x-4 gap-y-2">
                                 {Object.keys(formData.statNames).map(key => (
                                     <div key={key}>
                                         <label className='text-sm text-gray-400'>{key} Stat Name</label>
-                                        <input type="text" name={`statNames.${key}`} value={formData.statNames[key as StatName]} onChange={handleInputChange} className="w-full bg-gray-900 p-2 rounded" />
+                                        <input type="text" name={`statNames.${key}`} value={formData.statNames[key as StatName]} onChange={handleInputChange} className="w-full bg-black/40 p-2 rounded" />
                                     </div>
                                 ))}
                             </div>
@@ -549,26 +549,26 @@ const EditorScreen: React.FC<EditorScreenProps> = ({
                     </details>
                     
                     {/* Sound Config */}
-                     <details className="bg-slate-800/50 p-4 rounded-lg">
+                     <details className="bg-tarot-velvet-2/70 p-4 rounded-lg">
                         <summary className="text-xl font-bold cursor-pointer">Sound Configuration</summary>
                          <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mt-4 text-sm">
                             {(['backgroundMusicUrl', 'gameStartUrl', 'gameWinUrl', 'gameLoseUrl', 'swipeLeftUrl', 'swipeRightUrl'] as const).map(key => (
                                 <div key={key}>
                                     <label className='block text-gray-400 capitalize'>{key.replace('Url', '').replace(/([A-Z])/g, ' $1')}</label>
-                                    <input type="text" name={`soundConfig.${key}`} value={formData.soundConfig?.[key] || ''} onChange={handleInputChange} className="w-full bg-gray-900 p-2 rounded" placeholder="Optional Sound URL" />
+                                    <input type="text" name={`soundConfig.${key}`} value={formData.soundConfig?.[key] || ''} onChange={handleInputChange} className="w-full bg-black/40 p-2 rounded" placeholder="Optional Sound URL" />
                                 </div>
                             ))}
                         </div>
                     </details>
                     
                     {/* Deck Editor */}
-                    <section className="bg-slate-800/50 p-4 rounded-lg flex-grow flex flex-col">
-                        <div className="flex justify-between items-center mb-3 border-b border-gray-700 pb-2">
+                    <section className="bg-tarot-velvet-2/70 p-4 rounded-lg flex-grow flex flex-col">
+                        <div className="flex justify-between items-center mb-3 border-b border-tarot-gold/20 pb-2">
                             <h3 className="text-xl font-bold">Deck Editor</h3>
                              <div className="flex items-center gap-2">
-                                <div className="flex items-center bg-gray-900/50 border border-gray-700 rounded-md p-1">
-                                    <button onClick={() => setEditorView('form')} className={`p-1 rounded-md ${editorView === 'form' ? 'bg-cyber-pink text-white' : 'text-gray-400 hover:bg-white/10'}`} title="Form View"><FormIcon /></button>
-                                    <button onClick={() => setEditorView('visual')} className={`p-1 rounded-md ${editorView === 'visual' ? 'bg-cyber-pink text-white' : 'text-gray-400 hover:bg-white/10'}`} title="Visual Power Editor"><GraphIcon /></button>
+                                <div className="flex items-center bg-black/40 border border-tarot-gold/20 rounded-md p-1">
+                                    <button onClick={() => setEditorView('form')} className={`p-1 rounded-md ${editorView === 'form' ? 'bg-tarot-gold text-[#241503]' : 'text-gray-400 hover:bg-white/10'}`} title="Form View"><FormIcon /></button>
+                                    <button onClick={() => setEditorView('visual')} className={`p-1 rounded-md ${editorView === 'visual' ? 'bg-tarot-gold text-[#241503]' : 'text-gray-400 hover:bg-white/10'}`} title="Visual Power Editor"><GraphIcon /></button>
                                 </div>
                                 <label htmlFor={`deck-import-${formData.id}`} className="flex items-center gap-2 py-1 px-3 rounded-md text-sm bg-white/10 hover:bg-white/20 cursor-pointer">
                                     <UploadIcon /> Import
@@ -587,12 +587,12 @@ const EditorScreen: React.FC<EditorScreenProps> = ({
                         </div>
 
                         <div className="space-y-2 mb-4">
-                            <input type="text" name="name" value={formData.deck?.name || ''} onChange={handleDeckFieldChange} placeholder="Deck Title" className="w-full bg-gray-900 p-2 rounded text-lg font-bold" />
-                            <textarea name="description" value={formData.deck?.description || ''} onChange={handleDeckFieldChange} placeholder="Deck Description..." className="w-full bg-gray-900 p-2 rounded text-sm" rows={2}></textarea>
+                            <input type="text" name="name" value={formData.deck?.name || ''} onChange={handleDeckFieldChange} placeholder="Deck Title" className="w-full bg-black/40 p-2 rounded text-lg font-bold" />
+                            <textarea name="description" value={formData.deck?.description || ''} onChange={handleDeckFieldChange} placeholder="Deck Description..." className="w-full bg-black/40 p-2 rounded text-sm" rows={2}></textarea>
                         </div>
 
                         {deckAnalysis && (
-                            <div className="mb-4 bg-slate-900/70 border border-cyan-500/30 rounded-lg p-4 text-sm">
+                            <div className="mb-4 bg-black/30 border border-cyan-500/30 rounded-lg p-4 text-sm">
                                 <div className="flex justify-between items-center mb-2">
                                     <h4 className="font-bold text-cyan-300">⚖ Deck Analysis</h4>
                                     <button onClick={() => setDeckAnalysis(null)} className="text-gray-500 hover:text-white text-xs">dismiss</button>
@@ -626,13 +626,13 @@ const EditorScreen: React.FC<EditorScreenProps> = ({
 
                         {editorView === 'form' && (
                             <div className='flex-grow flex flex-col'>
-                            <div className="bg-slate-900/70 p-4 rounded-lg border border-purple-500/30">
-                                <h4 className="text-lg font-bold text-purple-300 flex items-center gap-2"><GenerateIcon/> AI Story Director</h4>
+                            <div className="bg-black/30 p-4 rounded-lg border border-tarot-gold/25">
+                                <h4 className="text-lg font-bold text-tarot-gold-bright flex items-center gap-2"><GenerateIcon/> AI Story Director</h4>
                                 <p className="text-sm text-gray-400 mt-1 mb-2">Describe a high-level story. The AI will generate a full, complex deck. Best viewed in the Visual Editor.</p>
                                 <textarea
                                     value={storyDirectorPrompt}
                                     onChange={(e) => setStoryDirectorPrompt(e.target.value)}
-                                    className="w-full bg-gray-900 p-2 rounded text-sm"
+                                    className="w-full bg-black/40 p-2 rounded text-sm"
                                     rows={3}
                                     placeholder="e.g., A detective story where the player must find a killer. One path involves trusting a shady informant, leading to a trap..."
                                 ></textarea>
@@ -643,7 +643,7 @@ const EditorScreen: React.FC<EditorScreenProps> = ({
                                     <textarea
                                         value={sourceMaterial}
                                         onChange={(e) => setSourceMaterial(e.target.value)}
-                                        className="w-full bg-gray-900 p-2 rounded text-sm mt-2"
+                                        className="w-full bg-black/40 p-2 rounded text-sm mt-2"
                                         rows={8}
                                         placeholder="Paste the material here. The AI draws scenarios, terminology and stakes from it — for educational material it turns key concepts and trade-offs into judgment dilemmas (never recall quizzes). A few pages works best."
                                     ></textarea>

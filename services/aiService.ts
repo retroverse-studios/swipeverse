@@ -162,10 +162,10 @@ export const generateInitialDeck = async (reality: Reality, currentStats: Stats)
     }
 };
 
-export const generateBranchingDeckFromPrompt = async (reality: Reality, storyPrompt: string, sourceMaterial?: string): Promise<Deck> => {
+export const generateBranchingDeckFromPrompt = async (reality: Reality, storyPrompt: string, sourceMaterial?: string, deckSize?: number): Promise<Deck> => {
     const settings = loadAISettings();
     const provider = createProvider(settings);
-    const prompt = buildBranchingDeckPrompt(reality, storyPrompt, sourceMaterial);
+    const prompt = buildBranchingDeckPrompt(reality, storyPrompt, sourceMaterial, deckSize);
 
     try {
         const deck = await provider.generateDeck(prompt, reality.systemInstruction);

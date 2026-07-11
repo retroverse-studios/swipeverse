@@ -15,14 +15,14 @@ export interface AIProvider {
 
 // ─── Shared Prompt Builders ──────────────────────────────────────
 
-export function buildInitialDeckPrompt(reality: Reality, currentStats: Stats): string {
+export function buildInitialDeckPrompt(reality: Reality, currentStats: Stats, deckSize: number = DECK_SIZE): string {
     const statsSummary = Object.entries(currentStats)
         .map(([key, value]) => `${reality.statNames[key as keyof Stats]}: ${value}`)
         .join(', ');
 
     return `
 The player is starting a new game with this situation: ${statsSummary}.
-Generate a full, unique, and challenging deck of ${DECK_SIZE} scenario cards for the game.
+Generate a full, unique, and challenging deck of ${deckSize} scenario cards for the game.
 The choices should have plausible but non-obvious consequences.
 Stat changes should generally be between -35 and +35.
 Ensure the prompts are engaging, varied, and fit the ${reality.name} theme. Do not repeat scenarios within the deck.
@@ -59,11 +59,11 @@ Respond with a JSON object matching this exact schema:
   ]
 }
 
-Generate exactly ${DECK_SIZE} cards.
+Generate exactly ${deckSize} cards.
 `.trim();
 }
 
-export function buildBranchingDeckPrompt(reality: Reality, storyPrompt: string, sourceMaterial?: string): string {
+export function buildBranchingDeckPrompt(reality: Reality, storyPrompt: string, sourceMaterial?: string, deckSize: number = DECK_SIZE): string {
     const sourceBlock = sourceMaterial?.trim() ? `
 Ground the deck in the following SOURCE MATERIAL. Draw the scenarios, terminology, characters and stakes from it faithfully.
 If it is educational material (lecture notes, a workshop, a tutorial, a case study), extract its key concepts, tensions and trade-offs and turn them into dilemma cards that make the player exercise judgment about the material — decisions with defensible arguments on both sides and consequences that teach — never recall quizzes.
@@ -72,11 +72,11 @@ ${sourceMaterial.trim()}
 --- SOURCE MATERIAL END ---
 ` : '';
     return `
-A story creator wants a deck of ${DECK_SIZE} cards for the game based on this high-level prompt: "${storyPrompt}".
+A story creator wants a deck of ${deckSize} cards for the game based on this high-level prompt: "${storyPrompt}".
 ${sourceBlock}
-Generate a full, unique, and challenging deck of ${DECK_SIZE} scenario cards that follows the creator's prompt.
+Generate a full, unique, and challenging deck of ${deckSize} scenario cards that follows the creator's prompt.
 Give the generated deck a cool, thematic name based on the prompt, and use the prompt itself as the deck's description.
-Create a branching narrative using the 'nextCardIndex' property on choices to make the story interactive and replayable. Make sure jumps are valid (within the 0 to ${DECK_SIZE - 1} range). The final card in the array (index ${DECK_SIZE - 1}) should be the 'win' or final ending card.
+Create a branching narrative using the 'nextCardIndex' property on choices to make the story interactive and replayable. Make sure jumps are valid (within the 0 to ${deckSize - 1} range). The final card in the array (index ${deckSize - 1}) should be the 'win' or final ending card.
 The choices should have plausible but non-obvious consequences.
 Stat changes should generally be between -35 and +35.
 Ensure the prompts are engaging, varied, and fit the ${reality.name} theme.
@@ -111,7 +111,7 @@ Respond with a JSON object matching this exact schema:
   ]
 }
 
-Generate exactly ${DECK_SIZE} cards.
+Generate exactly ${deckSize} cards.
 `.trim();
 }
 

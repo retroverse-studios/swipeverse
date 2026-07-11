@@ -41,6 +41,7 @@ const EditorScreen: React.FC<EditorScreenProps> = ({
     const [storyDirectorPrompt, setStoryDirectorPrompt] = useState('');
     const [isGeneratingDeck, setIsGeneratingDeck] = useState(false);
     const [sourceMaterial, setSourceMaterial] = useState('');
+    const [deckSize, setDeckSize] = useState(20);
     const [deckAnalysis, setDeckAnalysis] = useState<DeckAnalysis | null>(null);
     const [storeArt, setStoreArt] = useState<StoreArtIndex | null>(null);
     const [storeArtSet, setStoreArtSet] = useState('');
@@ -237,7 +238,7 @@ const EditorScreen: React.FC<EditorScreenProps> = ({
             onConfirm: async () => {
                 setIsGeneratingDeck(true);
                 try {
-                    const newDeck = await generateBranchingDeckFromPrompt(formData, storyDirectorPrompt, sourceMaterial);
+                    const newDeck = await generateBranchingDeckFromPrompt(formData, storyDirectorPrompt, sourceMaterial, deckSize);
                     handleDeckChange(newDeck);
                     setEditorView('visual'); // Switch to visual editor on success
                     addToast("AI deck generated successfully!", 'success');
@@ -636,6 +637,19 @@ const EditorScreen: React.FC<EditorScreenProps> = ({
                                     rows={3}
                                     placeholder="e.g., A detective story where the player must find a killer. One path involves trusting a shady informant, leading to a trap..."
                                 ></textarea>
+                                <div className="flex items-center gap-2 mt-2">
+                                    <label className="text-sm text-gray-400">Story length</label>
+                                    <select
+                                        value={deckSize}
+                                        onChange={e => setDeckSize(Number(e.target.value))}
+                                        className="bg-black/40 border border-white/10 p-1.5 rounded text-sm"
+                                        disabled={isGeneratingDeck}
+                                    >
+                                        <option value={12}>Short — 12 cards (~3 min)</option>
+                                        <option value={20}>Standard — 20 cards (~5 min)</option>
+                                        <option value={30}>Long — 30 cards (~8 min)</option>
+                                    </select>
+                                </div>
                                 <details className="mt-2">
                                     <summary className="text-sm text-gray-400 cursor-pointer hover:text-gray-300">
                                         Source material (optional) — ground the deck in a short story, lecture notes, a workshop, a case study…

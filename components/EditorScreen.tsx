@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Reality, CardData, StatName, Deck, CARD_ARCHETYPES, CardArchetype } from '../types';
-import { REALITIES, INITIAL_STATS, cardScenesFor, resolveAssetUrl } from '../constants';
+import { REALITIES, INITIAL_STATS, BUNDLED_ART_SETS, cardScenesFor, resolveAssetUrl } from '../constants';
 import { BackIcon, SaveIcon, DeleteIcon, UploadIcon, ExportIcon, AddIcon, GenerateIcon, CloudUploadIcon, FormIcon, GraphIcon } from './icons';
 import { generateBranchingDeckFromPrompt } from '../services/aiService';
 import { analyzeDeck, DeckAnalysis } from '../services/deckSolver';
@@ -387,31 +387,41 @@ const EditorScreen: React.FC<EditorScreenProps> = ({
                                 </button>
                             ))}
                         </div>
-                        {storeArt && (
-                            <div className="flex items-center gap-2 pt-1">
-                                <label className="text-xs text-gray-400 whitespace-nowrap">Store art palette</label>
-                                <select
-                                    value={storeArtSet}
-                                    onChange={e => setStoreArtSet(e.target.value)}
-                                    className="bg-gray-900 p-1.5 rounded text-sm flex-grow"
-                                >
-                                    <option value="">(pick a theme to browse…)</option>
-                                    {storeArt.sets.map(s => <option key={s} value={s}>{s}</option>)}
-                                </select>
-                            </div>
-                        )}
-                        {storeArt && storeArtSet && (
+                        <div className="flex items-center gap-2 pt-1">
+                            <label className="text-xs text-gray-400 whitespace-nowrap">Art theme</label>
+                            <select
+                                value={storeArtSet}
+                                onChange={e => setStoreArtSet(e.target.value)}
+                                className="bg-gray-900 p-1.5 rounded text-sm flex-grow"
+                            >
+                                <option value="">(browse a theme…)</option>
+                                <optgroup label="Built-in (works offline)">
+                                    {BUNDLED_ART_SETS.map(s => <option key={s} value={`bundled:${s}`}>{s}</option>)}
+                                </optgroup>
+                                {storeArt && (
+                                    <optgroup label="Store palette">
+                                        {storeArt.sets.map(s => <option key={s} value={s}>{s}</option>)}
+                                    </optgroup>
+                                )}
+                            </select>
+                        </div>
+                        {storeArtSet && (
                             <div className="flex gap-1.5 flex-wrap items-center pt-1">
-                                {storeArt.archetypes.map(archetype => {
-                                    const url = `${STORE_ART_BASE}/${storeArtSet}/${archetype}.webp`;
+                                {CARD_ARCHETYPES.map(archetype => {
+                                    const isBundled = storeArtSet.startsWith('bundled:');
+                                    // Bundled sets store the canonical relative path (portable,
+                                    // offline); store-palette sets store the absolute palette URL
+                                    const url = isBundled
+                                        ? `/cards/${storeArtSet.slice(8)}/${archetype}.webp`
+                                        : `${STORE_ART_BASE}/${storeArtSet}/${archetype}.webp`;
                                     return (
                                         <button
                                             key={archetype}
                                             onClick={() => onCardChange('imageUrl', url)}
-                                            title={`${storeArtSet} · ${archetype}`}
+                                            title={`${storeArtSet.replace('bundled:', '')} · ${archetype}`}
                                             className={`h-12 w-16 rounded overflow-hidden border-2 ${card.imageUrl === url ? 'border-cyber-pink' : 'border-transparent hover:border-gray-500'}`}
                                         >
-                                            <img src={url} alt="" className="w-full h-full object-cover" loading="lazy" />
+                                            <img src={resolveAssetUrl(url)} alt="" className="w-full h-full object-cover" loading="lazy" />
                                         </button>
                                     );
                                 })}
@@ -419,7 +429,7 @@ const EditorScreen: React.FC<EditorScreenProps> = ({
                         )}
                         <input
                             type="text"
-                            value={card.imageUrl && !cardScenesFor(formData?.id).includes(card.imageUrl) && !card.imageUrl.startsWith(STORE_ART_BASE) ? card.imageUrl : ''}
+                            value={card.imageUrl && !card.imageUrl.startsWith('/cards/') && !card.imageUrl.startsWith(STORE_ART_BASE) ? card.imageUrl : ''}
                             onChange={e => onCardChange('imageUrl', e.target.value || undefined)}
                             className="w-full bg-gray-900 p-2 rounded text-sm"
                             placeholder="Custom image URL (optional — store decks: bundled or palette art only)"

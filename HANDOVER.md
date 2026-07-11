@@ -88,7 +88,7 @@ Everything below is live and pushed:
 | Store art palette: publish the 20 non-bundled themed sets (from `art-processed/`) to the store site; extend the editor's art picker with a store-palette source; allowlist the store host in the validator | medium | store go-live |
 | Publish on itch.io | small | playtesting + design refresh |
 | Editor: AI co-writing verbs (rewrite this card, add N cards in this style, fill in effects, continue from card X) — AI as collaborator, not just whole-deck drafter | medium | post-launch |
-| Post-launch: multiverse portals/sagas (schema design done in principle — see chat/roadmap), "My Artwork" library (IndexedDB), per-reality palette variants of card art | later | launch |
+| Post-launch: card-level multiverse portals across realities (deck-level series chaining SHIPPED 2026-07-11 — "Next in the series" at game over), "My Artwork" library (IndexedDB), per-reality palette variants of card art | later | launch |
 
 ## Quirks & commands
 

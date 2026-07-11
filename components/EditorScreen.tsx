@@ -124,6 +124,36 @@ const EditorScreen: React.FC<EditorScreenProps> = ({
         onSetEditingReality(newReality);
     };
     
+    /**
+     * Bulk art assignment. Random: one randomly-picked theme applied
+     * coherently across the deck. Chaos: every card from a different random
+     * theme. Both write imageUrl per card, so the result is fixed until
+     * re-rolled or hand-edited.
+     */
+    const handleBulkArt = (chaos: boolean) => {
+        if (!formData?.deck?.cards || formData.deck.cards.length === 0) {
+            addToast("No cards to art — add cards or generate a story first.", 'error');
+            return;
+        }
+        const sets: { set: string; store: boolean }[] = [
+            ...BUNDLED_ART_SETS.map(s => ({ set: s as string, store: false })),
+            ...(storeArt ? storeArt.sets.map(s => ({ set: s, store: true })) : []),
+        ];
+        const pick = () => sets[Math.floor(Math.random() * sets.length)];
+        const urlFor = (entry: { set: string; store: boolean }, archetype: string) =>
+            entry.store ? `${STORE_ART_BASE}/${entry.set}/${archetype}.webp` : `/cards/${entry.set}/${archetype}.webp`;
+        const theOne = pick();
+        const cards = formData.deck.cards.map(card => {
+            const entry = chaos ? pick() : theOne;
+            const archetype = card.archetype ?? CARD_ARCHETYPES[Math.floor(Math.random() * CARD_ARCHETYPES.length)];
+            return { ...card, imageUrl: urlFor(entry, archetype) };
+        });
+        handleCardsChange(cards);
+        addToast(chaos
+            ? `Chaos! Every card drew from a random theme${storeArt ? '' : ' (built-in sets only — store palette offline)'}.`
+            : `Theme "${theOne.set}" applied to the whole deck.`);
+    };
+
     const handleAnalyzeDeck = () => {
         if (!formData?.deck || !formData.deck.cards || formData.deck.cards.length === 0) {
             addToast("No custom deck to analyze — add cards or generate a story first.", 'error');
@@ -135,10 +165,12 @@ const EditorScreen: React.FC<EditorScreenProps> = ({
     const handleDeckChange = (newDeck: Deck) => {
         setDeckAnalysis(null); // stale after any deck edit
         if (formData) {
-            // Ensure deck has all properties
+            // Ensure deck has all properties (preserve optional metadata)
             const completeDeck: Deck = {
                 name: newDeck.name || '',
                 description: newDeck.description || '',
+                ...(newDeck.category ? { category: newDeck.category } : {}),
+                ...(newDeck.series ? { series: newDeck.series } : {}),
                 cards: newDeck.cards || [],
             };
             setFormData({ ...formData, deck: completeDeck, deckUrl: undefined });
@@ -581,6 +613,12 @@ const EditorScreen: React.FC<EditorScreenProps> = ({
                                 <button onClick={handleAnalyzeDeck} disabled={isGeneratingDeck} className="flex items-center gap-2 py-1 px-3 rounded-md text-sm bg-cyan-500/20 text-cyan-300 hover:bg-cyan-500/40 disabled:opacity-50" title="Check the deck is winnable and losable at every difficulty">
                                     ⚖ Analyze
                                 </button>
+                                <button onClick={() => handleBulkArt(false)} disabled={isGeneratingDeck} className="py-1 px-3 rounded-md text-sm bg-white/10 hover:bg-white/20 disabled:opacity-50" title="Apply one random art theme coherently across the whole deck">
+                                    🎲 Random
+                                </button>
+                                <button onClick={() => handleBulkArt(true)} disabled={isGeneratingDeck} className="py-1 px-3 rounded-md text-sm bg-white/10 hover:bg-white/20 disabled:opacity-50" title="Every card gets art from a different random theme">
+                                    🌀 Chaos
+                                </button>
                                 <button onClick={handleRevertToAi} disabled={isGeneratingDeck} className="flex items-center gap-2 py-1 px-3 rounded-md text-sm bg-red-500/20 text-red-400 hover:bg-red-500/40 disabled:opacity-50">
                                     <DeleteIcon/> Revert to AI
                                 </button>
@@ -590,6 +628,25 @@ const EditorScreen: React.FC<EditorScreenProps> = ({
                         <div className="space-y-2 mb-4">
                             <input type="text" name="name" value={formData.deck?.name || ''} onChange={handleDeckFieldChange} placeholder="Deck Title" className="w-full bg-black/40 p-2 rounded text-lg font-bold" />
                             <textarea name="description" value={formData.deck?.description || ''} onChange={handleDeckFieldChange} placeholder="Deck Description..." className="w-full bg-black/40 p-2 rounded text-sm" rows={2}></textarea>
+                            <div className="flex items-center gap-2 text-sm">
+                                <label className="text-gray-400 whitespace-nowrap" title="Decks sharing a series name form a saga — finishing part N offers 'Next in the series' (part N+1) at game over">Series</label>
+                                <input
+                                    type="text"
+                                    value={formData.deck?.series?.name || ''}
+                                    onChange={e => handleDeckChange({ ...formData.deck!, series: e.target.value.trim() ? { name: e.target.value, part: formData.deck?.series?.part || 1 } : undefined })}
+                                    placeholder="(optional) saga name, e.g. The Perimeter"
+                                    className="flex-grow bg-black/40 p-1.5 rounded"
+                                />
+                                <label className="text-gray-400">Part</label>
+                                <input
+                                    type="number"
+                                    min={1}
+                                    value={formData.deck?.series?.part || 1}
+                                    onChange={e => formData.deck?.series?.name && handleDeckChange({ ...formData.deck!, series: { name: formData.deck.series.name, part: Math.max(1, parseInt(e.target.value, 10) || 1) } })}
+                                    disabled={!formData.deck?.series?.name}
+                                    className="w-16 bg-black/40 p-1.5 rounded disabled:opacity-40"
+                                />
+                            </div>
                         </div>
 
                         {deckAnalysis && (
@@ -650,6 +707,11 @@ const EditorScreen: React.FC<EditorScreenProps> = ({
                                         <option value={30}>Long — 30 cards (~8 min)</option>
                                     </select>
                                 </div>
+                                <p className="text-xs text-gray-500 mt-2">
+                                    One deck = one focused story arc (store limit: 50 cards). For an epic, plan the arcs outside the app
+                                    (an AI chat is great for this), build each arc as its own deck, and link them with the <b>Series</b> fields
+                                    above — players finishing part 1 get a "Next in the series" button leading to part 2.
+                                </p>
                                 <details className="mt-2">
                                     <summary className="text-sm text-gray-400 cursor-pointer hover:text-gray-300">
                                         Source material (optional) — ground the deck in a short story, lecture notes, a workshop, a case study…

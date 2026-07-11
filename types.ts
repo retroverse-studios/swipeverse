@@ -60,6 +60,12 @@ export type Deck = {
     description?: string;
     category?: ContentCategory;
     /**
+     * Multi-arc stories: decks sharing a series name form a saga. Finishing
+     * part N offers "Next in the series" (part N+1) at game over, resolved
+     * from the player's library first, then the store catalog.
+     */
+    series?: { name: string; part: number };
+    /**
      * 'bundled' marks starter decks shipped with the app (see decks/). They act as
      * defaults: a newer app version may replace them, and AI generation takes over
      * when a provider is configured. Decks imported by the player (store downloads,

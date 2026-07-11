@@ -7,7 +7,7 @@ import EditorScreen from './components/EditorScreen';
 import StoreScreen from './components/StoreScreen';
 import ConfirmationModal from './components/ConfirmationModal';
 import { REALITIES, mergeStoredRealities } from './constants';
-import { submitReality } from './services/apiService';
+import { submitReality, fetchStoreDecks } from './services/apiService';
 import { Difficulty, recordGame, GameSummary } from './services/gameHistory';
 import AISettingsModal from './components/AISettingsModal';
 import { VolumeOffIcon, VolumeOnIcon, CloseIcon } from './components/icons';
@@ -183,6 +183,36 @@ const App: React.FC = () => {
     setGameState(GameState.GameOver);
   }, [selectedReality, selectedDifficulty, addToast]);
 
+  /** Restart the same reality + difficulty (AI realities get a fresh story). */
+  const handlePlayAgain = useCallback(() => {
+    setGameOverData({ reason: '', deck: [], summary: null });
+    setGameState(GameState.Playing);
+  }, []);
+
+  /** Continue a saga: play the resolved next deck in the same reality shell. */
+  const handlePlayNextDeck = useCallback((deck: Deck) => {
+    setSelectedReality(prev => prev ? { ...prev, deck: { ...deck } } : prev); // ephemeral, not saved
+    setGameOverData({ reason: '', deck: [], summary: null });
+    setGameState(GameState.Playing);
+  }, []);
+
+  /** Find part N+1 of the played deck's series: library first, then store. */
+  const findNextInSeries = useCallback(async (deck: Deck): Promise<Deck | null> => {
+    const series = deck.series;
+    if (!series?.name || typeof series.part !== 'number') return null;
+    const isNext = (candidate: Deck) =>
+      candidate.series?.name?.trim().toLowerCase() === series.name.trim().toLowerCase() &&
+      candidate.series?.part === series.part + 1;
+    const fromLibrary = deckLibrary.find(entry => isNext(entry.deck));
+    if (fromLibrary) return fromLibrary.deck;
+    try {
+      const storeDecks = await fetchStoreDecks();
+      return storeDecks.find(isNext) ?? null;
+    } catch {
+      return null;
+    }
+  }, [deckLibrary]);
+
   const handleExitToMenu = useCallback(() => {
     setSelectedReality(null);
     setEditingReality(null);
@@ -325,7 +355,7 @@ const App: React.FC = () => {
         return <MainMenu onStartGame={handleStartGame} onGoToEditor={handleGoToEditor} onGoToStore={handleGoToStore} onOpenAISettings={() => setShowAISettings(true)} realities={realities} installPrompt={installPrompt} onInstallClick={handleInstallClick} />;
 
       case GameState.GameOver:
-        return <GameOverScreen reason={gameOverData.reason} onRestart={handleExitToMenu} reality={selectedReality!} deck={gameOverData.deck} summary={gameOverData.summary} addToast={addToast} />;
+        return <GameOverScreen reason={gameOverData.reason} onRestart={handleExitToMenu} onPlayAgain={handlePlayAgain} onPlayNext={handlePlayNextDeck} findNextInSeries={findNextInSeries} reality={selectedReality!} deck={gameOverData.deck} summary={gameOverData.summary} addToast={addToast} />;
       
       case GameState.Editor:
         return <EditorScreen 

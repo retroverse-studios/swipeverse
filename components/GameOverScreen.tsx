@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Reality, CardData, Deck } from '../types';
 import { GameSummary } from '../services/gameHistory';
 import { ExportIcon } from './icons';
@@ -10,6 +10,9 @@ interface GameOverScreenProps {
   reason: string;
   reality: Reality;
   onRestart: () => void;
+  onPlayAgain: () => void;
+  onPlayNext: (deck: Deck) => void;
+  findNextInSeries: (deck: Deck) => Promise<Deck | null>;
   deck: CardData[];
   summary: GameSummary | null;
   addToast: (message: string, type: 'success' | 'error') => void;
@@ -69,9 +72,31 @@ const CHROME: Record<ShellThemeId, {
   },
 };
 
-const GameOverScreen: React.FC<GameOverScreenProps> = ({ reason, reality, onRestart, deck, summary, addToast }) => {
+const NEXT_LABEL: Record<ShellThemeId, string> = {
+  tarot: 'Next Chapter ✦',
+  crt: 'NEXT STAGE ▶',
+  handheld: 'NEXT LEVEL',
+};
+
+const MENU_LABEL: Record<ShellThemeId, string> = {
+  tarot: 'Return to the Void',
+  crt: 'MENU',
+  handheld: 'MENU',
+};
+
+const GameOverScreen: React.FC<GameOverScreenProps> = ({ reason, reality, onRestart, onPlayAgain, onPlayNext, findNextInSeries, deck, summary, addToast }) => {
   const { shellTheme } = useShellTheme();
   const chrome = CHROME[shellTheme];
+  const [nextDeck, setNextDeck] = useState<Deck | null>(null);
+
+  useEffect(() => {
+    let alive = true;
+    if (reality.deck) {
+      findNextInSeries(reality.deck).then(next => { if (alive) setNextDeck(next); });
+    }
+    return () => { alive = false; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- resolve once per game over
+  }, []);
 
   const handleExportDeck = () => {
     if (!deck || deck.length === 0) {
@@ -136,8 +161,18 @@ const GameOverScreen: React.FC<GameOverScreenProps> = ({ reason, reality, onRest
       )}
 
       <div className="flex flex-wrap items-center justify-center gap-4">
-        <button onClick={onRestart} className={`transition-colors duration-300 ${chrome.primaryBtn}`}>
-          {shellTheme === 'crt' ? 'CONTINUE?' : shellTheme === 'handheld' ? 'PLAY AGAIN' : 'Return to the Void'}
+        {nextDeck ? (
+          <button onClick={() => onPlayNext(nextDeck)} className={`transition-colors duration-300 ${chrome.primaryBtn}`}
+                  title={`Continue the series: ${nextDeck.name}`}>
+            {NEXT_LABEL[shellTheme]}
+          </button>
+        ) : (
+          <button onClick={onPlayAgain} className={`transition-colors duration-300 ${chrome.primaryBtn}`}>
+            {shellTheme === 'crt' ? 'CONTINUE?' : shellTheme === 'handheld' ? 'PLAY AGAIN' : 'Draw Again'}
+          </button>
+        )}
+        <button onClick={onRestart} className={`transition-colors duration-300 ${chrome.secondaryBtn}`}>
+          {MENU_LABEL[shellTheme]}
         </button>
         <button
           onClick={handleExportDeck}
@@ -148,6 +183,9 @@ const GameOverScreen: React.FC<GameOverScreenProps> = ({ reason, reality, onRest
           Export Story
         </button>
       </div>
+      {nextDeck && (
+        <p className={`mt-4 ${chrome.meta}`}>Next in the series: “{nextDeck.name}”</p>
+      )}
     </div>
   );
 

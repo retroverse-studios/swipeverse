@@ -61,6 +61,23 @@ A card-based survival strategy game where you swipe to shape the fate of entire 
 4. **Manage Stats**: Keep all four stats balanced — if any reach 0 or 100, you lose!
 5. **Survive**: Navigate through 20 AI-generated scenarios to reach the end
 
+## Direct play links (classrooms, sharing)
+
+Launch straight into a scenario — no menu, nothing installed on the player's
+device (the scenario is played ephemerally):
+
+```
+https://swipeverse.app/app/?play=<scenario-url>[&difficulty=easy|standard|hard][&shell=tarot|crt|handheld]
+```
+
+`<scenario-url>` must return JSON from a CORS-friendly host (GitHub raw/Pages
+work; most LMS file storage doesn't — link out). Accepted shapes: a Reality
+with an embedded deck (the editor's export — preferred, it carries the renamed
+stats and theming), a full editor export array, or a bare Deck.
+
+Educator workflow: build in the editor → **⚖ Analyze** → Export → host the
+JSON in a repo → paste one link into the LMS.
+
 ## AI Providers
 
 | Provider | Key Required | Structured Output | Cost |

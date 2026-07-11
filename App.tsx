@@ -13,6 +13,7 @@ import AISettingsModal from './components/AISettingsModal';
 import { VolumeOffIcon, VolumeOnIcon, CloseIcon } from './components/icons';
 import { loadShellTheme, saveShellTheme, ShellThemeId } from './services/shellTheme';
 import { ShellThemeContext, SHELL_BACKGROUNDS } from './components/ShellThemeContext';
+import { buildLinkedReality } from './services/playLink';
 
 const REALITIES_STORAGE_KEY = 'swipeverse-realities';
 const DECK_LIBRARY_STORAGE_KEY = 'swipeverse-deck-library';
@@ -107,6 +108,41 @@ const App: React.FC = () => {
   // "clear site data" still wipes it, hence the library export/import feature.
   useEffect(() => {
     navigator.storage?.persist?.().catch(() => { /* unsupported — ignore */ });
+  }, []);
+
+  // Direct play link: ?play=<scenario url> jumps straight into the game.
+  const [playLinkLoading, setPlayLinkLoading] = useState<boolean>(
+    () => new URLSearchParams(window.location.search).has('play')
+  );
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const playUrl = params.get('play');
+    if (!playUrl) return;
+
+    const difficultyParam = params.get('difficulty');
+    const difficulty: Difficulty =
+      difficultyParam === 'easy' || difficultyParam === 'hard' ? difficultyParam : 'standard';
+    const shellParam = params.get('shell');
+    if (shellParam === 'tarot' || shellParam === 'crt' || shellParam === 'handheld') {
+      setShellTheme(shellParam);
+    }
+
+    (async () => {
+      try {
+        const response = await fetch(playUrl);
+        if (!response.ok) throw new Error(`HTTP ${response.status} fetching the scenario`);
+        const reality = buildLinkedReality(await response.json());
+        setSelectedReality(reality); // ephemeral — never added to the collection
+        setSelectedDifficulty(difficulty);
+        setGameState(GameState.Playing);
+      } catch (error) {
+        addToast(`Couldn't open the linked scenario: ${(error as Error).message}`, 'error');
+      } finally {
+        setPlayLinkLoading(false);
+      }
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- runs once at launch
   }, []);
 
   useEffect(() => {
@@ -274,6 +310,13 @@ const App: React.FC = () => {
   };
 
   const renderContent = () => {
+    if (playLinkLoading) {
+      return (
+        <div className="flex h-full items-center justify-center">
+          <p className="text-tarot-muted uppercase tracking-[0.3em] text-sm animate-pulse">Opening scenario…</p>
+        </div>
+      );
+    }
     switch (gameState) {
       case GameState.Playing:
         if (selectedReality) {

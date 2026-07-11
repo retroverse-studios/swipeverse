@@ -81,7 +81,7 @@ Everything below is live and pushed:
 | Redo manifest icons with real artwork (current: rasterized diamond stopgap) | small | design refresh |
 | Process the 4 missing archetype scenes into `public/cards/` + update `CARD_ART` placeholders | small | art (#3) |
 | **Design refresh** — plan at `docs/design-refresh-plan.md`: direction mockups → pick → shell → card chrome + juice (deal-in, flip, drag stat-preview, meter feedback) → itch.io assets | session(s) | mockups ready anytime; final art improves them |
-| Store go-live: create GitHub repo, enable Pages, wire `services/apiService.ts` to the real catalog (keep samples as offline fallback), remove Demo badge | medium | #5 |
+| Store go-live: create GitHub repo, enable Pages, wire `services/apiService.ts` to the real catalog (keep samples as offline fallback), remove Demo badge. Scope: **Education section** + category tags (education/game) on catalog entries; store-hosted scenarios get `?play=` deep links | medium | #5 |
 | Store art palette: publish the 20 non-bundled themed sets (from `art-processed/`) to the store site; extend the editor's art picker with a store-palette source; allowlist the store host in the validator | medium | store go-live |
 | Publish on itch.io | small | playtesting + design refresh |
 | Editor: AI co-writing verbs (rewrite this card, add N cards in this style, fill in effects, continue from card X) — AI as collaborator, not just whole-deck drafter | medium | post-launch |

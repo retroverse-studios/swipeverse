@@ -4,6 +4,7 @@ import { REALITIES, INITIAL_STATS, cardScenesFor, resolveAssetUrl } from '../con
 import { BackIcon, SaveIcon, DeleteIcon, UploadIcon, ExportIcon, AddIcon, GenerateIcon, CloudUploadIcon, FormIcon, GraphIcon } from './icons';
 import { generateBranchingDeckFromPrompt } from '../services/aiService';
 import { analyzeDeck, DeckAnalysis } from '../services/deckSolver';
+import { fetchStoreArtIndex, StoreArtIndex, STORE_ART_BASE } from '../services/apiService';
 import { VisualEditor } from './VisualEditor';
 
 interface EditorScreenProps {
@@ -40,6 +41,12 @@ const EditorScreen: React.FC<EditorScreenProps> = ({
     const [storyDirectorPrompt, setStoryDirectorPrompt] = useState('');
     const [isGeneratingDeck, setIsGeneratingDeck] = useState(false);
     const [deckAnalysis, setDeckAnalysis] = useState<DeckAnalysis | null>(null);
+    const [storeArt, setStoreArt] = useState<StoreArtIndex | null>(null);
+    const [storeArtSet, setStoreArtSet] = useState('');
+
+    useEffect(() => {
+        fetchStoreArtIndex().then(setStoreArt); // null when offline — palette hides
+    }, []);
     const [isDirty, setIsDirty] = useState(false);
     const [editorView, setEditorView] = useState<'form' | 'visual'>('form');
 
@@ -380,12 +387,42 @@ const EditorScreen: React.FC<EditorScreenProps> = ({
                                 </button>
                             ))}
                         </div>
+                        {storeArt && (
+                            <div className="flex items-center gap-2 pt-1">
+                                <label className="text-xs text-gray-400 whitespace-nowrap">Store art palette</label>
+                                <select
+                                    value={storeArtSet}
+                                    onChange={e => setStoreArtSet(e.target.value)}
+                                    className="bg-gray-900 p-1.5 rounded text-sm flex-grow"
+                                >
+                                    <option value="">(pick a theme to browse…)</option>
+                                    {storeArt.sets.map(s => <option key={s} value={s}>{s}</option>)}
+                                </select>
+                            </div>
+                        )}
+                        {storeArt && storeArtSet && (
+                            <div className="flex gap-1.5 flex-wrap items-center pt-1">
+                                {storeArt.archetypes.map(archetype => {
+                                    const url = `${STORE_ART_BASE}/${storeArtSet}/${archetype}.webp`;
+                                    return (
+                                        <button
+                                            key={archetype}
+                                            onClick={() => onCardChange('imageUrl', url)}
+                                            title={`${storeArtSet} · ${archetype}`}
+                                            className={`h-12 w-16 rounded overflow-hidden border-2 ${card.imageUrl === url ? 'border-cyber-pink' : 'border-transparent hover:border-gray-500'}`}
+                                        >
+                                            <img src={url} alt="" className="w-full h-full object-cover" loading="lazy" />
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                        )}
                         <input
                             type="text"
-                            value={card.imageUrl && !cardScenesFor(formData?.id).includes(card.imageUrl) ? card.imageUrl : ''}
+                            value={card.imageUrl && !cardScenesFor(formData?.id).includes(card.imageUrl) && !card.imageUrl.startsWith(STORE_ART_BASE) ? card.imageUrl : ''}
                             onChange={e => onCardChange('imageUrl', e.target.value || undefined)}
                             className="w-full bg-gray-900 p-2 rounded text-sm"
-                            placeholder="Custom image URL (optional — store decks must use bundled art)"
+                            placeholder="Custom image URL (optional — store decks: bundled or palette art only)"
                         />
                     </div>
                     <button onClick={() => handleDeleteCard(index)} className="p-2 text-red-500 hover:text-red-400 text-xs self-start" title="Delete Card"><DeleteIcon /></button>

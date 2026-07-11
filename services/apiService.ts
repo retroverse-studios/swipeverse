@@ -10,10 +10,30 @@ import { REALITIES } from "../constants";
  * store screen degrades gracefully instead of erroring.
  */
 
-// TODO: flip to https://store.swipeverse.app once the CNAME + DNS are live.
-const CATALOG_BASE = 'https://retroverse-studios.github.io/swipeverse-store';
+const CATALOG_BASE = 'https://store.swipeverse.app';
 
-export const STORE_SUBMIT_URL = 'https://github.com/retroverse-studios/swipeverse-store/blob/main/CONTRIBUTING.md';
+export const STORE_SUBMIT_URL = 'https://store.swipeverse.app/guide/';
+export const STORE_ART_BASE = 'https://store.swipeverse.app/art';
+
+/** The store's free art palette for community decks (art/index.json). */
+export interface StoreArtIndex {
+    sets: string[];
+    archetypes: string[];
+}
+
+let artIndexCache: StoreArtIndex | null = null;
+
+export async function fetchStoreArtIndex(): Promise<StoreArtIndex | null> {
+    if (artIndexCache) return artIndexCache;
+    try {
+        const response = await fetch(`${STORE_ART_BASE}/index.json`);
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        artIndexCache = await response.json() as StoreArtIndex;
+        return artIndexCache;
+    } catch {
+        return null; // offline / unreachable — the picker simply hides the palette
+    }
+}
 
 async function fetchCatalog<T>(file: string, fallback: T): Promise<T> {
     try {

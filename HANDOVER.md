@@ -14,7 +14,10 @@ _Last updated: 2026-07-05_
    picker so community creators can use them.
    Remaining from step 2: regenerate starter decks with tags → playtest
 3. Design refresh (full art set in hand; produces itch.io assets)
-4. Store: create GitHub repo, Pages + store.swipeverse.app, wire apiService, remove Demo badge
+4. ~~Store~~ ✅ LIVE end-to-end (2026-07-11): store.swipeverse.app — catalog +
+   styled index + Creator Guide + 20-set art palette (in the deck builder
+   picker); app fetches live catalog w/ offline fallback; menu has a
+   "New from the store" shelf
 5. Publish on itch.io
 
 ## Where things stand
@@ -82,7 +85,6 @@ Everything below is live and pushed:
 | Redo manifest icons with real artwork (current: rasterized diamond stopgap) | small | design refresh |
 | Process the 4 missing archetype scenes into `public/cards/` + update `CARD_ART` placeholders | small | art (#3) |
 | **Design refresh** — plan at `docs/design-refresh-plan.md`: direction mockups → pick → shell → card chrome + juice (deal-in, flip, drag stat-preview, meter feedback) → itch.io assets | session(s) | mockups ready anytime; final art improves them |
-| Store: remaining after go-live — DNS CNAME `store` -> retroverse-studios.github.io (Cloudflare, grey cloud), set cname on store repo, flip `CATALOG_BASE` in apiService.ts; then "New from the store" menu shelf, art palette hosting, Creator Guide page | medium | DNS |
 | Store art palette: publish the 20 non-bundled themed sets (from `art-processed/`) to the store site; extend the editor's art picker with a store-palette source; allowlist the store host in the validator | medium | store go-live |
 | Publish on itch.io | small | playtesting + design refresh |
 | Editor: AI co-writing verbs (rewrite this card, add N cards in this style, fill in effects, continue from card X) — AI as collaborator, not just whole-deck drafter | medium | post-launch |

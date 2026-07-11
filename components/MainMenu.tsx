@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Reality } from '../types';
 import { Difficulty } from '../services/gameHistory';
 import { deckSurvival } from '../services/deckSolver';
+import { fetchStoreDecks } from '../services/apiService';
 import { AddIcon, EditIcon, StoreIcon } from './icons';
 import { cardBackFor, pickCardArt, resolveAssetUrl } from '../constants';
 import { useShellTheme } from './ShellThemeContext';
@@ -22,6 +23,8 @@ interface MenuLayoutProps extends MainMenuProps {
   setSelectedForPlay: (reality: Reality | null) => void;
   /** Random-play survival per difficulty — only for realities with a fixed deck. */
   survival: Record<Difficulty, number> | null;
+  /** Titles of the newest store stories — the discovery teaser. */
+  storeTeaser: string[] | null;
 }
 
 const DIFFICULTIES: Difficulty[] = ['easy', 'standard', 'hard'];
@@ -47,7 +50,7 @@ const tiltFor = (index: number) => ['-rotate-3', 'rotate-0', 'rotate-3'][index %
 
 const TarotMenu: React.FC<MenuLayoutProps> = ({
   realities, onStartGame, onGoToEditor, onGoToStore, onOpenAISettings,
-  installPrompt, onInstallClick, selectedForPlay, setSelectedForPlay, survival,
+  installPrompt, onInstallClick, selectedForPlay, setSelectedForPlay, survival, storeTeaser,
 }) => (
   <div className="flex flex-col items-center min-h-full p-4 pt-10 md:pt-16 animate-fade-in overflow-y-auto h-full">
     <h1 className="font-cinzel font-extrabold tracking-[0.14em] text-4xl md:text-6xl text-gold-gradient text-center">
@@ -130,7 +133,15 @@ const TarotMenu: React.FC<MenuLayoutProps> = ({
       </div>
     </div>
 
-    <div className="mt-12 mb-6 flex items-center gap-6 text-xs uppercase tracking-[0.25em]">
+    {storeTeaser && (
+      <button
+        onClick={onGoToStore}
+        className="mt-10 tarot-plaque rounded-lg px-4 py-2 text-[0.68rem] uppercase tracking-[0.2em] text-tarot-paper transition-colors"
+      >
+        ✦ New from the store: <span className="text-tarot-gold-bright normal-case tracking-normal">{storeTeaser.join(' · ')}</span> →
+      </button>
+    )}
+    <div className="mt-6 mb-6 flex items-center gap-6 text-xs uppercase tracking-[0.25em]">
       {installPrompt && (
         <button onClick={onInstallClick} className="text-tarot-gold-bright hover:text-white transition-colors font-semibold" aria-label="Install app">
           ✦ Install App
@@ -152,7 +163,7 @@ const CRT_DIFFICULTY: Record<Difficulty, string> = { easy: 'EASY', standard: 'NO
 
 const CrtMenu: React.FC<MenuLayoutProps> = ({
   realities, onStartGame, onGoToEditor, onGoToStore, onOpenAISettings,
-  installPrompt, onInstallClick, selectedForPlay, setSelectedForPlay, survival,
+  installPrompt, onInstallClick, selectedForPlay, setSelectedForPlay, survival, storeTeaser,
 }) => (
   <CrtShell>
     <div className="px-6 py-8 md:px-10 md:py-10 min-h-full flex flex-col">
@@ -209,7 +220,12 @@ const CrtMenu: React.FC<MenuLayoutProps> = ({
         </div>
       </div>
 
-      <div className="flex justify-center gap-8 text-[#5f6a80] text-base md:text-lg tracking-[0.2em] pb-2 pt-8">
+      {storeTeaser && (
+        <button onClick={onGoToStore} className="block mx-auto text-[#7fe7f5] font-vt text-lg tracking-[0.12em] pt-6 hover:text-white">
+          ▸ NEW IN STORE: {storeTeaser.join(' / ').toUpperCase()}
+        </button>
+      )}
+      <div className="flex justify-center gap-8 text-[#5f6a80] text-base md:text-lg tracking-[0.2em] pb-2 pt-4">
         {installPrompt && <button onClick={onInstallClick} className="hover:text-cyber-pink">INSTALL</button>}
         <button onClick={onGoToStore} className="hover:text-[#7fe7f5]">STORE</button>
         <button onClick={onOpenAISettings} className="hover:text-[#7fe7f5]">SETTINGS</button>
@@ -222,7 +238,7 @@ const CrtMenu: React.FC<MenuLayoutProps> = ({
 
 const HandheldMenu: React.FC<MenuLayoutProps> = ({
   realities, onStartGame, onGoToEditor, onGoToStore, onOpenAISettings,
-  installPrompt, onInstallClick, selectedForPlay, setSelectedForPlay, survival,
+  installPrompt, onInstallClick, selectedForPlay, setSelectedForPlay, survival, storeTeaser,
 }) => (
   <HandheldShell>
     <div className="p-3 min-h-full flex flex-col">
@@ -277,7 +293,12 @@ const HandheldMenu: React.FC<MenuLayoutProps> = ({
           + BLANK CARTRIDGE
         </div>
       </div>
-      <div className="flex justify-center gap-5 font-vt text-[#5c8a6b] text-base pt-3 pb-1">
+      {storeTeaser && (
+        <button onClick={onGoToStore} className="block mx-auto font-vt text-[#a3ffbe] text-sm pt-2 hover:text-white truncate max-w-full px-2">
+          NEW: {storeTeaser.join(' · ')}
+        </button>
+      )}
+      <div className="flex justify-center gap-5 font-vt text-[#5c8a6b] text-base pt-2 pb-1">
         {installPrompt && <button onClick={onInstallClick} className="hover:text-[#a3ffbe]">INSTALL</button>}
         <button onClick={onGoToStore} className="hover:text-[#a3ffbe]">STORE</button>
         <button onClick={onOpenAISettings} className="hover:text-[#a3ffbe]">SETTINGS</button>
@@ -304,7 +325,16 @@ const MainMenu: React.FC<MainMenuProps> = (props) => {
     return () => clearTimeout(timer);
   }, [selectedForPlay]);
 
-  const layoutProps: MenuLayoutProps = { ...props, selectedForPlay, setSelectedForPlay, survival };
+  const [storeTeaser, setStoreTeaser] = useState<string[] | null>(null);
+  useEffect(() => {
+    let alive = true;
+    fetchStoreDecks().then(decks => {
+      if (alive && decks.length > 0) setStoreTeaser(decks.slice(0, 3).map(d => d.name || 'Untitled'));
+    });
+    return () => { alive = false; };
+  }, []);
+
+  const layoutProps: MenuLayoutProps = { ...props, selectedForPlay, setSelectedForPlay, survival, storeTeaser };
 
   if (shellTheme === 'crt') return <CrtMenu {...layoutProps} />;
   if (shellTheme === 'handheld') return <HandheldMenu {...layoutProps} />;

@@ -29,10 +29,14 @@ Implementation status:
 - ✅ Juice on all shells: drag stat-preview (#1), per-shell deal-in
   (#2/#3 — tarot rise / CRT flicker / handheld slide), danger states (#4a),
   card backs behind the stack, dominant-stat seal/badge
+- ✅ Utility-chrome consistency pass (2026-07-11): editor, store/library,
+  settings + confirmation modals aligned to the tarot token family (audit
+  found mixed golds, pink accents, Orbitron titles). Landing page reskinned
+  earlier. Toasts kept functional green/red; red = destructive, cyan =
+  analysis/info accents by convention.
 - ⏳ Remaining: meter pulse-on-change (#4b), game-over ceremony (#5),
-  micro-feedback/haptics (#6), utility-chrome consistency pass (editor,
-  store/library, modals, toasts, About panel), landing page reskin, real app
-  icons, itch.io asset export (shot in Tarot).
+  micro-feedback/haptics (#6), About panel (new), real app icons, itch.io
+  asset export (shot in Tarot).
 
 ## Goal
 

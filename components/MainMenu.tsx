@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Reality } from '../types';
 import { Difficulty } from '../services/gameHistory';
+import { deckSurvival } from '../services/deckSolver';
 import { AddIcon, EditIcon, StoreIcon } from './icons';
 import { cardBackFor, pickCardArt, resolveAssetUrl } from '../constants';
 import { useShellTheme } from './ShellThemeContext';
@@ -19,9 +20,14 @@ interface MainMenuProps {
 interface MenuLayoutProps extends MainMenuProps {
   selectedForPlay: Reality | null;
   setSelectedForPlay: (reality: Reality | null) => void;
+  /** Random-play survival per difficulty — only for realities with a fixed deck. */
+  survival: Record<Difficulty, number> | null;
 }
 
 const DIFFICULTIES: Difficulty[] = ['easy', 'standard', 'hard'];
+
+const survivalHint = (survival: Record<Difficulty, number> | null, difficulty: Difficulty): string | null =>
+  survival ? `~${Math.round(survival[difficulty] * 100)}% survive` : null;
 
 /* ── Neon Tarot ─────────────────────────────────────────────────────── */
 
@@ -35,7 +41,7 @@ const tiltFor = (index: number) => ['-rotate-3', 'rotate-0', 'rotate-3'][index %
 
 const TarotMenu: React.FC<MenuLayoutProps> = ({
   realities, onStartGame, onGoToEditor, onGoToStore, onOpenAISettings,
-  installPrompt, onInstallClick, selectedForPlay, setSelectedForPlay,
+  installPrompt, onInstallClick, selectedForPlay, setSelectedForPlay, survival,
 }) => (
   <div className="flex flex-col items-center min-h-full p-4 pt-10 md:pt-16 animate-fade-in overflow-y-auto h-full">
     <h1 className="font-cinzel font-extrabold tracking-[0.14em] text-4xl md:text-6xl text-gold-gradient text-center">
@@ -93,7 +99,9 @@ const TarotMenu: React.FC<MenuLayoutProps> = ({
                       className="tarot-plaque rounded-lg py-1.5 px-3 w-full text-sm font-cinzel font-semibold tracking-wide transition-colors"
                     >
                       {TAROT_DIFFICULTY[d].label}
-                      <span className="block text-[0.6rem] text-tarot-muted font-exo font-normal">{TAROT_DIFFICULTY[d].desc}</span>
+                      <span className="block text-[0.6rem] text-tarot-muted font-exo font-normal">
+                        {TAROT_DIFFICULTY[d].desc}{survivalHint(survival, d) ? ` · ${survivalHint(survival, d)}` : ''}
+                      </span>
                     </button>
                   ))}
                   <p className="text-tarot-muted/70 text-[0.55rem] mt-1">tap the card to close</p>
@@ -138,7 +146,7 @@ const CRT_DIFFICULTY: Record<Difficulty, string> = { easy: 'EASY', standard: 'NO
 
 const CrtMenu: React.FC<MenuLayoutProps> = ({
   realities, onStartGame, onGoToEditor, onGoToStore, onOpenAISettings,
-  installPrompt, onInstallClick, selectedForPlay, setSelectedForPlay,
+  installPrompt, onInstallClick, selectedForPlay, setSelectedForPlay, survival,
 }) => (
   <CrtShell>
     <div className="px-6 py-8 md:px-10 md:py-10 min-h-full flex flex-col">
@@ -176,6 +184,9 @@ const CrtMenu: React.FC<MenuLayoutProps> = ({
                       className="font-pixel text-[9px] md:text-[10px] px-3 py-2 border border-[#7fe7f5] text-[#7fe7f5] hover:bg-[#7fe7f5]/10 hover:text-white"
                     >
                       {CRT_DIFFICULTY[d]}
+                      {survivalHint(survival, d) && (
+                        <span className="block font-vt text-sm text-[#5f6a80] mt-1 normal-case">{survivalHint(survival, d)}</span>
+                      )}
                     </button>
                   ))}
                 </div>
@@ -205,7 +216,7 @@ const CrtMenu: React.FC<MenuLayoutProps> = ({
 
 const HandheldMenu: React.FC<MenuLayoutProps> = ({
   realities, onStartGame, onGoToEditor, onGoToStore, onOpenAISettings,
-  installPrompt, onInstallClick, selectedForPlay, setSelectedForPlay,
+  installPrompt, onInstallClick, selectedForPlay, setSelectedForPlay, survival,
 }) => (
   <HandheldShell>
     <div className="p-3 min-h-full flex flex-col">
@@ -243,6 +254,9 @@ const HandheldMenu: React.FC<MenuLayoutProps> = ({
                       className="text-[#a3ffbe] border border-[#a3ffbe]/50 px-3 py-1 text-base hover:bg-[#a3ffbe]/10"
                     >
                       {CRT_DIFFICULTY[d]}
+                      {survivalHint(survival, d) && (
+                        <span className="block text-xs text-[#5c8a6b]">{survivalHint(survival, d)}</span>
+                      )}
                     </button>
                   ))}
                 </div>
@@ -271,7 +285,20 @@ const HandheldMenu: React.FC<MenuLayoutProps> = ({
 const MainMenu: React.FC<MainMenuProps> = (props) => {
   const { shellTheme } = useShellTheme();
   const [selectedForPlay, setSelectedForPlay] = useState<Reality | null>(null);
-  const layoutProps: MenuLayoutProps = { ...props, selectedForPlay, setSelectedForPlay };
+  const [survival, setSurvival] = useState<Record<Difficulty, number> | null>(null);
+
+  // Survival hints only make sense for a fixed deck (bundled or imported) —
+  // AI-generated realities have no deck to analyze until play begins.
+  // Deferred a tick so the selection UI paints before the solver runs.
+  useEffect(() => {
+    setSurvival(null);
+    const deck = selectedForPlay?.deck;
+    if (!deck || !deck.cards || deck.cards.length === 0) return;
+    const timer = setTimeout(() => setSurvival(deckSurvival(deck)), 30);
+    return () => clearTimeout(timer);
+  }, [selectedForPlay]);
+
+  const layoutProps: MenuLayoutProps = { ...props, selectedForPlay, setSelectedForPlay, survival };
 
   if (shellTheme === 'crt') return <CrtMenu {...layoutProps} />;
   if (shellTheme === 'handheld') return <HandheldMenu {...layoutProps} />;

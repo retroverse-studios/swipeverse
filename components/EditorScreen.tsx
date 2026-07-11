@@ -3,6 +3,7 @@ import { Reality, CardData, StatName, Deck, CARD_ARCHETYPES, CardArchetype } fro
 import { REALITIES, INITIAL_STATS, cardScenesFor, resolveAssetUrl } from '../constants';
 import { BackIcon, SaveIcon, DeleteIcon, UploadIcon, ExportIcon, AddIcon, GenerateIcon, CloudUploadIcon, FormIcon, GraphIcon } from './icons';
 import { generateBranchingDeckFromPrompt } from '../services/aiService';
+import { analyzeDeck, DeckAnalysis } from '../services/deckSolver';
 import { VisualEditor } from './VisualEditor';
 
 interface EditorScreenProps {
@@ -38,6 +39,7 @@ const EditorScreen: React.FC<EditorScreenProps> = ({
     const [formData, setFormData] = useState<Reality | null>(null);
     const [storyDirectorPrompt, setStoryDirectorPrompt] = useState('');
     const [isGeneratingDeck, setIsGeneratingDeck] = useState(false);
+    const [deckAnalysis, setDeckAnalysis] = useState<DeckAnalysis | null>(null);
     const [isDirty, setIsDirty] = useState(false);
     const [editorView, setEditorView] = useState<'form' | 'visual'>('form');
 
@@ -113,7 +115,16 @@ const EditorScreen: React.FC<EditorScreenProps> = ({
         onSetEditingReality(newReality);
     };
     
+    const handleAnalyzeDeck = () => {
+        if (!formData?.deck || !formData.deck.cards || formData.deck.cards.length === 0) {
+            addToast("No custom deck to analyze — add cards or generate a story first.", 'error');
+            return;
+        }
+        setDeckAnalysis(analyzeDeck(formData.deck));
+    };
+
     const handleDeckChange = (newDeck: Deck) => {
+        setDeckAnalysis(null); // stale after any deck edit
         if (formData) {
             // Ensure deck has all properties
             const completeDeck: Deck = {
@@ -518,6 +529,9 @@ const EditorScreen: React.FC<EditorScreenProps> = ({
                                 <button onClick={handleExportDeck} disabled={isGeneratingDeck} className="flex items-center gap-2 py-1 px-3 rounded-md text-sm bg-white/10 hover:bg-white/20 disabled:opacity-50">
                                     <ExportIcon /> Export
                                 </button>
+                                <button onClick={handleAnalyzeDeck} disabled={isGeneratingDeck} className="flex items-center gap-2 py-1 px-3 rounded-md text-sm bg-cyan-500/20 text-cyan-300 hover:bg-cyan-500/40 disabled:opacity-50" title="Check the deck is winnable and losable at every difficulty">
+                                    ⚖ Analyze
+                                </button>
                                 <button onClick={handleRevertToAi} disabled={isGeneratingDeck} className="flex items-center gap-2 py-1 px-3 rounded-md text-sm bg-red-500/20 text-red-400 hover:bg-red-500/40 disabled:opacity-50">
                                     <DeleteIcon/> Revert to AI
                                 </button>
@@ -528,6 +542,38 @@ const EditorScreen: React.FC<EditorScreenProps> = ({
                             <input type="text" name="name" value={formData.deck?.name || ''} onChange={handleDeckFieldChange} placeholder="Deck Title" className="w-full bg-gray-900 p-2 rounded text-lg font-bold" />
                             <textarea name="description" value={formData.deck?.description || ''} onChange={handleDeckFieldChange} placeholder="Deck Description..." className="w-full bg-gray-900 p-2 rounded text-sm" rows={2}></textarea>
                         </div>
+
+                        {deckAnalysis && (
+                            <div className="mb-4 bg-slate-900/70 border border-cyan-500/30 rounded-lg p-4 text-sm">
+                                <div className="flex justify-between items-center mb-2">
+                                    <h4 className="font-bold text-cyan-300">⚖ Deck Analysis</h4>
+                                    <button onClick={() => setDeckAnalysis(null)} className="text-gray-500 hover:text-white text-xs">dismiss</button>
+                                </div>
+                                <table className="w-full text-left mb-3">
+                                    <thead>
+                                        <tr className="text-gray-500 text-xs uppercase tracking-wider">
+                                            <th className="pb-1">Difficulty</th><th>Winnable</th><th>Losable</th><th>Random-play survival</th><th>Example winning line</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {deckAnalysis.perDifficulty.map(d => (
+                                            <tr key={d.difficulty} className="border-t border-gray-800">
+                                                <td className="py-1 capitalize">{d.difficulty}</td>
+                                                <td className={d.winnable === 'yes' ? 'text-green-400' : 'text-red-400 font-bold'}>{d.winnable}</td>
+                                                <td className={d.losable === 'yes' ? 'text-green-400' : 'text-yellow-400 font-bold'}>{d.losable}</td>
+                                                <td>{(d.survival * 100).toFixed(1)}%</td>
+                                                <td className="text-gray-400 max-w-[180px] truncate" title={d.winningLine?.map(s => s === 'leftChoice' ? '⇦' : '⇨').join('')}>
+                                                    {d.winningLine ? `${d.winningLine.map(s => s === 'leftChoice' ? '⇦' : '⇨').join('')} (${d.winningLine.length})` : '—'}
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                                <ul className="space-y-1 text-gray-300 list-disc pl-5">
+                                    {deckAnalysis.suggestions.map((s, i) => <li key={i}>{s}</li>)}
+                                </ul>
+                            </div>
+                        )}
 
 
                         {editorView === 'form' && (

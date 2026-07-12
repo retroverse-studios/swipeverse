@@ -42,9 +42,17 @@ _Last updated: 2026-07-12_
   docs/educational-naming.md (The Perimeter/Zero Hour, The Ledger/Runway),
   and curriculum part-2 decks chained via series (Chain of Custody,
   The Table). Michael playtested the 3 bundled starter decks — fine.
-  Proposed next (not yet built): per-set genre hints in art/index.json +
-  editor dropdown labels + a store gallery page; post-launch, Story
-  Director auto-picks an art set from the prompt.
+  Art discovery SHIPPED: per-set titles+genre hints in art/index.json
+  (setInfo), store gallery page at store.swipeverse.app/gallery/ (all sets
+  with "suits: …" hints + art-contributor pitch), editor art dropdown shows
+  "Title — hint" labels, and Story Director "Auto-theme art" (default on)
+  keyword-matches the story to a set and binds archetype art (no match =
+  default art; matcher tested: detective→noir, bakery→none).
+  Open ideas (assessed, not built): popularity counting needs a tiny
+  Cloudflare Worker (static Pages can't count adds) and voting is safest
+  as GitHub 👍 reactions (no free text = no moderation burden) — both
+  post-launch; art-only creators are now pitched on the gallery page,
+  full art-contributor guide section could follow.
 
 ## Agreed order of work
 

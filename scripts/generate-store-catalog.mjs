@@ -186,17 +186,26 @@ const REALITY_SPECS = [
         colors: { primary: "text-amber-400", secondary: "text-orange-300", background: "bg-gradient-to-br from-stone-900 via-amber-950 to-stone-950", accent: "border-amber-400" },
         storyPrompt: "The player is the new sheriff of a boomtown at the end of the rail line. The railroad company wants the valley, a cattle baron runs his own justice, an outlaw gang winters in the hills, and the saloon hears everything first. Choices trade the authority of the law, gold and bounties, the town's trust, and frontier-craft.",
     },
-    // ——— Educational (category "education") ———
     {
-        id: "edu-founders-gambit", artSet: "business", name: "The Founder's Gambit", icons: "Cyber", category: "education", educational: "startup and business fundamentals",
-        description: "Learn startup judgment the hard way: twelve months of runway, one company, no safety net. Every card is a real founder's trade-off.",
+        id: "noir", artSet: "noir", name: "Rain City", icons: "Cyber", category: "game",
+        description: "A private eye, a case that smells wrong, and a city where every streetlight hides a debt. Classic hard-boiled noir.",
+        statNames: { Power: "Nerve", Wealth: "The Retainer", People: "Contacts", Knowledge: "The Case" },
+        colors: { primary: "text-slate-300", secondary: "text-amber-300", background: "bg-gradient-to-br from-zinc-950 via-slate-950 to-black", accent: "border-slate-400" },
+        storyPrompt: "The player is a down-at-heel private detective in a rain-soaked 1940s city. A femme fatale walks in with a missing-husband case that's really about something else, the police lieutenant owes the player a favor he resents, the newspapers buy secrets, and every witness lies about something. Weave a hard-boiled mystery of double-crosses, stakeouts, corrupt officials and buried truths. Choices trade the detective's nerve, the retainer and expenses, a web of street contacts, and the slowly assembling truth of the case.",
+    },
+    // ——— Educational (category "education") ———
+    // Naming scheme (docs/educational-naming.md): Reality = the world,
+    // Deck = the pressure point. Curriculum decks chain via series metadata.
+    {
+        id: "edu-founders-gambit", artSet: "business", name: "The Ledger", icons: "Cyber", category: "education", educational: "startup and business fundamentals",
+        description: "The business world. Deck 1 — Runway: twelve months of cash, one company, no safety net. Every card is a real founder's trade-off.",
         statNames: { Power: "Control", Wealth: "Runway", People: "The Team", Knowledge: "Insight" },
         colors: { primary: "text-emerald-400", secondary: "text-amber-300", background: "bg-gradient-to-br from-slate-900 via-emerald-950 to-zinc-950", accent: "border-emerald-400" },
         storyPrompt: "The player founds a small software startup with twelve months of runway. Take them through the real decisions founders face: pricing the first product, a term sheet that trades board control for cash, a co-founder dispute over equity, hiring a senior manager versus two juniors, a big customer demanding exclusivity, pivoting versus persevering, and when to spend on marketing versus product. Ground every dilemma in genuine business concepts — cash flow versus profit, dilution, product-market fit, opportunity cost, customer concentration risk — so a player finishes understanding WHY each trade-off hurts. Choices trade founder control, cash runway, team trust, and business insight.",
     },
     {
-        id: "edu-zero-day", artSet: "science", name: "Zero Day", icons: "Cyber", category: "education", educational: "cybersecurity judgment and trade-offs",
-        description: "Run security for a company under live attack. Real security trade-offs — patching, disclosure, phishing, backups — as swipe decisions.",
+        id: "edu-zero-day", artSet: "cybersecurity", name: "The Perimeter", icons: "Cyber", category: "education", educational: "cybersecurity judgment and trade-offs",
+        description: "The security world. Deck 1 — Zero Hour: run security for a company under live attack. Contain or investigate, patch or keep uptime, disclose or dig deeper.",
         statNames: { Power: "Clearance", Wealth: "Budget", People: "Trust", Knowledge: "Threat Intel" },
         colors: { primary: "text-red-400", secondary: "text-cyan-300", background: "bg-gradient-to-br from-zinc-950 via-red-950 to-slate-950", accent: "border-red-400" },
         storyPrompt: "The player is the newly hired security lead at a mid-size company, and the deck spans one escalating incident: from a phishing email through lateral movement to a ransomware detonation and its aftermath. Turn real security judgment into dilemmas: patch now and break production or wait for a maintenance window, pay for a pentest or an EDR tool, disclose a breach early or investigate quietly, force password resets that will flood the helpdesk, restore from backups that might be tainted, negotiate with ransomware operators or refuse. Ground every card in genuine security concepts — least privilege, defense in depth, incident response, social engineering, backup integrity, responsible disclosure — so the player learns why each trade-off matters. Choices trade the security team's authority, budget, organizational trust, and threat intelligence.",
@@ -207,6 +216,28 @@ const REALITY_SPECS = [
         statNames: { Power: "Influence", Wealth: "Deadline", People: "The Team", Knowledge: "Code Quality" },
         colors: { primary: "text-violet-400", secondary: "text-emerald-300", background: "bg-gradient-to-br from-slate-950 via-violet-950 to-zinc-950", accent: "border-violet-400" },
         storyPrompt: "The player becomes tech lead of a small team shipping a product from prototype to production launch. Turn real software engineering judgment into dilemmas: take on tech debt to hit a demo or slip the date, rewrite the legacy module or strangle it gradually, enforce code review when the deadline screams, add tests now or firefight later, adopt the shiny framework or the boring proven one, buy versus build, respond to the 2am outage with a hotfix or a rollback. Ground every card in genuine engineering concepts — technical debt interest, regression risk, bus factor, premature optimization, scope creep, blameless postmortems — so the player learns why each call is hard. Choices trade the lead's influence, deadline slack, the team's health, and the codebase's quality.",
+    },
+];
+
+/**
+ * Standalone decks for decks.json. Curriculum decks: part 2+ of an
+ * educational world whose part 1 is embedded in its reality. `deckName`
+ * overrides the AI's title so the scheme name sticks.
+ */
+const DECK_SPECS = [
+    {
+        id: "perimeter-chain-of-custody", artSet: "cybersecurity", category: "education", educational: "digital forensics judgment",
+        deckName: "Chain of Custody",
+        series: { name: "The Perimeter", part: 2 },
+        statNames: { Power: "Clearance", Wealth: "Budget", People: "Trust", Knowledge: "Threat Intel" },
+        storyPrompt: "Sequel to an incident-response story (the ransomware attack is contained; the company survived). The player now leads the forensic investigation: reconstructing the breach, preserving evidence for prosecution and insurance, and briefing lawyers and the board. Turn real digital-forensics judgment into dilemmas: image the compromised server now (downtime) or keep it live and risk contaminating evidence, maintain chain of custody paperwork under deadline pressure, whether logs pulled by a well-meaning admin are still admissible, engaging law enforcement early (losing control) or late (losing goodwill), attributing the attack publicly on thin evidence, paying for expensive cold-storage preservation versus moving on. Ground every card in genuine forensics concepts — evidence integrity, chain of custody, volatile data order, admissibility, attribution confidence — so the player learns why speed and integrity pull against each other.",
+    },
+    {
+        id: "ledger-the-table", artSet: "business", category: "education", educational: "negotiation fundamentals",
+        deckName: "The Table",
+        series: { name: "The Ledger", part: 2 },
+        statNames: { Power: "Control", Wealth: "Runway", People: "The Team", Knowledge: "Insight" },
+        storyPrompt: "Sequel to a startup-survival story (the company made it through its first year). The player now spends a year at the negotiating table: a Series A term sheet, an enterprise customer demanding exclusivity and indemnities, a key hire negotiating equity, an acquisition overture, and a vendor contract renewal with a monopoly supplier. Turn real negotiation judgment into dilemmas: anchoring high versus poisoning the relationship, revealing your walk-away point, win-win trades versus pressing leverage, negotiating against a deadline you created, when to walk away from a good-looking deal, BATNA thinking, and reading the other side's constraints. Ground every card in genuine negotiation concepts so the player learns why leverage and trust trade against each other.",
     },
 ];
 
@@ -400,6 +431,14 @@ async function generateRealityTask(spec) {
     stage(spec.id, deck);
 }
 
+async function generateStandaloneDeckTask(spec) {
+    if (isStaged(spec.id)) { console.log(`[${spec.id}] already staged — skipping`); return; }
+    const deck = await generateDeck(spec.id, spec);
+    if (spec.deckName) deck.name = spec.deckName;
+    if (spec.series) deck.series = { ...spec.series };
+    stage(spec.id, deck);
+}
+
 async function generateSagaTask(saga) {
     let previous = null;
     for (let part = 1; part <= saga.parts.length; part++) {
@@ -444,6 +483,10 @@ function assemble() {
             decks.push({ ...readStaged(id), category: "game" });
         }
     }
+    for (const spec of DECK_SPECS) {
+        if (!isStaged(spec.id)) { missing.push(spec.id); continue; }
+        decks.push({ ...readStaged(spec.id), category: spec.category });
+    }
     if (missing.length > 0) {
         console.error(`\nNot assembling a partial catalog — missing: ${missing.join(", ")}`);
         process.exit(1);
@@ -461,9 +504,11 @@ const wanted = args.filter(a => !a.startsWith("--"));
 
 if (!assembleOnly) {
     const realityTargets = REALITY_SPECS.filter(s => wanted.length === 0 || wanted.includes(s.id));
+    const deckTargets = DECK_SPECS.filter(s => wanted.length === 0 || wanted.includes(s.id));
     const sagaTargets = SAGA_SPECS.filter(s => wanted.length === 0 || wanted.includes(s.slug));
     const tasks = [
         ...realityTargets.map(spec => () => generateRealityTask(spec)),
+        ...deckTargets.map(spec => () => generateStandaloneDeckTask(spec)),
         ...sagaTargets.map(saga => () => generateSagaTask(saga)),
     ];
     const failures = await pool(tasks, CONCURRENCY);

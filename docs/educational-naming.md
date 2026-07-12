@@ -57,25 +57,23 @@ curriculum of decks over time — and series metadata can chain them.
 | Journalism | The Deadline | truth vs. speed to publish |
 | Diplomacy | The Long Table | principle vs. pragmatism |
 
-## How the shipped catalog (2026-07-12) maps
+## Catalog state (renames executed 2026-07-12)
 
-The three educational realities shipped before this scheme existed:
-
-- `edu-zero-day` "Zero Day: Breach Protocol" → under this scheme it becomes
-  reality **The Perimeter** with deck **Zero Hour** (its content is exactly
-  the incident-response arc: phishing → lateral movement → ransomware →
-  aftermath). Rename when the Cybersecurity art set lands and the art
-  rebind happens anyway.
-- `edu-founders-gambit` "The Founder's Gambit" → reality **The Ledger**,
-  deck **Runway** (content already is growth-vs-burn-rate).
-- `edu-merge-conflict` "Merge Conflict" → no slot in the scheme yet;
+- `edu-zero-day` → reality **The Perimeter**, deck 1 **Zero Hour**
+  (incident response, cybersecurity art), deck 2 **Chain of Custody**
+  (forensics, in decks.json). ✅ live
+- `edu-founders-gambit` → reality **The Ledger**, deck 1 **Runway**
+  (startups), deck 2 **The Table** (negotiation, in decks.json). ✅ live
+- `edu-merge-conflict` "Merge Conflict" → still no slot in the scheme;
   suggest a Software/Engineering reality (e.g. **The Stack**?) with Merge
   Conflict as its first deck. TBD.
 
-Renames are edits to `swipeverse-store/catalog/realities.json` (id stays,
-name/description change) or spec edits in
-`scripts/generate-store-catalog.mjs` before regenerating. New decks within
-an existing educational reality: generate as bare decks and either embed
-(one deck per reality entry) or publish in `decks.json` — the per-reality
-curriculum model may want a small catalog-shape rethink (multiple decks per
-reality) before it scales.
+**Curriculum mechanics:** deck 1 is embedded in its reality and tagged
+`series: {name: <world>, part: 1}`; decks 2+ are `decks.json` entries with
+the same series name and incrementing parts. Finishing part N in-game
+offers part N+1 ("Next in the series") — the resolver checks the player's
+library, then the store catalog. To add a curriculum deck: add a
+`DECK_SPECS` entry in `scripts/generate-store-catalog.mjs` (deckName pins
+the scheme name; series links it) and run the generator for that id. Long
+chains force in-order play — if a world grows past 3-4 decks, revisit a
+proper multi-deck reality picker in the app.

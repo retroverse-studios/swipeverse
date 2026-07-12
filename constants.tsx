@@ -5,7 +5,7 @@ import { BUNDLED_DECKS } from './decks';
  * Bundled pixel-art card sets (public/cards/<set>/<archetype>.webp).
  * Each built-in reality ships a full themed set (9 archetype scenes, a card
  * back, 4 stat badges); 'base' is the fallback for custom/community
- * realities. The 20 additional themed sets live in the store's shared art
+ * realities. The 22 additional themed sets live in the store's shared art
  * palette, not the app bundle.
  */
 export const BUNDLED_ART_SETS = ['base', 'cyberpunk', 'mystical', 'space'] as const;

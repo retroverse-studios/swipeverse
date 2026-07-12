@@ -34,6 +34,17 @@ _Last updated: 2026-07-12_
 - **Remaining before "live"**: playtest a sample of the new decks (all are
   machine-checked, none human-played), install-test PWA on a phone,
   enforce-HTTPS check, itch.io publish.
+- **Later the same day**: noir + cybersecurity art sets landed (26 sets
+  total, 22 hosted; originals in ../art/drops, processed sets pushed from
+  another terminal). New store repo intake: drop a set in `drop/<name>/`,
+  run `scripts/ingest-art.mjs [--publish]`. Catalog grew to 24 realities +
+  8 decks: Rain City (noir game reality), educational renames per
+  docs/educational-naming.md (The Perimeter/Zero Hour, The Ledger/Runway),
+  and curriculum part-2 decks chained via series (Chain of Custody,
+  The Table). Michael playtested the 3 bundled starter decks — fine.
+  Proposed next (not yet built): per-set genre hints in art/index.json +
+  editor dropdown labels + a store gallery page; post-launch, Story
+  Director auto-picks an art set from the prompt.
 
 ## Agreed order of work
 

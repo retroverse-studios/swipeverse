@@ -31,3 +31,4 @@ dist-ssr
 
 # CI site assembly
 _site/
+scripts/store-out/

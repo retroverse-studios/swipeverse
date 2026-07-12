@@ -1,6 +1,37 @@
 # SwipeVerse — Handover / Status
 
-_Last updated: 2026-07-05_
+_Last updated: 2026-07-12_
+
+## Latest session (2026-07-12): pre-launch audit + full store catalog
+
+- **Full go-live audit passed**: game loop, editor, art picker (bundled +
+  store palette), AI generation, series chaining, store integration, PWA —
+  all wired; typecheck/lint/build clean; live URLs healthy.
+- **Editor fixes shipped**: "To Library" button in the Deck Editor toolbar
+  (decks can now enter My Library from the editor), "AI Settings" button in
+  the Story Director panel (was a dead-end toast), "Next in the series" now
+  only offered after a win, removed dead esm.sh importmap + 404ing
+  /index.css link from index.html.
+- **Store catalog is now REAL content** (was: two 1-2 card stubs). Live at
+  store.swipeverse.app: 20 game realities (one per hosted art set, cards
+  art-bound to their set), 3 educational realities, 2 three-part sagas
+  (The Hollow Crown / kingdom, Ashfall / postapoc — first content to
+  exercise series chaining). Every deck passed the winnable-AND-losable
+  solver gate at all difficulties.
+- **Educational names** (no prior naming doc found anywhere — these are
+  proposals, rename freely in catalog/realities.json): The Founder's Gambit
+  (business), Zero Day: Breach Protocol (security — riding the *science*
+  art set until Michael's Cybersecurity set lands; swap = one URL prefix +
+  artSet in the generator spec), Merge Conflict (software engineering).
+- **Generator**: `node scripts/generate-store-catalog.mjs [id…]` (needs
+  ANTHROPIC_API_KEY). Stages per-deck JSON in scripts/store-out/ (resumable;
+  delete a staged file to force regeneration), assembles both catalog files,
+  playability-gates everything. Michael is producing Noir + Cybersecurity
+  art sets; when they land: publish set to store art/, add a spec to
+  REALITY_SPECS, run the generator for that id.
+- **Remaining before "live"**: playtest a sample of the new decks (all are
+  machine-checked, none human-played), install-test PWA on a phone,
+  enforce-HTTPS check, itch.io publish.
 
 ## Agreed order of work
 

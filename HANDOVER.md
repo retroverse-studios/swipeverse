@@ -134,3 +134,6 @@ Everything below is live and pushed:
 - `npm run generate:decks [realityId…]` — regenerate starter decks (Claude API)
 - Deploys are automatic on push to `main`; watch with `gh run list`.
 - Store validator: `node ../swipeverse-store/scripts/validate.mjs`
+- Art set intake: copy a processed set to `../swipeverse-store/drop/<name>/`,
+  then `node ../swipeverse-store/scripts/ingest-art.mjs [--publish]` —
+  validates layout/WEBP/dimensions, installs to `art/`, updates the index.

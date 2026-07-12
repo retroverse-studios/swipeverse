@@ -18,11 +18,13 @@ _Last updated: 2026-07-12_
   (The Hollow Crown / kingdom, Ashfall / postapoc — first content to
   exercise series chaining). Every deck passed the winnable-AND-losable
   solver gate at all difficulties.
-- **Educational names** (no prior naming doc found anywhere — these are
-  proposals, rename freely in catalog/realities.json): The Founder's Gambit
-  (business), Zero Day: Breach Protocol (security — riding the *science*
-  art set until Michael's Cybersecurity set lands; swap = one URL prefix +
-  artSet in the generator spec), Merge Conflict (software engineering).
+- **Educational naming scheme now documented** at
+  `docs/educational-naming.md` (Reality = the world, e.g. "The Perimeter";
+  Deck = the pressure point, e.g. "Zero Hour"). Shipped names (The
+  Founder's Gambit, Zero Day: Breach Protocol, Merge Conflict) predate it —
+  the doc maps each to its future rename. Zero Day rides the *science* art
+  set until Michael's Cybersecurity set lands (swap = artSet in the
+  generator spec + regenerate or sed the URLs).
 - **Generator**: `node scripts/generate-store-catalog.mjs [id…]` (needs
   ANTHROPIC_API_KEY). Stages per-deck JSON in scripts/store-out/ (resumable;
   delete a staged file to force regeneration), assembles both catalog files,

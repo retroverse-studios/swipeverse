@@ -17,6 +17,8 @@ interface EditorScreenProps {
     onClose: () => void;
     requestConfirmation: (options: { message: string, onConfirm: () => void }) => void;
     onSubmitToStore: (reality: Reality) => void;
+    onAddDeckToLibrary: (deck: Deck) => void;
+    onOpenAISettings: () => void;
     addToast: (message: string, type?: 'success' | 'error') => void;
 }
 
@@ -35,7 +37,7 @@ const createNewReality = (): Reality => ({
 });
 
 const EditorScreen: React.FC<EditorScreenProps> = ({
-    realities, editingReality, onSetEditingReality, onSave, onDelete, onUpdateAll, onClose, requestConfirmation, onSubmitToStore, addToast
+    realities, editingReality, onSetEditingReality, onSave, onDelete, onUpdateAll, onClose, requestConfirmation, onSubmitToStore, onAddDeckToLibrary, onOpenAISettings, addToast
 }) => {
     const [formData, setFormData] = useState<Reality | null>(null);
     const [storyDirectorPrompt, setStoryDirectorPrompt] = useState('');
@@ -258,6 +260,18 @@ const EditorScreen: React.FC<EditorScreenProps> = ({
         };
         reader.readAsText(file);
         event.target.value = '';
+    };
+
+    const handleAddDeckToLibraryClick = () => {
+        if (!formData?.deck?.cards?.length) {
+            addToast("Add some cards before saving to your library.", 'error');
+            return;
+        }
+        onAddDeckToLibrary({
+            ...formData.deck,
+            name: formData.deck.name || formData.name,
+            description: formData.deck.description || formData.description,
+        });
     };
 
     const handleGenerateDeckClick = async () => {
@@ -610,6 +624,9 @@ const EditorScreen: React.FC<EditorScreenProps> = ({
                                 <button onClick={handleExportDeck} disabled={isGeneratingDeck} className="flex items-center gap-2 py-1 px-3 rounded-md text-sm bg-white/10 hover:bg-white/20 disabled:opacity-50">
                                     <ExportIcon /> Export
                                 </button>
+                                <button onClick={handleAddDeckToLibraryClick} disabled={isGeneratingDeck || !formData.deck?.cards?.length} className="py-1 px-3 rounded-md text-sm bg-white/10 hover:bg-white/20 disabled:opacity-50" title="Save a copy of this deck to My Library (in the store screen) so it can be reused across realities">
+                                    📚 To Library
+                                </button>
                                 <button onClick={handleAnalyzeDeck} disabled={isGeneratingDeck} className="flex items-center gap-2 py-1 px-3 rounded-md text-sm bg-cyan-500/20 text-cyan-300 hover:bg-cyan-500/40 disabled:opacity-50" title="Check the deck is winnable and losable at every difficulty">
                                     ⚖ Analyze
                                 </button>
@@ -685,7 +702,12 @@ const EditorScreen: React.FC<EditorScreenProps> = ({
                         {editorView === 'form' && (
                             <div className='flex-grow flex flex-col'>
                             <div className="bg-black/30 p-4 rounded-lg border border-tarot-gold/25">
-                                <h4 className="text-lg font-bold text-tarot-gold-bright flex items-center gap-2"><GenerateIcon/> AI Story Director</h4>
+                                <div className="flex justify-between items-center">
+                                    <h4 className="text-lg font-bold text-tarot-gold-bright flex items-center gap-2"><GenerateIcon/> AI Story Director</h4>
+                                    <button onClick={onOpenAISettings} className="text-sm text-gray-400 hover:text-white py-1 px-2 rounded-md hover:bg-white/10" title="Configure AI provider and API key">
+                                        ⚙ AI Settings
+                                    </button>
+                                </div>
                                 <p className="text-sm text-gray-400 mt-1 mb-2">Describe a high-level story. The AI will generate a full, complex deck. Best viewed in the Visual Editor.</p>
                                 <textarea
                                     value={storyDirectorPrompt}

@@ -120,6 +120,8 @@ const GameOverScreen: React.FC<GameOverScreenProps> = ({ reason, reality, onRest
 
   const record = summary?.record;
   const stats = summary?.stats;
+  // A saga continues only from a victory — a lost part 1 offers a retry, not part 2.
+  const offerNext = nextDeck && record?.won ? nextDeck : null;
 
   const content = (
     <div className="flex flex-col items-center justify-center min-h-full text-center p-4 animate-fade-in">
@@ -161,9 +163,9 @@ const GameOverScreen: React.FC<GameOverScreenProps> = ({ reason, reality, onRest
       )}
 
       <div className="flex flex-wrap items-center justify-center gap-4">
-        {nextDeck ? (
-          <button onClick={() => onPlayNext(nextDeck)} className={`transition-colors duration-300 ${chrome.primaryBtn}`}
-                  title={`Continue the series: ${nextDeck.name}`}>
+        {offerNext ? (
+          <button onClick={() => onPlayNext(offerNext)} className={`transition-colors duration-300 ${chrome.primaryBtn}`}
+                  title={`Continue the series: ${offerNext.name}`}>
             {NEXT_LABEL[shellTheme]}
           </button>
         ) : (
@@ -183,8 +185,8 @@ const GameOverScreen: React.FC<GameOverScreenProps> = ({ reason, reality, onRest
           Export Story
         </button>
       </div>
-      {nextDeck && (
-        <p className={`mt-4 ${chrome.meta}`}>Next in the series: “{nextDeck.name}”</p>
+      {offerNext && (
+        <p className={`mt-4 ${chrome.meta}`}>Next in the series: “{offerNext.name}”</p>
       )}
     </div>
   );

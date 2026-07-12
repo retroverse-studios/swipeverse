@@ -368,6 +368,8 @@ const App: React.FC = () => {
                   onClose={handleExitToMenu}
                   requestConfirmation={requestConfirmation}
                   onSubmitToStore={handleSubmitToStore}
+                  onAddDeckToLibrary={handleAddDeckToLibrary}
+                  onOpenAISettings={() => setShowAISettings(true)}
                   addToast={addToast}
                />;
       

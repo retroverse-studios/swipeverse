@@ -10,6 +10,15 @@ import { BUNDLED_DECKS } from './decks';
  */
 export const BUNDLED_ART_SETS = ['base', 'cyberpunk', 'mystical', 'space'] as const;
 
+/** Display titles + genre hints for the bundled sets (store sets carry theirs
+ * in art/index.json setInfo). Drives picker labels and story auto-theming. */
+export const BUNDLED_ART_INFO: Record<string, { title: string; hint: string }> = {
+  base: { title: 'Classic', hint: 'neutral, timeless, versatile' },
+  cyberpunk: { title: 'Cyberpunk', hint: 'neon megacities, hackers, corporations, implants, dystopia' },
+  mystical: { title: 'Mystical Kingdom', hint: 'magic, sorcery, enchanted realms, arcane, fantasy' },
+  space: { title: 'Space Opera', hint: 'starships, galaxies, aliens, empires, precursors, sci-fi' },
+};
+
 function artSetFor(realityId?: string): string {
   return realityId && (BUNDLED_ART_SETS as readonly string[]).includes(realityId) ? realityId : 'base';
 }

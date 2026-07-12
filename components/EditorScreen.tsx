@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Reality, CardData, StatName, Deck, CARD_ARCHETYPES, CardArchetype } from '../types';
-import { REALITIES, INITIAL_STATS, BUNDLED_ART_SETS, cardScenesFor, resolveAssetUrl } from '../constants';
+import { REALITIES, INITIAL_STATS, BUNDLED_ART_SETS, BUNDLED_ART_INFO, cardScenesFor, resolveAssetUrl } from '../constants';
 import { BackIcon, SaveIcon, DeleteIcon, UploadIcon, ExportIcon, AddIcon, GenerateIcon, CloudUploadIcon, FormIcon, GraphIcon } from './icons';
 import { generateBranchingDeckFromPrompt } from '../services/aiService';
 import { analyzeDeck, DeckAnalysis } from '../services/deckSolver';
@@ -44,6 +44,7 @@ const EditorScreen: React.FC<EditorScreenProps> = ({
     const [isGeneratingDeck, setIsGeneratingDeck] = useState(false);
     const [sourceMaterial, setSourceMaterial] = useState('');
     const [deckSize, setDeckSize] = useState(20);
+    const [autoTheme, setAutoTheme] = useState(true);
     const [deckAnalysis, setDeckAnalysis] = useState<DeckAnalysis | null>(null);
     const [storeArt, setStoreArt] = useState<StoreArtIndex | null>(null);
     const [storeArtSet, setStoreArtSet] = useState('');
@@ -262,6 +263,43 @@ const EditorScreen: React.FC<EditorScreenProps> = ({
         event.target.value = '';
     };
 
+    /**
+     * Best-matching art set for a story, scored by keyword overlap between the
+     * story text and each set's name/title/genre hint. Prefix matching (min 4
+     * shared chars) absorbs plurals ("detective" ~ "detectives"). Null when
+     * nothing matches — the deck then keeps archetype-default art.
+     */
+    const STOP_WORDS = new Set(['the', 'and', 'with', 'for', 'from', 'that', 'this', 'where', 'must', 'their', 'your', 'into', 'about', 'story', 'stories', 'player', 'game', 'deck', 'cards', 'runs', 'young', 'discovers']);
+    const matchArtSet = (text: string): { set: string; store: boolean; title: string } | null => {
+        const tokenize = (s: string) => s.toLowerCase().split(/[^a-z0-9]+/).filter(w => w.length >= 3 && !STOP_WORDS.has(w));
+        const storyWords = [...new Set(tokenize(text))];
+        const matches = (a: string, b: string) => a === b || (a.length >= 4 && b.length >= 4 && (a.startsWith(b) || b.startsWith(a)));
+        const scoreOf = (set: string, info?: { title?: string; hint?: string }) => {
+            const corpus = [...new Set(tokenize(`${set} ${info?.title ?? ''} ${info?.hint ?? ''}`))];
+            return corpus.filter(c => storyWords.some(w => matches(c, w))).length;
+        };
+        let best: { set: string; store: boolean; title: string; score: number } | null = null;
+        const consider = (set: string, store: boolean, info?: { title?: string; hint?: string }) => {
+            const score = scoreOf(set, info);
+            if (score > 0 && (!best || score > best.score)) best = { set, store, title: info?.title || set, score };
+        };
+        for (const s of BUNDLED_ART_SETS) consider(s, false, BUNDLED_ART_INFO[s]);
+        for (const s of storeArt?.sets ?? []) consider(s, true, storeArt?.setInfo?.[s]);
+        return best;
+    };
+
+    /** Bind every card's art to its archetype scene in the matched set. */
+    const applyArtTheme = (deck: Deck, match: { set: string; store: boolean }): Deck => ({
+        ...deck,
+        cards: deck.cards.map(card => {
+            const archetype = card.archetype ?? CARD_ARCHETYPES[Math.floor(Math.random() * CARD_ARCHETYPES.length)];
+            const imageUrl = match.store
+                ? `${STORE_ART_BASE}/${match.set}/${archetype}.webp`
+                : `/cards/${match.set}/${archetype}.webp`;
+            return { ...card, imageUrl };
+        }),
+    });
+
     const handleAddDeckToLibraryClick = () => {
         if (!formData?.deck?.cards?.length) {
             addToast("Add some cards before saving to your library.", 'error');
@@ -284,10 +322,18 @@ const EditorScreen: React.FC<EditorScreenProps> = ({
             onConfirm: async () => {
                 setIsGeneratingDeck(true);
                 try {
-                    const newDeck = await generateBranchingDeckFromPrompt(formData, storyDirectorPrompt, sourceMaterial, deckSize);
+                    let newDeck = await generateBranchingDeckFromPrompt(formData, storyDirectorPrompt, sourceMaterial, deckSize);
+                    let themed = '';
+                    if (autoTheme) {
+                        const match = matchArtSet(`${storyDirectorPrompt} ${newDeck.name ?? ''} ${newDeck.description ?? ''}`);
+                        if (match) {
+                            newDeck = applyArtTheme(newDeck, match);
+                            themed = ` Art theme: ${match.title}.`;
+                        }
+                    }
                     handleDeckChange(newDeck);
                     setEditorView('visual'); // Switch to visual editor on success
-                    addToast("AI deck generated successfully!", 'success');
+                    addToast(`AI deck generated successfully!${themed}`, 'success');
                 } catch (error) {
                     console.error("Failed to generate AI deck:", error);
                     addToast((error as Error).message, 'error');
@@ -444,11 +490,22 @@ const EditorScreen: React.FC<EditorScreenProps> = ({
                             >
                                 <option value="">(browse a theme…)</option>
                                 <optgroup label="Built-in (works offline)">
-                                    {BUNDLED_ART_SETS.map(s => <option key={s} value={`bundled:${s}`}>{s}</option>)}
+                                    {BUNDLED_ART_SETS.map(s => (
+                                        <option key={s} value={`bundled:${s}`}>
+                                            {BUNDLED_ART_INFO[s] ? `${BUNDLED_ART_INFO[s].title} — ${BUNDLED_ART_INFO[s].hint}` : s}
+                                        </option>
+                                    ))}
                                 </optgroup>
                                 {storeArt && (
                                     <optgroup label="Store palette">
-                                        {storeArt.sets.map(s => <option key={s} value={s}>{s}</option>)}
+                                        {storeArt.sets.map(s => {
+                                            const info = storeArt.setInfo?.[s];
+                                            return (
+                                                <option key={s} value={s}>
+                                                    {info?.title || s}{info?.hint ? ` — ${info.hint}` : ''}
+                                                </option>
+                                            );
+                                        })}
                                     </optgroup>
                                 )}
                             </select>
@@ -728,6 +785,10 @@ const EditorScreen: React.FC<EditorScreenProps> = ({
                                         <option value={20}>Standard — 20 cards (~5 min)</option>
                                         <option value={30}>Long — 30 cards (~8 min)</option>
                                     </select>
+                                    <label className="flex items-center gap-1.5 text-sm text-gray-400 ml-auto cursor-pointer" title="Match an art theme to your story from the built-in and store palettes (noir prompts get noir art). Uncheck to keep archetype-default art.">
+                                        <input type="checkbox" checked={autoTheme} onChange={e => setAutoTheme(e.target.checked)} />
+                                        Auto-theme art
+                                    </label>
                                 </div>
                                 <p className="text-xs text-gray-500 mt-2">
                                     One deck = one focused story arc (store limit: 50 cards). For an epic, plan the arcs outside the app

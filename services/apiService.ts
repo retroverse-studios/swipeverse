@@ -19,6 +19,8 @@ export const STORE_ART_BASE = 'https://store.swipeverse.app/art';
 export interface StoreArtIndex {
     sets: string[];
     archetypes: string[];
+    /** Per-set display title + genre hint; drives picker labels and story auto-theming. */
+    setInfo?: Record<string, { title?: string; hint?: string }>;
 }
 
 let artIndexCache: StoreArtIndex | null = null;

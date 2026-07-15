@@ -218,7 +218,7 @@ const REALITY_SPECS = [
         storyPrompt: "The player becomes tech lead of a small team shipping a product from prototype to production launch. Turn real software engineering judgment into dilemmas: take on tech debt to hit a demo or slip the date, rewrite the legacy module or strangle it gradually, enforce code review when the deadline screams, add tests now or firefight later, adopt the shiny framework or the boring proven one, buy versus build, respond to the 2am outage with a hotfix or a rollback. Ground every card in genuine engineering concepts — technical debt interest, regression risk, bus factor, premature optimization, scope creep, blameless postmortems — so the player learns why each call is hard. Choices trade the lead's influence, deadline slack, the team's health, and the codebase's quality.",
     },
     {
-        id: "edu-defenders-dilemma", artSet: "cybersecurity", name: "The Defender's Dilemma", icons: "Cyber", category: "education", educational: "security trade-offs and the assume-breach mindset",
+        id: "edu-defenders-dilemma", artSet: "cybersecurity", name: "The Defender's Dilemma", icons: "Cyber", category: "education", educational: "security trade-offs and the assume-breach mindset", deckSize: 30,
         description: "Day one as the sole security lead at a small business. Every choice trades safety, productivity, budget and trust against each other — push any meter too far and you lose. A five-minute 'assume breach' icebreaker: you can't win, only balance.",
         statNames: { Power: "Security", Wealth: "Budget", People: "Trust", Knowledge: "Productivity" },
         colors: { primary: "text-cyan-400", secondary: "text-amber-300", background: "bg-gradient-to-br from-slate-950 via-cyan-950 to-zinc-950", accent: "border-cyan-400" },
@@ -274,17 +274,18 @@ const SAGA_SPECS = [
 
 function buildPrompt(spec, { storyPrompt, seriesContext } = {}, attempt = 1) {
     const prompt = storyPrompt ?? spec.storyPrompt;
+    const size = spec.deckSize ?? DECK_SIZE; // per-spec override; validator/solver work at any size
     const balanceHint = attempt > 1 ? `
 IMPORTANT — a previous attempt at this deck was rejected by an exact solver as UNWINNABLE: on every possible path some stat hit 0 or 100 before the final card. Fix this by keeping effects small (mostly -15 to +15, rarely beyond ±25) and by making sure that for EACH stat, gains and losses alternate along the main path so its running total stays between -20 and +20 from card 0 to the final card.` : "";
     const eduBlock = spec.educational ? `
 This is an EDUCATIONAL deck teaching ${spec.educational}. Every card must be a realistic judgment dilemma drawn from the domain — never a recall quiz, never trivia. Both options must be genuinely defensible so the stat effects teach the trade-off. Use correct domain terminology naturally inside the scenario text.` : "";
     return `
-A story creator wants a deck of ${DECK_SIZE} cards for the game based on this high-level prompt: "${prompt}".
+A story creator wants a deck of ${size} cards for the game based on this high-level prompt: "${prompt}".
 ${seriesContext ?? ""}${eduBlock}
-Generate a full, unique, and challenging deck of ${DECK_SIZE} scenario cards that follows the creator's prompt.
+Generate a full, unique, and challenging deck of ${size} scenario cards that follows the creator's prompt.
 Give the generated deck a cool, thematic name based on the prompt, and write a one-sentence synopsis as the deck's description.
-Create a branching narrative using the 'nextCardIndex' property on choices to make the story interactive and replayable. Make sure jumps are valid (within the 0 to ${DECK_SIZE - 1} range). The final card in the array (index ${DECK_SIZE - 1}) should be the 'win' or final ending card.
-CRITICAL — the story must be completable: there must exist at least one sequence of choices that reaches the final card (index ${DECK_SIZE - 1}) and finishes the story. Trace a main path from card 0 to card ${DECK_SIZE - 1} first, then add loops and detours that branch off and rejoin it. Never create a set of loops the player can't escape toward the ending.
+Create a branching narrative using the 'nextCardIndex' property on choices to make the story interactive and replayable. Make sure jumps are valid (within the 0 to ${size - 1} range). The final card in the array (index ${size - 1}) should be the 'win' or final ending card.
+CRITICAL — the story must be completable: there must exist at least one sequence of choices that reaches the final card (index ${size - 1}) and finishes the story. Trace a main path from card 0 to card ${size - 1} first, then add loops and detours that branch off and rejoin it. Never create a set of loops the player can't escape toward the ending.
 CRITICAL — the story must be survivable: all four stats start at 50 and the player loses if any reaches 0 or 100. Along the main path, for EACH stat, keep the running total of chosen effects roughly between -20 and +20 so a sensible player can finish alive. Mix positive and negative effects per stat; never let one stat only rise or only fall along the main path.${balanceHint}
 The choices should have plausible but non-obvious consequences.
 Stat changes should generally be between -35 and +35. Balance matters: avoid choices where several stats swing hard in the same direction, and make sure a player who mixes left and right choices can plausibly survive to the final card.
@@ -295,7 +296,7 @@ The People stat is named ${spec.statNames.People}.
 The Knowledge stat is named ${spec.statNames.Knowledge}.
 Tag each card with an "archetype" that best matches it: petitioner (someone asks you for something), crisis (something bad happens to you), opportunity (a windfall or offer), faction (a power bloc acts), advisor (information or a warning), chain (part of a multi-card storyline), judgement (two parties in dispute and you pick a side), gamble (uncertain outcome), terminal (endings, death, collapse). Most decks are roughly half petitioner cards. The final card should be tagged terminal.
 
-Generate exactly ${DECK_SIZE} cards.
+Generate exactly ${size} cards.
 `.trim();
 }
 

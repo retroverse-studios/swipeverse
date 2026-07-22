@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Reality, Deck, LibraryDeck } from '../types';
 import { fetchStoreRealities, fetchStoreDecks } from '../services/apiService';
 import { BackIcon, AddIcon, ExportIcon, UploadIcon, DeleteIcon } from './icons';
@@ -13,6 +13,25 @@ interface StoreScreenProps {
   onImportLibrary: (decks: Deck[]) => void;
   localRealities: Reality[];
 }
+
+/** A random piece of card art from the deck, to give its tile a face. */
+const randomCardArt = (deck?: Deck): string | undefined => {
+    const art = deck?.cards.map(c => c.imageUrl).filter((url): url is string => !!url) ?? [];
+    if (art.length === 0) return undefined;
+    return art[Math.floor(Math.random() * art.length)];
+};
+
+const TileArt: React.FC<{ src?: string; alt: string }> = ({ src, alt }) =>
+    src ? (
+        <img
+            src={src}
+            alt={alt}
+            loading="lazy"
+            draggable={false}
+            onError={(e) => { e.currentTarget.style.display = 'none'; }}
+            className="w-full h-32 object-cover rounded-md mb-4 border border-white/10"
+        />
+    ) : null;
 
 const LoadingSpinner: React.FC = () => (
     <div className="flex flex-col items-center justify-center h-full">
@@ -55,6 +74,14 @@ const StoreScreen: React.FC<StoreScreenProps> = ({ onExit, onAddReality, onAddDe
     const [error, setError] = useState<string | null>(null);
     const [view, setView] = useState<'realities' | 'stories' | 'library'>('realities');
     const [selectedDeck, setSelectedDeck] = useState<Deck | null>(null);
+
+    // Pick once per fetch, not per render, so tiles keep their art while browsing.
+    const realityArt = useMemo(() => storeRealities.map(r => randomCardArt(r.deck)), [storeRealities]);
+    const storyArt = useMemo(() => storeDecks.map(d => randomCardArt(d)), [storeDecks]);
+    const libraryArt = useMemo(
+        () => new Map(deckLibrary.map(entry => [entry.id, randomCardArt(entry.deck)])),
+        [deckLibrary]
+    );
 
     useEffect(() => {
         const loadStoreData = async () => {
@@ -126,12 +153,13 @@ const StoreScreen: React.FC<StoreScreenProps> = ({ onExit, onAddReality, onAddDe
 
     const renderRealities = () => (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {storeRealities.map((reality) => (
+            {storeRealities.map((reality, index) => (
                 <div
                     key={reality.id}
                     className={`flex flex-col justify-between p-6 border-2 ${reality.colors.accent} bg-black/40 rounded-lg shadow-lg backdrop-blur-md hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 ${reality.font}`}
                 >
                     <div>
+                        <TileArt src={realityArt[index]} alt={`${reality.name} card art`} />
                         <h2 className={`text-3xl font-bold ${reality.colors.secondary} mb-2`}>{reality.name}</h2>
                         {reality.category === 'education' && (
                             <span className="inline-block mb-2 text-[0.62rem] font-bold tracking-widest uppercase bg-cyan-500/15 text-cyan-300 border border-cyan-500/40 rounded px-2 py-0.5">Education</span>
@@ -157,6 +185,7 @@ const StoreScreen: React.FC<StoreScreenProps> = ({ onExit, onAddReality, onAddDe
                     className={`flex flex-col justify-between p-6 border-2 border-tarot-gold bg-black/40 rounded-lg shadow-lg backdrop-blur-md hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 font-exo`}
                 >
                     <div>
+                        <TileArt src={storyArt[index]} alt={`${deck.name} card art`} />
                         <h2 className={`text-3xl font-bold text-tarot-gold-bright mb-2`}>{deck.name}</h2>
                         {deck.category === 'education' && (
                             <span className="inline-block mb-2 text-[0.62rem] font-bold tracking-widest uppercase bg-cyan-500/15 text-cyan-300 border border-cyan-500/40 rounded px-2 py-0.5">Education</span>
@@ -200,6 +229,7 @@ const StoreScreen: React.FC<StoreScreenProps> = ({ onExit, onAddReality, onAddDe
                         <div key={entry.id}
                             className="flex flex-col justify-between p-6 border-2 border-tarot-gold bg-black/40 rounded-lg shadow-lg backdrop-blur-md font-exo">
                             <div>
+                                <TileArt src={libraryArt.get(entry.id)} alt={`${entry.deck.name || 'Untitled Story'} card art`} />
                                 <h2 className="text-2xl font-bold text-tarot-gold-bright mb-2">{entry.deck.name || 'Untitled Story'}</h2>
                                 <p className="text-gray-300 mb-2 h-20 overflow-y-auto">{entry.deck.description}</p>
                                 <p className="text-xs text-gray-500 mb-4">{entry.deck.cards.length} cards · added {new Date(entry.addedAt).toLocaleDateString()}</p>

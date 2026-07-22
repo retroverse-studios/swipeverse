@@ -6,6 +6,7 @@
 
 import { Deck, Stats, StatName } from '../types';
 import { Difficulty, applyDifficultyModifier } from './gameHistory';
+import { resolveNextIndex, possibleNextIndices } from './branching';
 import { INITIAL_STATS, MIN_STAT_VALUE, MAX_STAT_VALUE } from '../constants';
 
 const STAT_KEYS = Object.keys(INITIAL_STATS) as StatName[];
@@ -31,7 +32,7 @@ function step(deck: Deck, cardIndex: number, stats: Stats, side: Side, difficult
     if (value <= MIN_STAT_VALUE || value >= MAX_STAT_VALUE) dead = true;
   }
   if (dead) return { outcome: 'lose', stats: next, nextIndex: -1 };
-  const nextIndex = typeof choice.nextCardIndex === 'number' ? choice.nextCardIndex : cardIndex + 1;
+  const nextIndex = resolveNextIndex(choice, next, cardIndex);
   if (nextIndex >= deck.cards.length) return { outcome: 'win', stats: next, nextIndex };
   if (nextIndex < 0) return { outcome: 'lose', stats: next, nextIndex };
   return { outcome: 'continue', stats: next, nextIndex };
@@ -102,13 +103,13 @@ function endReachingCards(deck: Deck): Set<number> {
     changed = false;
     for (let i = 0; i < n; i++) {
       if (reachesEnd.has(i)) continue;
-      for (const side of ['leftChoice', 'rightChoice'] as Side[]) {
-        const jump = deck.cards[i][side].nextCardIndex;
-        const next = typeof jump === 'number' ? jump : i + 1;
-        if (next >= n || (next >= 0 && reachesEnd.has(next))) {
-          reachesEnd.add(i);
-          changed = true;
-          break;
+      outer: for (const side of ['leftChoice', 'rightChoice'] as Side[]) {
+        for (const next of possibleNextIndices(deck.cards[i][side], i)) {
+          if (next >= n || (next >= 0 && reachesEnd.has(next))) {
+            reachesEnd.add(i);
+            changed = true;
+            break outer;
+          }
         }
       }
     }

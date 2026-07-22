@@ -19,10 +19,23 @@ export type SoundConfig = {
     gameLoseUrl?: string;
 };
 
+/**
+ * A stat-conditional jump, evaluated AFTER the choice's effects are applied.
+ * Matches when the stat satisfies every bound given (gte and/or lte — at
+ * least one is required). Branches are checked in order; first match wins.
+ */
+export type StatBranch = {
+  stat: StatName;
+  gte?: number; // matches when stat >= gte
+  lte?: number; // matches when stat <= lte
+  nextCardIndex: number;
+};
+
 export type Choice = {
   text: string;
   effects: Partial<Stats>;
-  nextCardIndex?: number; // Optional: index of the next card to jump to
+  branches?: StatBranch[]; // Optional: stat-conditional jumps, first match wins
+  nextCardIndex?: number; // Optional: index of the next card to jump to (fallback when no branch matches)
   soundUrl?: string; // Optional: sound effect for this choice
 };
 

@@ -44,6 +44,25 @@ const cardsToFlow = (cards: Omit<CardData, 'id'>[]) => {
                     markerEnd: { type: MarkerType.ArrowClosed },
                 });
             }
+            (choice.branches ?? []).forEach((branch, branchIndex) => {
+                if (branch.nextCardIndex >= cards.length) return;
+                const bounds = [
+                    branch.gte !== undefined ? `≥${branch.gte}` : '',
+                    branch.lte !== undefined ? `≤${branch.lte}` : '',
+                ].filter(Boolean).join(' ');
+                edges.push({
+                    id: `e-${index}-${sourceHandle}-branch${branchIndex}`,
+                    source: `${index}`,
+                    target: `${branch.nextCardIndex}`,
+                    sourceHandle,
+                    type: 'smoothstep',
+                    label: `${branch.stat} ${bounds}`,
+                    style: { strokeDasharray: '6 3', stroke: '#22d3ee' },
+                    labelStyle: { fill: '#22d3ee', fontSize: 10 },
+                    labelBgStyle: { fill: '#0f172a', fillOpacity: 0.8 },
+                    markerEnd: { type: MarkerType.ArrowClosed, color: '#22d3ee' },
+                });
+            });
         };
 
         addEdgeForChoice(card.leftChoice, 'left');
@@ -120,19 +139,37 @@ export const VisualEditor: React.FC<VisualEditorProps> = ({ cards, onCardsChange
 
     const handleEdgesDelete = useCallback((edgesToDelete: Edge[]) => {
          const newCards = [...cards];
+         // Branch deletions are collected per choice and applied at once so
+         // that indices don't shift under a multi-edge delete.
+         const branchDeletes = new Map<string, Set<number>>();
          edgesToDelete.forEach(edge => {
-             const { source, sourceHandle } = edge;
+             const { id, source, sourceHandle } = edge;
              if (!source || !sourceHandle) return;
 
              const sourceIndex = parseInt(source, 10);
              const sourceCard = newCards[sourceIndex];
              if (!sourceCard) return;
 
+             const branchMatch = id.match(/-branch(\d+)$/);
+             if (branchMatch) {
+                 const key = `${sourceIndex}:${sourceHandle}`;
+                 if (!branchDeletes.has(key)) branchDeletes.set(key, new Set());
+                 branchDeletes.get(key)!.add(parseInt(branchMatch[1], 10));
+                 return;
+             }
+
              if (sourceHandle === 'left') {
                  delete sourceCard.leftChoice.nextCardIndex;
              } else if (sourceHandle === 'right') {
                  delete sourceCard.rightChoice.nextCardIndex;
              }
+         });
+         branchDeletes.forEach((indices, key) => {
+             const [sourceIndex, sourceHandle] = key.split(':');
+             const choice = newCards[parseInt(sourceIndex, 10)][sourceHandle === 'left' ? 'leftChoice' : 'rightChoice'];
+             const remaining = (choice.branches ?? []).filter((_, i) => !indices.has(i));
+             if (remaining.length === 0) delete choice.branches;
+             else choice.branches = remaining;
          });
          onCardsChange(newCards);
     }, [cards, onCardsChange]);

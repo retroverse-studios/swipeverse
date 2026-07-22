@@ -28,6 +28,7 @@ Stat changes should generally be between -35 and +35.
 Ensure the prompts are engaging, varied, and fit the ${reality.name} theme. Do not repeat scenarios within the deck.
 Give the deck a cool, thematic name and a one-sentence synopsis.
 Optionally create branching narratives by setting the 'nextCardIndex' property on choices to jump to other cards. If you create branches, ensure they create an interesting, potentially looping story. The final card in the deck is the win condition.
+For richer stories you may also add stat-conditional 'branches' to a choice: each branch names a stat and a threshold (gte and/or lte, values 0-100) plus a nextCardIndex; after the choice's effects apply, the first matching branch decides the next card, falling back to nextCardIndex (or the next sequential card) when none match. Use this sparingly for dramatic forks — e.g. a ruler with Wealth >= 60 is received at court, a poorer one is turned away — and to gate exits from loops behind an earned stat.
 The Power stat is named ${reality.statNames.Power}.
 The Wealth stat is named ${reality.statNames.Wealth}.
 The People stat is named ${reality.statNames.People}.
@@ -46,12 +47,14 @@ Respond with a JSON object matching this exact schema:
       "leftChoice": {
         "text": "string - Brief choice text",
         "effects": { "Power": number, "Wealth": number, "People": number, "Knowledge": number },
+        "branches": [ { "stat": "Power|Wealth|People|Knowledge", "gte": number (optional), "lte": number (optional), "nextCardIndex": number } ] (optional),
         "nextCardIndex": number (optional),
         "soundUrl": "string (optional)"
       },
       "rightChoice": {
         "text": "string - Brief choice text",
         "effects": { "Power": number, "Wealth": number, "People": number, "Knowledge": number },
+        "branches": [ { "stat": "Power|Wealth|People|Knowledge", "gte": number (optional), "lte": number (optional), "nextCardIndex": number } ] (optional),
         "nextCardIndex": number (optional),
         "soundUrl": "string (optional)"
       }
@@ -77,6 +80,7 @@ ${sourceBlock}
 Generate a full, unique, and challenging deck of ${deckSize} scenario cards that follows the creator's prompt.
 Give the generated deck a cool, thematic name based on the prompt, and use the prompt itself as the deck's description.
 Create a branching narrative using the 'nextCardIndex' property on choices to make the story interactive and replayable. Make sure jumps are valid (within the 0 to ${deckSize - 1} range). The final card in the array (index ${deckSize - 1}) should be the 'win' or final ending card.
+For richer stories you may also add stat-conditional 'branches' to a choice: each branch names a stat and a threshold (gte and/or lte, values 0-100) plus a nextCardIndex; after the choice's effects apply, the first matching branch decides the next card, falling back to nextCardIndex (or the next sequential card) when none match. Use this sparingly for dramatic forks and to gate exits from loops behind an earned stat.
 The choices should have plausible but non-obvious consequences.
 Stat changes should generally be between -35 and +35.
 Ensure the prompts are engaging, varied, and fit the ${reality.name} theme.
@@ -98,12 +102,14 @@ Respond with a JSON object matching this exact schema:
       "leftChoice": {
         "text": "string",
         "effects": { "Power": number, "Wealth": number, "People": number, "Knowledge": number },
+        "branches": [ { "stat": "Power|Wealth|People|Knowledge", "gte": number (optional), "lte": number (optional), "nextCardIndex": number } ] (optional),
         "nextCardIndex": number (optional),
         "soundUrl": "string (optional)"
       },
       "rightChoice": {
         "text": "string",
         "effects": { "Power": number, "Wealth": number, "People": number, "Knowledge": number },
+        "branches": [ { "stat": "Power|Wealth|People|Knowledge", "gte": number (optional), "lte": number (optional), "nextCardIndex": number } ] (optional),
         "nextCardIndex": number (optional),
         "soundUrl": "string (optional)"
       }

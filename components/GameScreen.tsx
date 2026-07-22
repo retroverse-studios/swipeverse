@@ -3,6 +3,7 @@ import { Reality, Stats, CardData, StatName, Deck } from '../types';
 import { INITIAL_STATS, MIN_STAT_VALUE, MAX_STAT_VALUE, DEFAULT_SOUNDS, pickCardArt, cardScenesFor, statBadgeFor, resolveAssetUrl } from '../constants';
 import { generateInitialDeck, getActiveProviderLabel, hasConfiguredProvider } from '../services/aiService';
 import { Difficulty, applyDifficultyModifier } from '../services/gameHistory';
+import { resolveNextIndex } from '../services/branching';
 import StatBar from './StatBar';
 import CardStack from './CardStack';
 import { ExitIcon } from './icons';
@@ -286,13 +287,8 @@ const GameScreen: React.FC<GameScreenProps> = ({ reality, difficulty, onGameOver
         }
     }
 
-    // 3. Determine the next card index
-    let nextIndex;
-    if (typeof choice.nextCardIndex === 'number') {
-        nextIndex = choice.nextCardIndex;
-    } else {
-        nextIndex = currentCardIndex + 1;
-    }
+    // 3. Determine the next card index: stat branches first, then static jump, then sequential
+    const nextIndex = resolveNextIndex(choice, newStats, currentCardIndex);
 
     // 4. Check for win/loss based on next index
     if (nextIndex >= deck.length) {

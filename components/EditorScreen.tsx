@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Reality, CardData, StatName, Deck, CARD_ARCHETYPES, CardArchetype } from '../types';
+import { Reality, CardData, StatName, Deck, CARD_ARCHETYPES, CardArchetype, StatBranch } from '../types';
 import { REALITIES, INITIAL_STATS, BUNDLED_ART_SETS, BUNDLED_ART_INFO, cardScenesFor, resolveAssetUrl } from '../constants';
 import { BackIcon, SaveIcon, DeleteIcon, UploadIcon, ExportIcon, AddIcon, GenerateIcon, CloudUploadIcon, FormIcon, GraphIcon } from './icons';
 import { generateBranchingDeckFromPrompt } from '../services/aiService';
@@ -445,6 +445,27 @@ const EditorScreen: React.FC<EditorScreenProps> = ({
             };
             onChoiceChange(choiceKey, 'effects', newEffects);
         };
+        const onBranchesChange = (choiceKey: 'leftChoice' | 'rightChoice', branches: StatBranch[]) => {
+            const updatedChoice = { ...card[choiceKey] };
+            if (branches.length === 0) delete updatedChoice.branches;
+            else updatedChoice.branches = branches;
+            onCardChange(choiceKey, updatedChoice);
+        };
+        const onBranchChange = (choiceKey: 'leftChoice' | 'rightChoice', branchIndex: number, field: keyof StatBranch, value: string) => {
+            const branches = [...(card[choiceKey].branches ?? [])];
+            const branch = { ...branches[branchIndex] };
+            if (field === 'stat') {
+                branch.stat = value as StatName;
+            } else if (field === 'nextCardIndex') {
+                branch.nextCardIndex = parseInt(value, 10) || 0;
+            } else if (value === '') {
+                delete branch[field];
+            } else {
+                branch[field] = parseInt(value, 10);
+            }
+            branches[branchIndex] = branch;
+            onBranchesChange(choiceKey, branches);
+        };
         
         return (
             <div className="bg-tarot-velvet-2/70 p-3 rounded-lg border border-gray-700 space-y-2">
@@ -559,6 +580,29 @@ const EditorScreen: React.FC<EditorScreenProps> = ({
                                 <label className="mr-1 text-gray-400 text-xs" title="Next Card Index">Next Card #</label>
                                 <input type="number" value={card[choiceKey].nextCardIndex ?? ''} onChange={e => onChoiceChange(choiceKey, 'nextCardIndex', e.target.value)} className="w-full bg-black/30 p-1 rounded" placeholder={(index + 1).toString()} min="0" />
                             </div>
+                            {(card[choiceKey].branches ?? []).map((branch, bi) => (
+                                <div key={bi} className="flex items-center gap-1 pt-1" title="Stat branch — after effects apply, the first matching branch overrides Next Card #">
+                                    <select value={branch.stat} onChange={e => onBranchChange(choiceKey, bi, 'stat', e.target.value)} className="bg-black/30 p-1 rounded w-16 truncate">
+                                        {Object.keys(INITIAL_STATS).map(stat => (
+                                            <option key={stat} value={stat}>{formData?.statNames[stat as StatName]}</option>
+                                        ))}
+                                    </select>
+                                    <span className="text-gray-500">≥</span>
+                                    <input type="number" value={branch.gte ?? ''} onChange={e => onBranchChange(choiceKey, bi, 'gte', e.target.value)} className="w-11 bg-black/30 p-1 rounded" min="0" max="100" placeholder="—" />
+                                    <span className="text-gray-500">≤</span>
+                                    <input type="number" value={branch.lte ?? ''} onChange={e => onBranchChange(choiceKey, bi, 'lte', e.target.value)} className="w-11 bg-black/30 p-1 rounded" min="0" max="100" placeholder="—" />
+                                    <span className="text-gray-500">→</span>
+                                    <input type="number" value={branch.nextCardIndex} onChange={e => onBranchChange(choiceKey, bi, 'nextCardIndex', e.target.value)} className="w-12 bg-black/30 p-1 rounded" min="0" title="Card # to jump to when this branch matches" />
+                                    <button onClick={() => onBranchesChange(choiceKey, (card[choiceKey].branches ?? []).filter((_, i) => i !== bi))} className="text-red-500 hover:text-red-400 px-1" title="Remove branch">×</button>
+                                </div>
+                            ))}
+                            <button
+                                onClick={() => onBranchesChange(choiceKey, [...(card[choiceKey].branches ?? []), { stat: 'Power', gte: 50, nextCardIndex: index + 1 }])}
+                                className="text-xs text-cyan-400 hover:text-cyan-300 pt-1"
+                                title="Route to a different card depending on a stat value (checked after this choice's effects)"
+                            >
+                                + stat branch
+                            </button>
                        </div>
                     ))}
                 </div>

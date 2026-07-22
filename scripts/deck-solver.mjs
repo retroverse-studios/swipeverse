@@ -9,6 +9,19 @@ export const DIFFICULTY_MODIFIERS = { easy: 0.7, standard: 1.0, hard: 1.3 };
 const STATS = ["Power", "Wealth", "People", "Knowledge"];
 const START = 50;
 
+/** Mirrors services/branching.ts: branches first (in order), then static jump, then sequential. */
+export function resolveNextIndex(choice, statsAfterEffects, currentIndex) {
+    for (const branch of choice.branches ?? []) {
+        const value = statsAfterEffects[branch.stat];
+        if (typeof value !== "number") continue;
+        if (branch.gte === undefined && branch.lte === undefined) continue;
+        if (branch.gte !== undefined && value < branch.gte) continue;
+        if (branch.lte !== undefined && value > branch.lte) continue;
+        return branch.nextCardIndex;
+    }
+    return typeof choice.nextCardIndex === "number" ? choice.nextCardIndex : currentIndex + 1;
+}
+
 export function step(deck, cardIndex, stats, side, modifier) {
     const choice = deck.cards[cardIndex][side];
     const next = { ...stats };
@@ -20,7 +33,7 @@ export function step(deck, cardIndex, stats, side, modifier) {
         if (value <= 0 || value >= 100) dead = true;
     }
     if (dead) return { outcome: "lose", stats: next };
-    const nextIndex = typeof choice.nextCardIndex === "number" ? choice.nextCardIndex : cardIndex + 1;
+    const nextIndex = resolveNextIndex(choice, next, cardIndex);
     if (nextIndex >= deck.cards.length) return { outcome: "win", stats: next };
     if (nextIndex < 0) return { outcome: "lose", stats: next };
     return { outcome: "continue", stats: next, nextIndex };

@@ -211,5 +211,10 @@ export function validateAndRepairDeck(deck: Deck): Deck {
             delete card.rightChoice.nextCardIndex;
         }
     }
-    return { name: deck.name, description: deck.description, cards };
+    return {
+        name: deck.name,
+        description: deck.description,
+        ...(typeof deck.intro === 'string' && deck.intro.trim() ? { intro: deck.intro } : {}),
+        cards,
+    };
 }

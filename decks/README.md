@@ -19,6 +19,12 @@ The file may be a bare deck (`{ "name": ..., "cards": [...] }`), a single
 reality object, or a full editor export array — the loader (`index.ts`)
 finds the right deck, validates it, and tags it `source: "bundled"`.
 
+Every deck opens with an engine-generated prologue card showing its `name`
+and backstory plus standard how-to-play instructions — nothing to author.
+The backstory is the optional `intro` field if present, else `description`,
+else the reality's description. Add `intro` only when the deck deserves a
+richer opening than its one-line catalog blurb.
+
 ## How bundled decks behave in the app
 
 - **No AI configured** → the bundled deck plays, so the game works with

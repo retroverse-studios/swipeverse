@@ -4,6 +4,7 @@ import { INITIAL_STATS, MIN_STAT_VALUE, MAX_STAT_VALUE, DEFAULT_SOUNDS, pickCard
 import { generateInitialDeck, getActiveProviderLabel, hasConfiguredProvider } from '../services/aiService';
 import { Difficulty, applyDifficultyModifier } from '../services/gameHistory';
 import { resolveNextIndex } from '../services/branching';
+import { loadSkipPrologueOnReplay, prologueKeyFor, hasSeenPrologue, markPrologueSeen } from '../services/prologue';
 import StatBar from './StatBar';
 import CardStack from './CardStack';
 import { ExitIcon } from './icons';
@@ -118,7 +119,7 @@ const GameScreen: React.FC<GameScreenProps> = ({ reality, difficulty, onGameOver
   const { shellTheme } = useShellTheme();
   const [stats, setStats] = useState<Stats>(INITIAL_STATS);
   const [deck, setDeck] = useState<CardData[]>([]);
-  const [deckMeta, setDeckMeta] = useState<{ name?: string; description?: string }>({});
+  const [deckMeta, setDeckMeta] = useState<{ name?: string; description?: string; intro?: string }>({});
   const [showIntro, setShowIntro] = useState<boolean>(true);
   const [currentCardIndex, setCurrentCardIndex] = useState<number>(0);
   const [turnCount, setTurnCount] = useState<number>(0);
@@ -182,8 +183,9 @@ const GameScreen: React.FC<GameScreenProps> = ({ reality, difficulty, onGameOver
           };
       });
       setDeck(processedDeck);
-      setDeckMeta({ name: deckObject.name, description: deckObject.description });
-      setShowIntro(true);
+      setDeckMeta({ name: deckObject.name, description: deckObject.description, intro: deckObject.intro });
+      const alreadySeen = hasSeenPrologue(prologueKeyFor(reality.id, deckObject.name));
+      setShowIntro(!(loadSkipPrologueOnReplay() && alreadySeen));
       setCurrentCardIndex(0);
       setDeckLoadError(null);
       onLoaded(); // This will trigger the final part of loading
@@ -302,6 +304,7 @@ const GameScreen: React.FC<GameScreenProps> = ({ reality, difficulty, onGameOver
   const handleSwipe = useCallback((card: CardData, direction: 'left' | 'right') => {
     if (card.id === INTRO_CARD_ID) {
       playSound(reality.soundConfig?.swipeRightUrl || DEFAULT_SOUNDS.swipe);
+      markPrologueSeen(prologueKeyFor(reality.id, deckMeta.name));
       setShowIntro(false);
       return;
     }
@@ -351,7 +354,7 @@ const GameScreen: React.FC<GameScreenProps> = ({ reality, difficulty, onGameOver
 
     // 5. Update the current card index
     setCurrentCardIndex(nextIndex);
-  }, [stats, statKeys, reality, difficulty, deck, currentCardIndex, playSound, handleGameOverWithSound]);
+  }, [stats, statKeys, reality, difficulty, deck, deckMeta.name, currentCardIndex, playSound, handleGameOverWithSound]);
   
   const handleExitClick = () => {
     requestConfirmation({
@@ -415,7 +418,7 @@ const GameScreen: React.FC<GameScreenProps> = ({ reality, difficulty, onGameOver
               topCardBody={showIntro ? (
                 <IntroCardBody
                   title={deckMeta.name || reality.name}
-                  backstory={deckMeta.description || reality.description}
+                  backstory={deckMeta.intro || deckMeta.description || reality.description}
                   reality={reality}
                 />
               ) : undefined}

@@ -746,6 +746,7 @@ const EditorScreen: React.FC<EditorScreenProps> = ({
                         <div className="space-y-2 mb-4">
                             <input type="text" name="name" value={formData.deck?.name || ''} onChange={handleDeckFieldChange} placeholder="Deck Title" className="w-full bg-black/40 p-2 rounded text-lg font-bold" />
                             <textarea name="description" value={formData.deck?.description || ''} onChange={handleDeckFieldChange} placeholder="Deck Description..." className="w-full bg-black/40 p-2 rounded text-sm" rows={2}></textarea>
+                            <textarea name="intro" value={formData.deck?.intro || ''} onChange={handleDeckFieldChange} placeholder="Prologue backstory... (optional — shown on the intro card before play; the description is used when empty)" className="w-full bg-black/40 p-2 rounded text-sm" rows={3}></textarea>
                             <div className="flex items-center gap-2 text-sm">
                                 <label className="text-gray-400 whitespace-nowrap" title="Decks sharing a series name form a saga — finishing part N offers 'Next in the series' (part N+1) at game over">Series</label>
                                 <input

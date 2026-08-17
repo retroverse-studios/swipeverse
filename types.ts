@@ -71,6 +71,13 @@ export type ContentCategory = 'game' | 'education';
 export type Deck = {
     name?: string;
     description?: string;
+    /**
+     * Optional richer backstory shown on the prologue card before card 0.
+     * Falls back to `description` (then the reality's description) when
+     * absent, so authors only write this when they want more than the
+     * one-line catalog blurb.
+     */
+    intro?: string;
     category?: ContentCategory;
     /**
      * Multi-arc stories: decks sharing a series name form a saga. Finishing

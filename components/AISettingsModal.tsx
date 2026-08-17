@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { AISettings, AIProviderType, loadAISettings, saveAISettings } from '../services/aiService';
+import { loadSkipPrologueOnReplay, saveSkipPrologueOnReplay } from '../services/prologue';
 import { SHELL_THEMES } from '../services/shellTheme';
 import { useShellTheme } from './ShellThemeContext';
 import { CloseIcon } from './icons';
@@ -80,6 +81,7 @@ const PROVIDERS: { value: AIProviderType; label: string; blurb: string; fields: 
 
 const AISettingsModal: React.FC<AISettingsModalProps> = ({ onClose, addToast }) => {
     const [settings, setSettings] = useState<AISettings>(loadAISettings);
+    const [skipPrologue, setSkipPrologue] = useState<boolean>(loadSkipPrologueOnReplay);
     const [activeTab, setActiveTab] = useState<'game' | 'deck'>('game');
     const { shellTheme, setShellTheme } = useShellTheme();
 
@@ -141,6 +143,25 @@ const AISettingsModal: React.FC<AISettingsModalProps> = ({ onClose, addToast }) 
                                 ))}
                             </div>
                             <p className="text-xs text-gray-500 mt-2">Changes the look of the menu and game screens. Applies instantly.</p>
+
+                            <div className="mt-5">
+                                <label className="flex items-center gap-3 cursor-pointer select-none">
+                                    <input
+                                        type="checkbox"
+                                        checked={skipPrologue}
+                                        onChange={e => {
+                                            setSkipPrologue(e.target.checked);
+                                            saveSkipPrologueOnReplay(e.target.checked);
+                                        }}
+                                        className="w-4 h-4 accent-tarot-gold"
+                                    />
+                                    <span className="text-sm font-bold text-gray-400">Skip prologue on replay</span>
+                                </label>
+                                <p className="text-xs text-gray-500 mt-1 ml-7">
+                                    Every story opens with a prologue card the first time you play it. When
+                                    enabled, replaying a story you've already seen goes straight to the action.
+                                </p>
+                            </div>
                         </div>
                     )}
 

@@ -10,6 +10,7 @@ interface CardProps {
   onDragPreview: (effects: Partial<Stats> | null) => void;
   isTop: boolean;
   reality: Reality;
+  body?: React.ReactNode; // Replaces the prompt text (used by the deck intro card)
 }
 
 /** The stat this card is mostly about — drives the seal/badge. */
@@ -63,7 +64,7 @@ const CHROME: Record<ShellThemeId, {
   },
 };
 
-const Card: React.FC<CardProps> = ({ card, onSwipe, onDragPreview, isTop, reality }) => {
+const Card: React.FC<CardProps> = ({ card, onSwipe, onDragPreview, isTop, reality, body }) => {
   const { shellTheme } = useShellTheme();
   const chrome = CHROME[shellTheme];
   const [dragStart, setDragStart] = useState<{x: number, y: number} | null>(null);
@@ -183,8 +184,8 @@ const Card: React.FC<CardProps> = ({ card, onSwipe, onDragPreview, isTop, realit
       )}
 
       <div className="h-1/2 px-4 md:px-6 pt-7 pb-4 flex flex-col justify-between">
-        <div className="flex-grow flex items-center justify-center">
-            <p className={`text-base md:text-xl text-center leading-relaxed ${chrome.prompt}`}>{card.prompt}</p>
+        <div className="flex-grow flex items-center justify-center min-h-0">
+            {body ?? <p className={`text-base md:text-xl text-center leading-relaxed ${chrome.prompt}`}>{card.prompt}</p>}
         </div>
 
         {/* Hints double as tap targets for players who don't discover the swipe */}
@@ -215,9 +216,10 @@ interface CardStackProps {
   onSwipe: (card: CardData, direction: 'left' | 'right') => void;
   onDragPreview: (effects: Partial<Stats> | null) => void;
   reality: Reality;
+  topCardBody?: React.ReactNode; // Custom content for the top card (deck intro)
 }
 
-const CardStack: React.FC<CardStackProps> = ({ cards, currentIndex, onSwipe, onDragPreview, reality }) => {
+const CardStack: React.FC<CardStackProps> = ({ cards, currentIndex, onSwipe, onDragPreview, reality, topCardBody }) => {
   const { shellTheme } = useShellTheme();
   const chrome = CHROME[shellTheme];
 
@@ -257,6 +259,7 @@ const CardStack: React.FC<CardStackProps> = ({ cards, currentIndex, onSwipe, onD
           onDragPreview={onDragPreview}
           isTop={true}
           reality={reality}
+          body={topCardBody}
         />
       </div>
     </div>

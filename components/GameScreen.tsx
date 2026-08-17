@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { Reality, Stats, CardData, StatName, Deck } from '../types';
-import { INITIAL_STATS, MIN_STAT_VALUE, MAX_STAT_VALUE, DEFAULT_SOUNDS, pickCardArt, cardScenesFor, statBadgeFor, resolveAssetUrl } from '../constants';
+import { INITIAL_STATS, MIN_STAT_VALUE, MAX_STAT_VALUE, DEFAULT_SOUNDS, pickCardArt, cardScenesFor, cardBackFor, statBadgeFor, resolveAssetUrl } from '../constants';
 import { generateInitialDeck, getActiveProviderLabel, hasConfiguredProvider } from '../services/aiService';
 import { Difficulty, applyDifficultyModifier } from '../services/gameHistory';
 import { resolveNextIndex } from '../services/branching';
@@ -75,10 +75,51 @@ const ErrorModal: React.FC<{
 const AudioContextClass = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
 const audioContext = new AudioContextClass();
 
+/**
+ * The prologue card shown before card 0. Engine-owned, never part of the deck
+ * data, so per-deck card indices and stat effects are untouched. Swiping it
+ * either way starts the game — teaching the play gesture by using it.
+ */
+const INTRO_CARD_ID = 'deck-intro';
+
+const IntroCardBody: React.FC<{ title: string; backstory: string; reality: Reality }> = ({ title, backstory, reality }) => {
+  const { shellTheme } = useShellTheme();
+  const styles = {
+    tarot: { title: 'font-cinzel text-tarot-gold-bright', text: 'text-tarot-paper', muted: 'text-tarot-muted', divider: 'border-tarot-muted/40' },
+    crt: { title: 'font-vt text-[#7fe7f5] tracking-widest', text: 'font-vt text-[#dfe6f5]', muted: 'font-vt text-[#7fe7f5]', divider: 'border-[#7fe7f5]/40' },
+    handheld: { title: 'font-vt text-[#a3ffbe] tracking-wide', text: 'font-vt text-[#cfe8d5]', muted: 'font-vt text-[#5c8a6b]', divider: 'border-[#a3ffbe]/30' },
+  }[shellTheme];
+  const statKeys = Object.keys(INITIAL_STATS) as StatName[];
+
+  return (
+    <div className="w-full max-h-full overflow-y-auto flex flex-col items-center text-center gap-1.5 px-1">
+      <h2 className={`text-lg md:text-xl leading-tight ${styles.title}`}>{title}</h2>
+      <p className={`text-xs md:text-sm leading-snug ${styles.text}`}>{backstory}</p>
+      <div className={`w-3/4 border-t my-1 ${styles.divider}`}></div>
+      <p className={`text-[0.7rem] md:text-xs leading-snug ${styles.muted}`}>
+        Swipe the card ⇦ or ⇨ — or tap a choice — to decide. Every decision shifts your four resources:
+      </p>
+      <div className="flex justify-center gap-x-3 gap-y-1 flex-wrap">
+        {statKeys.map(key => (
+          <span key={key} className={`flex items-center gap-1 text-[0.7rem] md:text-xs ${styles.text}`}>
+            <img src={resolveAssetUrl(statBadgeFor(key, reality.id))} alt="" className="w-4 h-4 [image-rendering:pixelated]" draggable={false} />
+            {reality.statNames[key]}
+          </span>
+        ))}
+      </div>
+      <p className={`text-[0.7rem] md:text-xs leading-snug ${styles.muted}`}>
+        Keep them balanced — if any runs empty or overflows, your story ends.
+      </p>
+    </div>
+  );
+};
+
 const GameScreen: React.FC<GameScreenProps> = ({ reality, difficulty, onGameOver, onExit, requestConfirmation, isMuted }) => {
   const { shellTheme } = useShellTheme();
   const [stats, setStats] = useState<Stats>(INITIAL_STATS);
   const [deck, setDeck] = useState<CardData[]>([]);
+  const [deckMeta, setDeckMeta] = useState<{ name?: string; description?: string }>({});
+  const [showIntro, setShowIntro] = useState<boolean>(true);
   const [currentCardIndex, setCurrentCardIndex] = useState<number>(0);
   const [turnCount, setTurnCount] = useState<number>(0);
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -141,6 +182,8 @@ const GameScreen: React.FC<GameScreenProps> = ({ reality, difficulty, onGameOver
           };
       });
       setDeck(processedDeck);
+      setDeckMeta({ name: deckObject.name, description: deckObject.description });
+      setShowIntro(true);
       setCurrentCardIndex(0);
       setDeckLoadError(null);
       onLoaded(); // This will trigger the final part of loading
@@ -257,6 +300,11 @@ const GameScreen: React.FC<GameScreenProps> = ({ reality, difficulty, onGameOver
 
 
   const handleSwipe = useCallback((card: CardData, direction: 'left' | 'right') => {
+    if (card.id === INTRO_CARD_ID) {
+      playSound(reality.soundConfig?.swipeRightUrl || DEFAULT_SOUNDS.swipe);
+      setShowIntro(false);
+      return;
+    }
     const choice = direction === 'left' ? card.leftChoice : card.rightChoice;
     const swipeSoundUrl = direction === 'left' 
         ? reality.soundConfig?.swipeLeftUrl 
@@ -312,7 +360,18 @@ const GameScreen: React.FC<GameScreenProps> = ({ reality, difficulty, onGameOver
     });
   };
 
+  const introCard: CardData = useMemo(() => ({
+    id: INTRO_CARD_ID,
+    prompt: deckMeta.name || reality.name,
+    imageUrl: resolveAssetUrl(cardBackFor(reality.id)),
+    leftChoice: { text: 'Begin', effects: {} },
+    rightChoice: { text: 'Begin', effects: {} },
+  }), [deckMeta.name, reality.id, reality.name]);
+
   const currentCard = deck[currentCardIndex];
+  // While the prologue shows, it sits on top of the real deck so the stack
+  // behind reflects the story's true length.
+  const topCard = showIntro ? introCard : currentCard;
 
   const hidden = isLoading || deckLoadError || !currentCard;
 
@@ -348,17 +407,28 @@ const GameScreen: React.FC<GameScreenProps> = ({ reality, difficulty, onGameOver
       <div className={`flex-grow flex items-center justify-center w-full transition-opacity duration-300 ${hidden ? 'opacity-0' : 'opacity-100'}`}>
         {currentCard &&
             <CardStack
-              cards={deck}
-              currentIndex={currentCardIndex}
+              cards={showIntro ? [introCard, ...deck] : deck}
+              currentIndex={showIntro ? 0 : currentCardIndex}
               onSwipe={handleSwipe}
               onDragPreview={setStatPreview}
               reality={reality}
+              topCardBody={showIntro ? (
+                <IntroCardBody
+                  title={deckMeta.name || reality.name}
+                  backstory={deckMeta.description || reality.description}
+                  reality={reality}
+                />
+              ) : undefined}
             />
         }
       </div>
 
       <div className={`h-12 flex items-center justify-center ${nodeClass} transition-opacity duration-300 ${hidden ? 'opacity-0' : 'opacity-100'}`}>
-        {!isLoading && deck.length > 0 && <span>Node {currentCardIndex + 1} · {deck.length}</span>}
+        {!isLoading && deck.length > 0 && (
+          showIntro
+            ? <span>Prologue · {deck.length} nodes</span>
+            : <span>Node {currentCardIndex + 1} · {deck.length}</span>
+        )}
       </div>
     </>
   );
@@ -394,8 +464,8 @@ const GameScreen: React.FC<GameScreenProps> = ({ reality, difficulty, onGameOver
         </CrtShell>
       ) : shellTheme === 'handheld' ? (
         <HandheldShell
-          onB={!hidden ? () => currentCard && handleSwipe(currentCard, 'left') : undefined}
-          onA={!hidden ? () => currentCard && handleSwipe(currentCard, 'right') : undefined}
+          onB={!hidden ? () => topCard && handleSwipe(topCard, 'left') : undefined}
+          onA={!hidden ? () => topCard && handleSwipe(topCard, 'right') : undefined}
         >
           <div className="flex flex-col h-full items-center justify-between px-2 py-3">{gameContent}</div>
         </HandheldShell>

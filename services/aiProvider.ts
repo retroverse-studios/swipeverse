@@ -27,6 +27,7 @@ The choices should have plausible but non-obvious consequences.
 Stat changes should generally be between -35 and +35.
 Ensure the prompts are engaging, varied, and fit the ${reality.name} theme. Do not repeat scenarios within the deck.
 Give the deck a cool, thematic name and a one-sentence synopsis.
+Also write an "intro": a short prologue of 2-3 sentences shown before the first card. Set the scene in second person — who the player is, what world they have just stepped into, and what is at stake. Do not explain game mechanics; the app adds those instructions itself.
 Optionally create branching narratives by setting the 'nextCardIndex' property on choices to jump to other cards. If you create branches, ensure they create an interesting, potentially looping story. The final card in the deck is the win condition.
 For richer stories you may also add stat-conditional 'branches' to a choice: each branch names a stat and a threshold (gte and/or lte, values 0-100) plus a nextCardIndex; after the choice's effects apply, the first matching branch decides the next card, falling back to nextCardIndex (or the next sequential card) when none match. Use this sparingly for dramatic forks — e.g. a ruler with Wealth >= 60 is received at court, a poorer one is turned away — and to gate exits from loops behind an earned stat.
 The Power stat is named ${reality.statNames.Power}.
@@ -39,6 +40,7 @@ Respond with a JSON object matching this exact schema:
 {
   "name": "string - A cool thematic title for this deck",
   "description": "string - A one-sentence synopsis",
+  "intro": "string - A 2-3 sentence second-person prologue setting the scene (no game mechanics)",
   "cards": [
     {
       "prompt": "string - The scenario text",
@@ -79,6 +81,7 @@ A story creator wants a deck of ${deckSize} cards for the game based on this hig
 ${sourceBlock}
 Generate a full, unique, and challenging deck of ${deckSize} scenario cards that follows the creator's prompt.
 Give the generated deck a cool, thematic name based on the prompt, and use the prompt itself as the deck's description.
+Also write an "intro": a short prologue of 2-3 sentences shown before the first card. Set the scene in second person — who the player is, what world they have just stepped into, and what is at stake. Do not explain game mechanics; the app adds those instructions itself.
 Create a branching narrative using the 'nextCardIndex' property on choices to make the story interactive and replayable. Make sure jumps are valid (within the 0 to ${deckSize - 1} range). The final card in the array (index ${deckSize - 1}) should be the 'win' or final ending card.
 For richer stories you may also add stat-conditional 'branches' to a choice: each branch names a stat and a threshold (gte and/or lte, values 0-100) plus a nextCardIndex; after the choice's effects apply, the first matching branch decides the next card, falling back to nextCardIndex (or the next sequential card) when none match. Use this sparingly for dramatic forks and to gate exits from loops behind an earned stat.
 The choices should have plausible but non-obvious consequences.
@@ -94,6 +97,7 @@ Respond with a JSON object matching this exact schema:
 {
   "name": "string - A cool thematic title",
   "description": "string - The story synopsis",
+  "intro": "string - A 2-3 sentence second-person prologue setting the scene (no game mechanics)",
   "cards": [
     {
       "prompt": "string - The scenario text",

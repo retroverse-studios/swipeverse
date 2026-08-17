@@ -43,9 +43,10 @@ const deckSchema = {
     properties: {
         name: { type: Type.STRING },
         description: { type: Type.STRING },
+        intro: { type: Type.STRING, description: "A 2-3 sentence second-person prologue setting the scene, without game mechanics." },
         cards: { type: Type.ARRAY, items: cardSchema }
     },
-    required: ["name", "description", "cards"]
+    required: ["name", "description", "intro", "cards"]
 };
 
 export class GeminiProvider implements AIProvider {

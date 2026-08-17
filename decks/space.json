@@ -1,6 +1,7 @@
 {
   "name": "The Precursor Rim",
   "description": "Your survey fleet has found a dormant precursor megastructure at the edge of known space, and every choice trades fleet strength, credits, alien goodwill, and forbidden knowledge on the road to controlling it.",
+  "intro": "Survey Ship Meridian's signal reaches your flagship from the edge of known space: a dormant precursor megastructure, older than any civilization on record, drifting silent at the rim. You command the fleet that found it — but rival houses, alien envoys, and your own scientists all have designs on what sleeps inside. Whoever masters the structure masters the Rim, and every order you give brings it closer to waking.",
   "cards": [
     {
       "prompt": "Survey Ship Meridian pings home: a dormant precursor megastructure drifts at the rim, its hull older than your empire's charters. How do you claim it?",

@@ -1,6 +1,7 @@
 {
   "name": "The Waking Crown",
   "description": "A newly crowned monarch must steer a kingdom where slumbering magic stirs, wards crumble, a dragon circles, and the mage guild sharpens its ambitions.",
+  "intro": "The crown is barely warm on your brow when the whispers begin: the wards your ancestors carved three centuries ago are failing, and the old magic beneath the kingdom is stirring in its sleep. A dragon has been seen beyond the northern peaks, and the mage guild watches your throne with hungry eyes. Every decree you sign will decide whether the waking magic crowns you — or consumes you.",
   "cards": [
     {
       "prompt": "On coronation night the palace wards flicker and gutter like dying candles. Your steward whispers that the runes carved by your ancestors are failing after three centuries. Do you investigate the old crypts yourself, or summon the court mages to explain?",

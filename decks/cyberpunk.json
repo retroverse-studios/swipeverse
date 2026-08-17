@@ -1,6 +1,7 @@
 {
   "name": "Ghost Circuit: The Prototype Wars",
   "description": "As a mid-level fixer clutching a stolen prototype neural implant, you must navigate corps, gangs, citizens, and black-market techs who all want a piece of your future.",
+  "intro": "A courier just died at your feet in a rain-slick alley, and the sealed corp case in his hand now sits in yours: a prototype neural implant every faction in the megacity would kill for. You're a mid-level fixer who was supposed to stay small — but the corps, the gangs, and the black-market techs already know your name. What you do with the ghost circuit will decide whether you own the future or become another body in the neon dust.",
   "cards": [
     {
       "prompt": "A courier dies at your feet, and in his hand is a sealed corp case holding a prototype neural implant every faction in the megacity would kill for. What now?",

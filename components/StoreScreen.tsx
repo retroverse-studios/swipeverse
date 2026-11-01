@@ -96,13 +96,36 @@ function weeklyFeatured<T>(items: T[], count: number): T[] {
     return shuffled.slice(0, count);
 }
 
-const Shelf: React.FC<{ id: string; title: string; blurb?: string; children: React.ReactNode }> = ({ id, title, blurb, children }) => (
+/** Tiles shown per collapsed shelf — one desktop grid row. */
+const SHELF_PREVIEW = 3;
+
+const Shelf: React.FC<{
+    id: string;
+    title: string;
+    blurb?: string;
+    /** Total items on the shelf; when set with onToggle, a Show all/less control appears. */
+    total?: number;
+    expanded?: boolean;
+    onToggle?: () => void;
+    children: React.ReactNode;
+}> = ({ id, title, blurb, total, expanded, onToggle, children }) => (
     <section id={id} className="mb-12 scroll-mt-4">
         <div className="flex items-baseline gap-3 mb-4 border-b border-tarot-gold/25 pb-2">
             <h2 className="text-2xl font-bold font-cinzel text-tarot-gold-bright tracking-wide">{title}</h2>
-            {blurb && <p className="text-sm text-gray-500 hidden md:block">{blurb}</p>}
+            {blurb && <p className="text-sm text-gray-500 hidden lg:block">{blurb}</p>}
+            {onToggle && total !== undefined && total > SHELF_PREVIEW && (
+                <button
+                    type="button"
+                    onClick={onToggle}
+                    aria-expanded={expanded}
+                    aria-controls={`${id}-content`}
+                    className="ml-auto shrink-0 py-1 px-3 rounded-full text-sm font-bold border border-tarot-gold/50 text-tarot-gold-bright hover:bg-white/10"
+                >
+                    {expanded ? 'Show less ▴' : `Show all ${total} ▾`}
+                </button>
+            )}
         </div>
-        {children}
+        <div id={`${id}-content`}>{children}</div>
     </section>
 );
 
@@ -113,6 +136,7 @@ const StoreScreen: React.FC<StoreScreenProps> = ({ onExit, onAddReality, onAddDe
     const [error, setError] = useState<string | null>(null);
     const [categoryFilter, setCategoryFilter] = useState<CategoryFilter>('all');
     const [search, setSearch] = useState('');
+    const [expandedShelves, setExpandedShelves] = useState<ReadonlySet<string>>(new Set());
     const [selectedDeck, setSelectedDeck] = useState<Deck | null>(null);
 
     // Pick once per fetch, not per render, so tiles keep their art while browsing.
@@ -240,6 +264,25 @@ const StoreScreen: React.FC<StoreScreenProps> = ({ onExit, onAddReality, onAddDe
     const scrollToShelf = (id: string) =>
         document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
+    // Shelves preview their first row; search and category filtering expand
+    // everything so matches are never hidden behind a Show-all button.
+    const forceExpanded = query !== '' || categoryFilter !== 'all';
+    const isShelfExpanded = (id: string) => forceExpanded || expandedShelves.has(id);
+    const preview = <T,>(id: string, items: T[]): T[] =>
+        isShelfExpanded(id) ? items : items.slice(0, SHELF_PREVIEW);
+    const toggleShelf = (id: string) => {
+        const collapsing = expandedShelves.has(id);
+        setExpandedShelves(prev => {
+            const next = new Set(prev);
+            if (next.has(id)) next.delete(id);
+            else next.add(id);
+            return next;
+        });
+        // Re-anchor on the shelf header so collapsing doesn't leave the
+        // scroller stranded in the section below.
+        if (collapsing) scrollToShelf(id);
+    };
+
     const realityTile = (reality: Reality) => (
         <div
             key={reality.id}
@@ -307,7 +350,7 @@ const StoreScreen: React.FC<StoreScreenProps> = ({ onExit, onAddReality, onAddDe
                 <div className="text-center text-gray-400 py-10">No library stories match your search.</div>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {visibleLibrary.map((entry) => (
+                    {preview('store-library', visibleLibrary).map((entry) => (
                         <div key={entry.id}
                             className="flex flex-col justify-between p-6 border-2 border-tarot-gold bg-black/40 rounded-lg shadow-lg backdrop-blur-md font-exo">
                             <div>
@@ -380,11 +423,27 @@ const StoreScreen: React.FC<StoreScreenProps> = ({ onExit, onAddReality, onAddDe
                         {f === 'all' ? 'All' : f === 'game' ? '🎮 Games' : '🎓 Education'}
                     </button>
                 ))}
-                <span className="flex-grow" />
-                <button onClick={() => scrollToShelf('store-library')} className="py-2 px-4 rounded-full text-sm font-bold border border-white/20 text-gray-300 hover:border-tarot-gold/60">
-                    My Library{deckLibrary.length > 0 ? ` (${deckLibrary.length})` : ''} ↓
-                </button>
             </div>
+
+            {/* Shelf jump links — hop sections without scrolling past everything */}
+            <nav aria-label="Store shelves" className="flex flex-wrap items-center gap-x-4 gap-y-1 mb-8 text-sm">
+                {([
+                    ...(showFeatured && featured.length > 0 ? [{ id: 'store-featured', label: '★ Featured' }] : []),
+                    ...(gameRealities.length > 0 ? [{ id: 'store-games', label: '🎮 Games' }] : []),
+                    ...(educationRealities.length > 0 || educationDecks.length > 0 ? [{ id: 'store-education', label: '🎓 Education' }] : []),
+                    ...(standaloneDecks.length > 0 ? [{ id: 'store-stories', label: '📖 Stories' }] : []),
+                    ...(sagas.size > 0 ? [{ id: 'store-sagas', label: '📚 Sagas' }] : []),
+                    { id: 'store-library', label: `My Library${deckLibrary.length > 0 ? ` (${deckLibrary.length})` : ''}` },
+                ] as { id: string; label: string }[]).map(link => (
+                    <button
+                        key={link.id}
+                        onClick={() => scrollToShelf(link.id)}
+                        className="py-1 font-bold text-gray-400 hover:text-tarot-gold-bright transition-colors"
+                    >
+                        {link.label} ↓
+                    </button>
+                ))}
+            </nav>
 
             <main className="flex-grow overflow-y-auto pr-1">
                 {isLoading ? <LoadingSpinner /> : error ? (
@@ -398,30 +457,44 @@ const StoreScreen: React.FC<StoreScreenProps> = ({ onExit, onAddReality, onAddDe
                         )}
 
                         {gameRealities.length > 0 && (
-                            <Shelf id="store-games" title="🎮 Games" blurb="Full realities with their own stats, art and stories">
-                                <div className={grid}>{gameRealities.map(realityTile)}</div>
+                            <Shelf id="store-games" title="🎮 Games" blurb="Full realities with their own stats, art and stories"
+                                total={gameRealities.length}
+                                expanded={isShelfExpanded('store-games')}
+                                onToggle={forceExpanded ? undefined : () => toggleShelf('store-games')}>
+                                <div className={grid}>{preview('store-games', gameRealities).map(realityTile)}</div>
                             </Shelf>
                         )}
 
                         {(educationRealities.length > 0 || educationDecks.length > 0) && (
-                            <Shelf id="store-education" title="🎓 Education" blurb="Classroom-ready scenarios that teach by dilemma, not quiz">
+                            <Shelf id="store-education" title="🎓 Education" blurb="Classroom-ready scenarios that teach by dilemma, not quiz"
+                                total={educationRealities.length + educationDecks.length}
+                                expanded={isShelfExpanded('store-education')}
+                                onToggle={forceExpanded ? undefined : () => toggleShelf('store-education')}>
                                 <div className={grid}>
-                                    {educationRealities.map(realityTile)}
-                                    {educationDecks.map(deckTile)}
+                                    {preview('store-education', [
+                                        ...educationRealities.map(realityTile),
+                                        ...educationDecks.map(deckTile),
+                                    ])}
                                 </div>
                             </Shelf>
                         )}
 
                         {standaloneDecks.length > 0 && (
-                            <Shelf id="store-stories" title="📖 Story decks" blurb="Standalone stories — add to your library, play in any reality">
-                                <div className={grid}>{standaloneDecks.map(deckTile)}</div>
+                            <Shelf id="store-stories" title="📖 Story decks" blurb="Standalone stories — add to your library, play in any reality"
+                                total={standaloneDecks.length}
+                                expanded={isShelfExpanded('store-stories')}
+                                onToggle={forceExpanded ? undefined : () => toggleShelf('store-stories')}>
+                                <div className={grid}>{preview('store-stories', standaloneDecks).map(deckTile)}</div>
                             </Shelf>
                         )}
 
                         {sagas.size > 0 && (
-                            <Shelf id="store-sagas" title="📚 Sagas" blurb="Multi-part stories — finish one part to unlock the next">
+                            <Shelf id="store-sagas" title="📚 Sagas" blurb="Multi-part stories — finish one part to unlock the next"
+                                total={sagas.size}
+                                expanded={isShelfExpanded('store-sagas')}
+                                onToggle={forceExpanded ? undefined : () => toggleShelf('store-sagas')}>
                                 <div className="space-y-6">
-                                    {[...sagas.entries()].map(([name, parts]) => (
+                                    {preview('store-sagas', [...sagas.entries()]).map(([name, parts]) => (
                                         <div key={name} className="border-2 border-tarot-gold/50 bg-black/30 rounded-lg p-5">
                                             <h3 className="text-xl font-bold font-cinzel text-tarot-gold-bright mb-1">{name}</h3>
                                             <p className="text-sm text-gray-400 mb-4">{parts[0].description}</p>
@@ -450,7 +523,10 @@ const StoreScreen: React.FC<StoreScreenProps> = ({ onExit, onAddReality, onAddDe
                     </>
                 )}
 
-                <Shelf id="store-library" title={`My Library${deckLibrary.length > 0 ? ` (${deckLibrary.length})` : ''}`} blurb="Stories you've collected — load one into any reality">
+                <Shelf id="store-library" title={`My Library${deckLibrary.length > 0 ? ` (${deckLibrary.length})` : ''}`} blurb="Stories you've collected — load one into any reality"
+                    total={visibleLibrary.length}
+                    expanded={isShelfExpanded('store-library')}
+                    onToggle={forceExpanded ? undefined : () => toggleShelf('store-library')}>
                     {renderLibraryShelf()}
                 </Shelf>
             </main>

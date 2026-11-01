@@ -88,12 +88,6 @@ const BASE_REALITIES: Reality[] = [
       People: 'Citizen Trust',
       Knowledge: 'Banned Tech',
     },
-    statIconNames: {
-      Power: 'PowerIconCyber',
-      Wealth: 'WealthIconCyber',
-      People: 'PeopleIconCyber',
-      Knowledge: 'KnowledgeIconCyber',
-    },
     imageSet: undefined, // untagged cards fall back to the reality's themed art via pickCardArt
     colors: {
       primary: 'text-cyber-pink',
@@ -121,12 +115,6 @@ const BASE_REALITIES: Reality[] = [
       People: 'Favor',
       Knowledge: 'Arcane Lore',
     },
-    statIconNames: {
-      Power: 'PowerIconMystic',
-      Wealth: 'WealthIconMystic',
-      People: 'PeopleIconMystic',
-      Knowledge: 'KnowledgeIconMystic',
-    },
     imageSet: undefined, // untagged cards fall back to the reality's themed art via pickCardArt
     colors: {
       primary: 'text-mystic-purple',
@@ -153,12 +141,6 @@ const BASE_REALITIES: Reality[] = [
       Wealth: 'Credits',
       People: 'Relations',
       Knowledge: 'Precursor Data',
-    },
-    statIconNames: {
-        Power: 'PowerIconSpace',
-        Wealth: 'WealthIconSpace',
-        People: 'PeopleIconSpace',
-        Knowledge: 'KnowledgeIconSpace',
     },
     imageSet: undefined, // untagged cards fall back to the reality's themed art via pickCardArt
     colors: {

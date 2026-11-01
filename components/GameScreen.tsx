@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { Reality, Stats, CardData, StatName, Deck } from '../types';
 import { INITIAL_STATS, MIN_STAT_VALUE, MAX_STAT_VALUE, DEFAULT_SOUNDS, pickCardArt, cardScenesFor, cardBackFor, statBadgeFor, resolveAssetUrl } from '../constants';
 import { generateInitialDeck, getActiveProviderLabel, hasConfiguredProvider } from '../services/aiService';
+import { validateAndRepairDeck } from '../services/aiProvider';
 import { Difficulty, applyDifficultyModifier } from '../services/gameHistory';
 import { resolveNextIndex } from '../services/branching';
 import { loadSkipPrologueOnReplay, prologueKeyFor, hasSeenPrologue, markPrologueSeen } from '../services/prologue';
@@ -73,8 +74,17 @@ const ErrorModal: React.FC<{
     </div>
 );
 
-const AudioContextClass = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
-const audioContext = new AudioContextClass();
+// Created lazily: an AudioContext constructed at module load starts
+// 'suspended' under autoplay policies, so early sounds would silently no-op
+let sharedAudioContext: AudioContext | null = null;
+function getAudioContext(): AudioContext {
+  if (!sharedAudioContext) {
+    const AudioContextClass = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+    sharedAudioContext = new AudioContextClass();
+  }
+  if (sharedAudioContext.state === 'suspended') void sharedAudioContext.resume();
+  return sharedAudioContext;
+}
 
 /**
  * The prologue card shown before card 0. Engine-owned, never part of the deck
@@ -140,22 +150,23 @@ const GameScreen: React.FC<GameScreenProps> = ({ reality, difficulty, onGameOver
   const playSound = useCallback((url: string | undefined) => {
     if (isMuted || !url || !audioBuffers[url]) return;
     try {
-        const source = audioContext.createBufferSource();
+        const ctx = getAudioContext();
+        const source = ctx.createBufferSource();
         source.buffer = audioBuffers[url];
-        source.connect(audioContext.destination);
+        source.connect(ctx.destination);
         source.start(0);
     } catch(e) {
         console.error("Error playing sound:", e);
     }
   }, [isMuted, audioBuffers]);
   
-  const handleGameOverWithSound = useCallback((reason: string, deck: CardData[], isWin: boolean, finalStats: Stats) => {
+  const handleGameOverWithSound = useCallback((reason: string, deck: CardData[], isWin: boolean, finalStats: Stats, turns: number) => {
     const soundUrl = isWin
         ? reality.soundConfig?.gameWinUrl || DEFAULT_SOUNDS.win
         : reality.soundConfig?.gameLoseUrl || DEFAULT_SOUNDS.lose;
     playSound(soundUrl);
-    onGameOver(reason, deck, isWin, turnCount, finalStats);
-  }, [reality.soundConfig, playSound, onGameOver, turnCount]);
+    onGameOver(reason, deck, isWin, turns, finalStats);
+  }, [reality.soundConfig, playSound, onGameOver]);
 
   const processAndSetDeck = useCallback((deckObject: Deck, onLoaded: () => void) => {
       const rawDeck = deckObject.cards;
@@ -226,7 +237,7 @@ const GameScreen: React.FC<GameScreenProps> = ({ reality, difficulty, onGameOver
             if (deckSource === 'url' && reality.deckUrl) {
                 const response = await fetch(reality.deckUrl);
                 if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                targetDeck = await response.json();
+                targetDeck = validateAndRepairDeck(await response.json());
             } else if (deckSource === 'ai') {
                 setLoadingText(`Generating your story with ${getActiveProviderLabel()}... this can take a minute.`);
                 targetDeck = await generateInitialDeck(reality, INITIAL_STATS);
@@ -254,7 +265,7 @@ const GameScreen: React.FC<GameScreenProps> = ({ reality, difficulty, onGameOver
                     try {
                         const response = await fetch(url);
                         const arrayBuffer = await response.arrayBuffer();
-                        const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+                        const audioBuffer = await getAudioContext().decodeAudioData(arrayBuffer);
                         loadedBuffers[url] = audioBuffer;
                     } catch (e) {
                         console.warn(`Failed to load or decode audio: ${url}`, e);
@@ -323,17 +334,20 @@ const GameScreen: React.FC<GameScreenProps> = ({ reality, difficulty, onGameOver
       newStats[statName] = Math.max(MIN_STAT_VALUE, Math.min(MAX_STAT_VALUE, newStats[statName] + modifiedEffect));
     }
     setStats(newStats);
-    setTurnCount(prev => prev + 1);
+    // Count this swipe now: the game-over path below reads the turn count
+    // synchronously, before the state update lands (was off by one)
+    const turns = turnCount + 1;
+    setTurnCount(turns);
 
     // 2. Check for game over from stats *after* update
     for (const key of statKeys) {
         const statName = key as StatName;
         if (newStats[statName] <= MIN_STAT_VALUE) {
-          handleGameOverWithSound(`Your ${reality.statNames[statName].toLowerCase()} has vanished.`, deck, false, newStats);
+          handleGameOverWithSound(`Your ${reality.statNames[statName].toLowerCase()} has vanished.`, deck, false, newStats, turns);
           return;
         }
         if (newStats[statName] >= MAX_STAT_VALUE) {
-          handleGameOverWithSound(`You've been overwhelmed by your ${reality.statNames[statName].toLowerCase()}.`, deck, false, newStats);
+          handleGameOverWithSound(`You've been overwhelmed by your ${reality.statNames[statName].toLowerCase()}.`, deck, false, newStats, turns);
           return;
         }
     }
@@ -343,18 +357,18 @@ const GameScreen: React.FC<GameScreenProps> = ({ reality, difficulty, onGameOver
 
     // 4. Check for win/loss based on next index
     if (nextIndex >= deck.length) {
-        handleGameOverWithSound(`You have successfully navigated the challenges of ${reality.name} and reached the final node. Your story ends here.`, deck, true, newStats);
+        handleGameOverWithSound(`You have successfully navigated the challenges of ${reality.name} and reached the final node. Your story ends here.`, deck, true, newStats, turns);
         return;
     }
 
     if (nextIndex < 0) {
-        handleGameOverWithSound(`You chose a path that leads to nowhere and were lost to the void.`, deck, false, newStats);
+        handleGameOverWithSound(`You chose a path that leads to nowhere and were lost to the void.`, deck, false, newStats, turns);
         return;
     }
 
     // 5. Update the current card index
     setCurrentCardIndex(nextIndex);
-  }, [stats, statKeys, reality, difficulty, deck, deckMeta.name, currentCardIndex, playSound, handleGameOverWithSound]);
+  }, [stats, statKeys, reality, difficulty, deck, deckMeta.name, currentCardIndex, turnCount, playSound, handleGameOverWithSound]);
   
   const handleExitClick = () => {
     requestConfirmation({

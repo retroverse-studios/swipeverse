@@ -3,6 +3,8 @@ import { Reality, CardData, StatName, Deck, CARD_ARCHETYPES, CardArchetype, Stat
 import { REALITIES, INITIAL_STATS, BUNDLED_ART_SETS, BUNDLED_ART_INFO, cardScenesFor, resolveAssetUrl } from '../constants';
 import { BackIcon, SaveIcon, DeleteIcon, UploadIcon, ExportIcon, AddIcon, GenerateIcon, CloudUploadIcon, FormIcon, GraphIcon } from './icons';
 import { generateBranchingDeckFromPrompt } from '../services/aiService';
+import { validateAndRepairDeck } from '../services/aiProvider';
+import { sanitizeRealities } from '../services/storageValidation';
 import { analyzeDeck, DeckAnalysis } from '../services/deckSolver';
 import { fetchStoreArtIndex, StoreArtIndex, STORE_ART_BASE } from '../services/apiService';
 import { VisualEditor } from './VisualEditor';
@@ -29,7 +31,6 @@ const createNewReality = (): Reality => ({
     font: 'font-exo',
     systemInstruction: "You are a creative storyteller for the interactive fiction game 'SwipeVerse'.",
     statNames: { Power: 'Stat A', Wealth: 'Stat B', People: 'Stat C', Knowledge: 'Stat D' },
-    statIconNames: { Power: 'PowerIconCyber', Wealth: 'WealthIconCyber', People: 'PeopleIconCyber', Knowledge: 'KnowledgeIconCyber' },
     imageSet: [],
     colors: { primary: 'text-cyber-pink', secondary: 'text-cyber-cyan', background: 'bg-velvet', accent: 'border-cyber-pink' },
     deck: { cards: [] },
@@ -246,16 +247,19 @@ const EditorScreen: React.FC<EditorScreenProps> = ({
         const reader = new FileReader();
         reader.onload = (e) => {
             try {
-                const deck = JSON.parse(e.target?.result as string);
-                // Handle both old (array) and new (object) formats
-                if(Array.isArray(deck)) {
-                    handleDeckChange({ name: "Imported Deck", description: "", cards: deck });
-                } else if (typeof deck === 'object' && deck !== null && 'cards' in deck) {
-                    // A manual import is the player's own deck — drop any 'bundled' tag
-                    // so app updates never overwrite it
-                    delete deck.source;
-                    handleDeckChange(deck);
-                } else { throw new Error("Invalid format"); }
+                const parsed = JSON.parse(e.target?.result as string);
+                // Handle both old (array) and new (object) formats; run both
+                // through the shared validator so malformed cards can't be
+                // stored (it preserves branches/series — see AUDIT.md H1)
+                const rawDeck = Array.isArray(parsed)
+                    ? { name: "Imported Deck", description: "", cards: parsed }
+                    : (typeof parsed === 'object' && parsed !== null && 'cards' in parsed ? parsed : null);
+                if (!rawDeck) throw new Error("Invalid format");
+                const deck = validateAndRepairDeck(rawDeck);
+                // A manual import is the player's own deck — drop any 'bundled' tag
+                // so app updates never overwrite it
+                delete deck.source;
+                handleDeckChange(deck);
                 addToast("Deck imported successfully!", 'success');
             } catch { addToast("Invalid deck file.", 'error'); }
         };
@@ -352,10 +356,11 @@ const EditorScreen: React.FC<EditorScreenProps> = ({
         reader.onload = (e) => {
             try {
                 const importedData = JSON.parse(e.target?.result as string);
-                if (Array.isArray(importedData) && importedData.length > 0) {
-                    onUpdateAll(importedData);
+                const clean = sanitizeRealities(importedData);
+                if (clean.length > 0) {
+                    onUpdateAll(clean);
                     onSetEditingReality(null);
-                    addToast(`${importedData.length} realities imported successfully!`, 'success');
+                    addToast(`${clean.length} realities imported successfully!`, 'success');
                 } else {
                     addToast('Import failed: Invalid file format.', 'error');
                 }

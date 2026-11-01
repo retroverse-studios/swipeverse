@@ -64,8 +64,15 @@ export function loadAISettings(): AISettings {
     try {
         const stored = window.localStorage.getItem(SETTINGS_KEY);
         if (stored) {
-            const parsed = JSON.parse(stored);
-            return { ...DEFAULT_SETTINGS, ...parsed };
+            const parsed: unknown = JSON.parse(stored);
+            const src = parsed && typeof parsed === 'object' ? parsed as Record<string, unknown> : {};
+            const clean = { ...DEFAULT_SETTINGS };
+            for (const key of Object.keys(clean) as (keyof AISettings)[]) {
+                if (key === 'provider') continue; // validated by the factory's default case
+                if (typeof src[key] === 'string') clean[key] = src[key] as never;
+            }
+            if (typeof src.provider === 'string') clean.provider = src.provider as AISettings['provider'];
+            return clean;
         }
     } catch { /* use defaults */ }
 

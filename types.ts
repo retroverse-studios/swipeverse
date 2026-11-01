@@ -102,7 +102,8 @@ export type Reality = {
   font: string;
   systemInstruction: string;
   statNames: Record<StatName, string>;
-  statIconNames: Record<StatName, string>; // Serializable icon names
+  /** @deprecated Stat icons are art files now (statBadgeFor); ignored if present in stored/catalog data */
+  statIconNames?: Record<StatName, string>;
   imageSet?: string[]; // Optional set of image URLs for cards
   deckUrl?: string; // Optional URL to a pre-defined deck of cards
   deck?: Deck; // Optional user-imported deck data for persistence

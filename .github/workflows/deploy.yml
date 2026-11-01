@@ -27,6 +27,10 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      - name: Typecheck, lint, test
+        run: |
+          npm run check
+          npm test
       - run: npm run build
         env:
           # Site root is https://swipeverse.app/ (custom domain); the game is

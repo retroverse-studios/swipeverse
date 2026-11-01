@@ -144,7 +144,14 @@ const MAX_HISTORY = 100;
 export function loadHistory(): GameRecord[] {
     try {
         const data = localStorage.getItem(HISTORY_KEY);
-        return data ? JSON.parse(data) : [];
+        const parsed: unknown = data ? JSON.parse(data) : [];
+        if (!Array.isArray(parsed)) return [];
+        // Drop malformed records rather than crashing stats/render later
+        return parsed.filter((r): r is GameRecord =>
+            !!r && typeof r === 'object' &&
+            typeof (r as GameRecord).turns === 'number' &&
+            typeof (r as GameRecord).won === 'boolean' &&
+            !!(r as GameRecord).finalStats && typeof (r as GameRecord).finalStats === 'object');
     } catch { return []; }
 }
 

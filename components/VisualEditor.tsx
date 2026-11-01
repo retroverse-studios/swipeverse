@@ -1,3 +1,4 @@
+import 'reactflow/dist/style.css';
 
 
 import React, { useCallback, memo, useEffect } from 'react';

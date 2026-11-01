@@ -1,4 +1,4 @@
-import { Reality, Stats, Deck, CARD_ARCHETYPES, CardArchetype } from "../types";
+import { Reality, Stats, StatName, StatBranch, Deck, CARD_ARCHETYPES, CardArchetype } from "../types";
 import { DECK_SIZE } from "../constants";
 
 const ARCHETYPE_GUIDE = `Tag each card with an "archetype" that best matches it: petitioner (someone asks you for something), crisis (something bad happens to you), opportunity (a windfall or offer), faction (a power bloc acts), advisor (information or a warning), chain (part of a multi-card storyline), judgement (two parties in dispute and you pick a side), gamble (uncertain outcome), terminal (endings, death, collapse). Most decks are roughly half petitioner cards.`;
@@ -176,6 +176,30 @@ function sanitizeChoice(choice: unknown, deckSize: number): Deck['cards'][number
     if (Number.isInteger(nextIndex) && nextIndex >= 0 && nextIndex < deckSize) {
         sanitized.nextCardIndex = nextIndex;
     }
+    // Stat-conditional branches: keep the well-formed ones (known stat, at
+    // least one bound clamped to 0-100, in-range target). Dropping these
+    // silently linearised every AI/linked deck — see AUDIT.md H1.
+    if (Array.isArray(c.branches)) {
+        const branches: StatBranch[] = [];
+        for (const raw of c.branches) {
+            if (!raw || typeof raw !== 'object') continue;
+            const b = raw as Record<string, unknown>;
+            if (!STAT_NAMES.includes(b.stat as StatName)) continue;
+            const target = Number(b.nextCardIndex);
+            if (!Number.isInteger(target) || target < 0 || target >= deckSize) continue;
+            const branch: StatBranch = { stat: b.stat as StatName, nextCardIndex: target };
+            if (Number.isFinite(Number(b.gte)) && b.gte !== undefined && b.gte !== null) {
+                branch.gte = Math.max(0, Math.min(100, Math.round(Number(b.gte))));
+            }
+            if (Number.isFinite(Number(b.lte)) && b.lte !== undefined && b.lte !== null) {
+                branch.lte = Math.max(0, Math.min(100, Math.round(Number(b.lte))));
+            }
+            // A branch with no bound never matches (branching.ts) — dead weight
+            if (branch.gte === undefined && branch.lte === undefined) continue;
+            branches.push(branch);
+        }
+        if (branches.length > 0) sanitized.branches = branches;
+    }
     if (typeof c.soundUrl === 'string' && c.soundUrl) sanitized.soundUrl = c.soundUrl;
     return sanitized;
 }
@@ -213,12 +237,19 @@ export function validateAndRepairDeck(deck: Deck): Deck {
         for (const card of cards) {
             delete card.leftChoice.nextCardIndex;
             delete card.rightChoice.nextCardIndex;
+            delete card.leftChoice.branches;
+            delete card.rightChoice.branches;
         }
     }
     return {
         name: deck.name,
         description: deck.description,
         ...(typeof deck.intro === 'string' && deck.intro.trim() ? { intro: deck.intro } : {}),
+        ...(deck.category === 'game' || deck.category === 'education' ? { category: deck.category } : {}),
+        ...(deck.series && typeof deck.series.name === 'string' && deck.series.name.trim() && Number.isFinite(deck.series.part)
+            ? { series: { name: deck.series.name, part: Math.round(deck.series.part) } }
+            : {}),
+        ...(deck.source === 'bundled' ? { source: deck.source } : {}),
         cards,
     };
 }

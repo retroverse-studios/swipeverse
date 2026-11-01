@@ -1,5 +1,7 @@
 import { Reality, Deck } from "../types";
 import { REALITIES } from "../constants";
+import { sanitizeRealities } from "./storageValidation";
+import { validateAndRepairDeck } from "./aiProvider";
 
 /**
  * SwipeVerse Store client.
@@ -48,11 +50,23 @@ async function fetchCatalog<T>(file: string, fallback: T): Promise<T> {
     }
 }
 
-export const fetchStoreRealities = (): Promise<Reality[]> =>
-    fetchCatalog<Reality[]>('realities.json', SAMPLE_REALITIES);
+export const fetchStoreRealities = async (): Promise<Reality[]> => {
+    const raw = await fetchCatalog<unknown>('realities.json', SAMPLE_REALITIES);
+    const clean = sanitizeRealities(raw);
+    return clean.length > 0 ? clean : SAMPLE_REALITIES;
+};
 
-export const fetchStoreDecks = (): Promise<Deck[]> =>
-    fetchCatalog<Deck[]>('decks.json', SAMPLE_DECKS);
+export const fetchStoreDecks = async (): Promise<Deck[]> => {
+    const raw = await fetchCatalog<unknown>('decks.json', SAMPLE_DECKS);
+    if (!Array.isArray(raw)) return SAMPLE_DECKS;
+    const clean: Deck[] = [];
+    for (const item of raw) {
+        try {
+            clean.push(validateAndRepairDeck(item as Deck));
+        } catch { /* skip unplayable catalog entry */ }
+    }
+    return clean.length > 0 ? clean : SAMPLE_DECKS;
+};
 
 /**
  * Submissions are pull requests against the catalog repo (reviewed before
@@ -78,7 +92,6 @@ const SAMPLE_REALITIES: Reality[] = [
         font: 'font-exo',
         systemInstruction: "You are a creative storyteller for a Steampunk adventure. The stats are Empire's Favor, Aetherium Cells, Public Opinion, and Forbidden Blueprints.",
         statNames: { Power: "Empire's Favor", Wealth: 'Aetherium Cells', People: 'Public Opinion', Knowledge: 'Forbidden Blueprints' },
-        statIconNames: { Power: 'PowerIconCyber', Wealth: 'WealthIconCyber', People: 'PeopleIconCyber', Knowledge: 'KnowledgeIconCyber' },
         imageSet: [],
         colors: { primary: 'text-amber-500', secondary: 'text-cyan-400', background: 'bg-gradient-to-br from-stone-800 via-zinc-900 to-stone-900', accent: 'border-amber-500' },
         category: 'game',

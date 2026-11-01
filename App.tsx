@@ -14,6 +14,7 @@ import { VolumeOffIcon, VolumeOnIcon, CloseIcon } from './components/icons';
 import { loadShellTheme, saveShellTheme, ShellThemeId } from './services/shellTheme';
 import { ShellThemeContext, SHELL_BACKGROUNDS } from './components/ShellThemeContext';
 import { buildLinkedReality } from './services/playLink';
+import { sanitizeRealities, sanitizeLibrary } from './services/storageValidation';
 
 const REALITIES_STORAGE_KEY = 'swipeverse-realities';
 const DECK_LIBRARY_STORAGE_KEY = 'swipeverse-deck-library';
@@ -78,7 +79,9 @@ const App: React.FC = () => {
   const [realities, setRealities] = useState<Reality[]>(() => {
     try {
       const storedRealities = window.localStorage.getItem(REALITIES_STORAGE_KEY);
-      return storedRealities ? mergeStoredRealities(JSON.parse(storedRealities)) : REALITIES;
+      if (!storedRealities) return REALITIES;
+      const clean = sanitizeRealities(JSON.parse(storedRealities));
+      return clean.length > 0 ? mergeStoredRealities(clean) : REALITIES;
     } catch (error) {
       console.error("Failed to load realities from localStorage", error);
       return REALITIES;
@@ -88,7 +91,7 @@ const App: React.FC = () => {
   const [deckLibrary, setDeckLibrary] = useState<LibraryDeck[]>(() => {
     try {
       const stored = window.localStorage.getItem(DECK_LIBRARY_STORAGE_KEY);
-      return stored ? JSON.parse(stored) : [];
+      return stored ? sanitizeLibrary(JSON.parse(stored)) : [];
     } catch (error) {
       console.error("Failed to load deck library from localStorage", error);
       return [];

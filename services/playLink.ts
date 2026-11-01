@@ -36,7 +36,6 @@ export function buildLinkedReality(data: unknown): Reality {
     font: realityLike?.font || 'font-exo',
     systemInstruction: realityLike?.systemInstruction || 'You are the storyteller for a linked SwipeVerse scenario.',
     statNames: realityLike?.statNames || { Power: 'Power', Wealth: 'Wealth', People: 'People', Knowledge: 'Knowledge' },
-    statIconNames: realityLike?.statIconNames || { Power: 'PowerIconCyber', Wealth: 'WealthIconCyber', People: 'PeopleIconCyber', Knowledge: 'KnowledgeIconCyber' },
     imageSet: realityLike?.imageSet,
     soundConfig: realityLike?.soundConfig,
     colors: realityLike?.colors || {

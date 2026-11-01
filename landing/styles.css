@@ -1,3 +1,9 @@
+/* Self-hosted fonts (SIL OFL) — no third-party requests */
+@font-face{font-family:'Cinzel';font-style:normal;font-weight:600 800;font-display:swap;src:url(fonts/cinzel-var.woff2) format('woff2');}
+@font-face{font-family:'Exo 2';font-style:normal;font-weight:400 700;font-display:swap;src:url(fonts/exo-2-400-700.woff2) format('woff2');}
+@font-face{font-family:'Press Start 2P';font-style:normal;font-weight:400;font-display:swap;src:url(fonts/press-start-2p-400.woff2) format('woff2');}
+@font-face{font-family:'VT323';font-style:normal;font-weight:400;font-display:swap;src:url(fonts/vt323-400.woff2) format('woff2');}
+
 :root {
   --pink: #ff52e1;
   --gold: #c9962e;
